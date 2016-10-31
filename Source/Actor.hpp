@@ -16,7 +16,6 @@ namespace nima
 			int m_NodeCount;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
-
 			void readNodesBlock(BlockReader* block);
 
 		public:
