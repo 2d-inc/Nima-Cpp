@@ -46,6 +46,30 @@ unsigned int BinaryReader::read(unsigned char* bytes, unsigned int length)
 	return readCount;
 }
 
+void BinaryReader::readFloatArray(float* numbers, unsigned int length)
+{
+	if(m_DataPosition+4*length > m_DataLength)
+	{
+		throw OverflowException("Attempt to read past end of data in BinaryReader::readFloatArray.");
+	}
+	for(int i = 0; i < length; i++)
+	{
+		unsigned char* bytes = &m_Data[m_DataPosition];
+		m_DataPosition += 4;
+
+		if(m_SwapEndianness)
+		{
+			unsigned char sbytes[4] = { bytes[3], bytes[2], bytes[1], bytes[0] };
+			*numbers = *reinterpret_cast<float*>(sbytes);
+		}
+		else
+		{
+			*numbers = *reinterpret_cast<float*>(bytes);
+		}
+		numbers++;
+	}
+}
+
 int BinaryReader::readInt()
 {
 	if(m_DataPosition+4 > m_DataLength)

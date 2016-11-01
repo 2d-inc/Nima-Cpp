@@ -6,7 +6,8 @@
 
 namespace nima
 {
-
+	class Mat2D;
+	class Vec2D;
 	class BlockReader : public BinaryReader
 	{
 		public:
@@ -34,6 +35,8 @@ namespace nima
 			BlockReader* readNextBlock();
 
 			BlockTypes blockType() { return m_BlockType; }
+			void read(Mat2D& mat);
+			void read(Vec2D& vec);
 	};
 }
 #endif

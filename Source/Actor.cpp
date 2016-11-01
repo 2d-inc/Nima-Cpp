@@ -31,17 +31,16 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 	unsigned char A = reader.readByte();
 	unsigned int version = reader.readUnsignedInt();
 
+	// Make sure it's a nima file.
 	if(N != 78 || I != 73 || M != 77 || A != 65)
 	{
-		printf("NOT A NIMA FILE\n");
 		return NULL;
 	}
+	// And of supported version...
 	if(version != 11)
 	{
-		printf("NOT THE RIGHT VERSION\n");
 		return NULL;
 	}
-	printf("OK.\n");
 
 	Actor* actor = new Actor();
 	BlockReader* block = NULL;
@@ -101,6 +100,9 @@ void Actor::readNodesBlock(BlockReader* block)
 		ActorNode* node = NULL;
 		switch(nodeBlock->blockType())
 		{
+			case BlockReader::ActorNode:
+				node = ActorNode::read(this, nodeBlock);
+				break;
 			default:
 				// Name is first thing in each block.
 				{
