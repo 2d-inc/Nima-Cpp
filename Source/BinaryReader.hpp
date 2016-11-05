@@ -26,6 +26,7 @@ namespace nima
 			unsigned char readByte();
 			unsigned int read(unsigned char* bytes, unsigned int length);
 			void readFloatArray(float* numbers, unsigned int length);
+			void readUnsignedShortArray(unsigned short* numbers, unsigned int length);
 			int readInt();
 			unsigned int readUnsignedInt();
 			float readFloat();

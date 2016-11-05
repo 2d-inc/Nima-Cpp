@@ -70,6 +70,30 @@ void BinaryReader::readFloatArray(float* numbers, unsigned int length)
 	}
 }
 
+void BinaryReader::readUnsignedShortArray(unsigned short* numbers, unsigned int length)
+{
+	if(m_DataPosition+2*length > m_DataLength)
+	{
+		throw OverflowException("Attempt to read past end of data in BinaryReader::readUnsignedShortArray.");
+	}
+	for(int i = 0; i < length; i++)
+	{
+		unsigned char* bytes = &m_Data[m_DataPosition];
+		m_DataPosition += 2;
+
+		if(m_SwapEndianness)
+		{
+			unsigned char sbytes[2] = { bytes[1], bytes[0] };
+			*numbers = *reinterpret_cast<unsigned short*>(sbytes);
+		}
+		else
+		{
+			*numbers = *reinterpret_cast<unsigned short*>(bytes);
+		}
+		numbers++;
+	}
+}
+
 int BinaryReader::readInt()
 {
 	if(m_DataPosition+4 > m_DataLength)

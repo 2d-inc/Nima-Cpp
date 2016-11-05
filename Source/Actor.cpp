@@ -1,4 +1,6 @@
 #include "Actor.hpp"
+#include "ActorBone.hpp"
+#include "ActorRootBone.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
@@ -6,7 +8,15 @@
 
 using namespace nima;
 
-Actor::Actor() : m_NodeCount(0), m_Nodes(NULL), m_Root(new ActorNode())
+Actor::Actor() : 
+			m_NodeCount(0), 
+			m_Nodes(NULL), 
+			m_Root(new ActorNode()),
+			m_MaxTextureIndex(0),
+			m_ImageNodeCount(0),
+			m_SolverNodeCount(0),
+			m_ImageNodes(NULL),
+			m_Solvers(NULL)
 {
 
 }
@@ -19,6 +29,8 @@ Actor::~Actor()
 		delete m_Nodes[i];	
 	}
 	delete [] m_Nodes;
+	delete [] m_ImageNodes;
+	delete [] m_Solvers;
 }
 
 Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
@@ -103,6 +115,27 @@ void Actor::readNodesBlock(BlockReader* block)
 			case BlockReader::ActorNode:
 				node = ActorNode::read(this, nodeBlock);
 				break;
+			case BlockReader::ActorBone:
+				node = ActorBone::read(this, nodeBlock);
+				break;
+			case BlockReader::ActorRootBone:
+				node = ActorRootBone::read(this, nodeBlock);
+				break;
+			case BlockReader::ActorImage:
+			{
+				m_ImageNodeCount++;
+				node = ActorImage::read(this, nodeBlock);
+				ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
+				if(imageNode->textureIndex() > m_MaxTextureIndex)
+				{
+					m_MaxTextureIndex = imageNode->textureIndex();
+				}
+				break;
+			}
+			case BlockReader::ActorIKTarget:
+				m_SolverNodeCount++;
+				break;
+
 			default:
 				// Name is first thing in each block.
 				{
@@ -113,5 +146,32 @@ void Actor::readNodesBlock(BlockReader* block)
 		}
 		m_Nodes[nodeIndex] = node;
 		nodeIndex++;
+	}
+
+	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
+	m_Solvers = new Solver*[m_SolverNodeCount];
+
+	// Resolve nodes.
+	int imdIdx = 0;
+	int slvIdx = 0;
+	for(int i = 1; i < m_NodeCount; i++)
+	{
+		ActorNode* n = m_Nodes[i];
+		if(n != NULL)
+		{
+			n->resolveNodeIndices(m_Nodes);
+
+			switch(n->type())
+			{
+				case Node::Type::ActorImage:
+					m_ImageNodes[imdIdx++] = reinterpret_cast<ActorImage*>(n);
+					break;
+				case Node::Type::ActorIKTarget:
+					m_Solvers[slvIdx++] = reinterpret_cast<Solver*>(n);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }
