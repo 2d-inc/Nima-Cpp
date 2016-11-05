@@ -40,8 +40,11 @@ namespace nima
 				bool included;
 			};
 
+			int m_ChainLength;
 			BoneChain* m_Chain;
 			bool doesInfluence(ActorBone* bone);
+			void solve1(ActorBone* b1, Vec2D& worldTargetTranslation);
+			void solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert);
 
 		public:
 			ActorIKTarget();

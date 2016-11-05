@@ -19,6 +19,7 @@ ActorIKTarget::ActorIKTarget() :
 		m_Bone1(NULL),
 		m_Bone1Child(NULL),
 		m_Bone2(NULL),
+		m_ChainLength(0),
 		m_Chain(NULL)
 {
 
@@ -110,11 +111,11 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		}
 		m_Bone1Child = b1c;
 
-		int chainCount = 0;
+		m_ChainLength = 0;
 		ActorNode* end = m_Bone2;
 		while(end != NULL && end != b1->parent())
 		{
-			chainCount++;
+			m_ChainLength++;
 
 			ActorNode* n = end->parent();
 			if(n != NULL && n->type() == Node::Type::ActorBone)
@@ -127,7 +128,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 			}
 		}
 
-		m_Chain = new BoneChain[chainCount];
+		m_Chain = new BoneChain[m_ChainLength];
 		end = m_Bone2;
 		int chainIndex = 0;
 		while(end != NULL && end != b1->parent())
@@ -202,10 +203,79 @@ void ActorIKTarget::suppressMarkDirty(bool suppressIt)
 
 void ActorIKTarget::solveStart()
 {
+	if(m_Bone1 == NULL)
+	{
+		return;
+	}
+
+	// Reset all rotation overrides to FK ones,
+	if(m_Bone1Child != m_Bone2)
+	{
+		m_Bone1Child->setRotationOverride(m_Bone1Child->rotation());
+	}
+
+	for(int i = 0; i < m_NumInfluencedBones; i++)
+	{
+		InfluencedBone& ib = m_InfluencedBones[i];
+		ib.bone->setRotationOverride(ib.bone->rotation());
+	}
+}
+
+
+void ActorIKTarget::solve1(ActorBone* b1, Vec2D& worldTargetTranslation)
+{
 
 }
 
-void ActorIKTarget::solve()
+void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert)
 {
 
+}
+void ActorIKTarget::solve()
+{
+	if(m_Chain == NULL)
+	{
+		return;
+	}
+
+	Vec2D worldTargetTranslation;
+	const Mat2D& wt = worldTransform();
+	worldTargetTranslation[0] = wt[4];
+	worldTargetTranslation[1] = wt[5];
+
+	for(int i = 0; i < m_ChainLength; i++)
+	{
+		BoneChain& fk = m_Chain[i];
+		fk.angle = fk.bone->overrideRotationValue();
+	}
+
+	if(m_NumInfluencedBones == 1)
+	{
+		solve1(m_InfluencedBones[0].bone, worldTargetTranslation);
+	}
+	else if(m_NumInfluencedBones == 2)
+	{
+		solve2(m_InfluencedBones[0].bone, m_InfluencedBones[1].bone, worldTargetTranslation, m_InvertDirection);
+	}
+	else
+	{
+		for(int i = 0; i < m_NumInfluencedBones-1; i++)
+		{
+			solve2(m_InfluencedBones[i].bone, m_Bone2, worldTargetTranslation, m_InvertDirection);
+		}
+	}
+
+	// At the end, mix the FK angle with the IK angle by strength
+	if(m_Strength != 1.0f)
+	{
+		float im = 1.0f-m_Strength;
+		for(int i = 0; i < m_ChainLength; i++)
+		{
+			BoneChain& fk = m_Chain[i];
+			if(fk.included)
+			{
+				fk.bone->setRotationOverride(fk.bone->overrideRotationValue() * m_Strength + fk.angle * im);
+			}
+		}
+	}
 }
