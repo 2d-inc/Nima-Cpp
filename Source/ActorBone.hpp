@@ -23,7 +23,8 @@ namespace nima
 			void length(float l);
 			bool isConnectedToImage() const;
 			void isConnectedToImage(bool isIt);
-			void getTipWorldTranslation(Vec2D& result);
+			void tipWorldTranslation(Vec2D& result);
+			Vec2D tipWorldTranslation();
 
 			void resolveNodeIndices(ActorNode** nodes);
 			ActorNode* makeInstance(Actor* resetActor);

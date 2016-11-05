@@ -275,7 +275,19 @@ void ActorNode::removeDependent(ActorNode* node)
 	m_Dependents.erase(itr);
 }
 
-void ActorNode::getWorldTranslation(Vec2D& result)
+Vec2D ActorNode::worldTranslation()
+{
+	Vec2D result;
+	if(m_IsWorldDirty)
+	{
+		updateWorldTransform();
+	}
+	result[0] = m_WorldTransform[4];
+	result[1] = m_WorldTransform[5];
+	return result;
+}
+
+void ActorNode::worldTranslation(Vec2D& result)
 {
 	if(m_IsWorldDirty)
 	{

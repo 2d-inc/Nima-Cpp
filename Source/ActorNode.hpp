@@ -92,7 +92,8 @@ namespace nima
 			void markWorldDirty();
 			void addDependent(ActorNode* node);
 			void removeDependent(ActorNode* node);
-			void getWorldTranslation(Vec2D& result);
+			void worldTranslation(Vec2D& result);
+			Vec2D worldTranslation();
 			void setRotationOverride(float v);
 			void clearRotationOverride();
 			float overrideRotationValue() const;

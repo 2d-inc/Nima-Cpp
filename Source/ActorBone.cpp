@@ -39,7 +39,21 @@ void ActorBone::isConnectedToImage(bool isIt)
 	m_IsConnectedToImage = isIt;
 }
 
-void ActorBone::getTipWorldTranslation(Vec2D& result)
+Vec2D ActorBone::tipWorldTranslation()
+{
+	Mat2D transform;
+	transform[4] = m_Length;
+
+	Mat2D::multiply(transform, worldTransform(), transform);
+
+	Vec2D result;
+	result[0] = transform[4];
+	result[1] = transform[5];
+
+	return result;
+}
+
+void ActorBone::tipWorldTranslation(Vec2D& result)
 {
 	Mat2D transform;
 	transform[4] = m_Length;

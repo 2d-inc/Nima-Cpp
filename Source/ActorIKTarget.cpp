@@ -1,5 +1,6 @@
 #include "ActorIKTarget.hpp"
 #include "BlockReader.hpp"
+#include <cmath>
 
 using namespace nima;
 
@@ -224,13 +225,94 @@ void ActorIKTarget::solveStart()
 
 void ActorIKTarget::solve1(ActorBone* b1, Vec2D& worldTargetTranslation)
 {
+	Mat2D iworld;
+	Mat2D::invert(iworld, b1->worldTransform());
 
+	Vec2D targetLocal;
+	Vec2D::transform(targetLocal, worldTargetTranslation, iworld);
+
+	float a = atan2(targetLocal[1], targetLocal[0]);
+
+	b1->setRotationOverride(b1->overrideRotationValue()+a);
 }
 
 void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert)
 {
+	const Mat2D& world = b1->parent()->worldTransform();
+	Mat2D iworld;
+	ActorBone* b1c = b2;
+	while(b1c != NULL && b1c->parent() != b1)
+	{
+		ActorNode* n = b1c->parent();
+		if(n != NULL && n->type() == Node::Type::ActorBone)
+		{
+			b1c = reinterpret_cast<ActorBone*>(n);
+		}
+		else
+		{
+			b1c = NULL;
+		}
+	}
 
+	ActorNode* b1pn = b1->parent();
+	// Get the world transform to the bone tip position.
+	if(b1pn->type() == Node::Type::ActorBone)
+	{
+		Mat2D t;
+		t[4] = reinterpret_cast<ActorBone*>(b1pn)->length();
+		Mat2D::multiply(t, world, t);
+		Mat2D::invert(iworld, t);
+	}
+	else
+	{
+		Mat2D::invert(iworld, world);
+	}
+
+	Vec2D pA; b1->worldTranslation(pA);
+	Vec2D pC; b1->tipWorldTranslation(pA);
+	Vec2D pB; b2->tipWorldTranslation(pB);
+	Vec2D pBT(worldTargetTranslation);
+
+	Vec2D::transform(pA, pA, iworld);
+	Vec2D::transform(pC, pC, iworld);
+	Vec2D::transform(pB, pB, iworld);
+	Vec2D::transform(pBT, pBT, iworld);
+
+	// http://mathworld.wolfram.com/LawofCosines.html
+	Vec2D av; Vec2D::subtract(av, pB, pC);
+	float a = Vec2D::length(av);
+
+	Vec2D bv; Vec2D::subtract(bv, pC, pA);
+	float b = Vec2D::length(bv);
+
+	Vec2D cv; Vec2D::subtract(cv, pBT, pA);
+	float c = Vec2D::length(cv);
+
+	float A = acos(std::max(-1.0f,std::min(1.0f,(-a*a+b*b+c*c)/(2.0f*b*c))));
+	float C = acos(std::max(-1.0f, std::min(1.0f,(a*a+b*b-c*c)/(2.0f*a*b))));
+
+	float angleCorrection = 0.0f;
+	if(b1c != b2)
+	{
+		Mat2D iworld2;
+		Mat2D::invert(iworld2, b1c->worldTransform());
+
+		Vec2D pa2; b2->tipWorldTranslation(pa2);
+		Vec2D tipBone2Local; Vec2D::transform(pa2, pa2, iworld2);
+		angleCorrection = -atan2(tipBone2Local[1], tipBone2Local[0]);
+	}
+	if(invert)
+	{
+		b1->setRotationOverride(atan2(pBT[1],pBT[0]) - A);
+		b1c->setRotationOverride(-C+M_PI+angleCorrection);
+	}
+	else
+	{
+		b1->setRotationOverride(A+atan2(pBT[1],pBT[0]));
+		b1c->setRotationOverride(C-M_PI+angleCorrection);
+	}
 }
+
 void ActorIKTarget::solve()
 {
 	if(m_Chain == NULL)
