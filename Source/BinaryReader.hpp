@@ -30,6 +30,7 @@ namespace nima
 			int readInt();
 			unsigned int readUnsignedInt();
 			float readFloat();
+			double readDouble();
 			short readShort();
 			unsigned short readUnsignedShort();
 			std::string readString();

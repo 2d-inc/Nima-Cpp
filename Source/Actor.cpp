@@ -1,6 +1,7 @@
 #include "Actor.hpp"
 #include "ActorBone.hpp"
 #include "ActorRootBone.hpp"
+#include "ActorIKTarget.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
@@ -64,7 +65,7 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 				actor->readNodesBlock(block);
 				break;
 			case BlockReader::Animations:
-				printf("GOT ANIMATIONS\n");
+				actor->readAnimationsBlock(block);
 				break;
 			default:
 				break;
@@ -97,6 +98,12 @@ Actor* Actor::fromFile(const char* filename)
 		delete [] bytes;
 		throw ex;
 	}
+}
+
+void Actor::readAnimationsBlock(BlockReader* block)
+{
+	//int animationCount = (int)block->readUnsignedShort();
+
 }
 
 void Actor::readNodesBlock(BlockReader* block)
@@ -134,6 +141,7 @@ void Actor::readNodesBlock(BlockReader* block)
 			}
 			case BlockReader::ActorIKTarget:
 				m_SolverNodeCount++;
+				node = ActorIKTarget::read(this, nodeBlock);
 				break;
 
 			default:

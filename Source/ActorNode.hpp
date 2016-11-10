@@ -65,7 +65,7 @@ namespace nima
 			bool isWorldDirty() const;
 			bool isDirty() const;
 			Actor* actor();
-			const std::string& name();
+			const std::string& name() const;
 			const Mat2D& transform();
 			const Mat2D& worldTransform();
 			void overrideWorldTransform(const Mat2D& transform);

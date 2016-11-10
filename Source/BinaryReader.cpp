@@ -145,7 +145,27 @@ float BinaryReader::readFloat()
 	}
 	return *reinterpret_cast<float*>(bytes);
 
-	return 0;
+	return 0.0f;
+
+}
+
+double BinaryReader::readDouble()
+{
+	if(m_DataPosition+8 > m_DataLength)
+	{
+		throw OverflowException("Attempt to read past end of data in BinaryReader::readDouble.");
+	}
+	unsigned char* bytes = &m_Data[m_DataPosition];
+	m_DataPosition += 8;
+
+	if(m_SwapEndianness)
+	{
+		unsigned char sbytes[8] = { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
+		return *reinterpret_cast<double*>(sbytes);
+	}
+	return *reinterpret_cast<double*>(bytes);
+
+	return 0.0;
 
 }
 

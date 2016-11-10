@@ -71,7 +71,7 @@ Actor* ActorNode::actor()
 	return m_Actor;
 }
 
-const std::string& ActorNode::name()
+const std::string& ActorNode::name() const
 {
 	return m_Name;
 }

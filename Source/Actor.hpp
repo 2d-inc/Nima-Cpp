@@ -19,6 +19,7 @@ namespace nima
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
 			void readNodesBlock(BlockReader* block);
+			void readAnimationsBlock(BlockReader* block);
 		
 		protected:
 			int m_MaxTextureIndex;
