@@ -77,6 +77,10 @@ ActorBone* ActorBone::read(Actor* actor, BlockReader* reader, ActorBone* node)
 	return node;
 }
 
+void ActorBone::resolveNodeIndices(ActorNode** nodes)
+{
+	Base::resolveNodeIndices(nodes);
+}
 
 ActorNode* ActorBone::makeInstance(Actor* resetActor)
 {

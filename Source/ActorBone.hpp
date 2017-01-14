@@ -13,6 +13,7 @@ namespace nima
 
 	class ActorBone : public ActorNode
 	{
+		typedef ActorNode Base;
 		protected:
 			float m_Length;
 			bool m_IsConnectedToImage;
