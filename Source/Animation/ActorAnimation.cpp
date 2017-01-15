@@ -3,6 +3,21 @@
 
 using namespace nima;
 
+ActorAnimation::ActorAnimation() :
+			m_FPS(60),
+			m_Duration(0.0f),
+			m_IsLooping(false),
+			m_AnimatedNodes(NULL),
+			m_AnimatedNodesCount(0)
+{
+
+}
+
+ActorAnimation::~ActorAnimation()
+{
+	delete [] m_AnimatedNodes;
+}
+
 const std::string& ActorAnimation::name() const
 {
 	return m_Name;
@@ -13,14 +28,18 @@ float ActorAnimation::duration() const
 	return m_Duration;
 }
 
-ActorAnimation* ActorAnimation::read(BlockReader* reader, ActorNode** nodes)
+void ActorAnimation::read(BlockReader* reader, ActorNode** nodes)
 {
-	ActorAnimation* animation = new ActorAnimation();
-	animation->m_Name = reader->readString();
-	animation->m_FPS = (int)reader->readByte();
-	animation->m_Duration = reader->readFloat();
-	animation->m_IsLooping = reader->readByte() != 0;
+	m_Name = reader->readString();
+	m_FPS = (int)reader->readByte();
+	m_Duration = reader->readFloat();
+	m_IsLooping = reader->readByte() != 0;
 
-	//int numKeyedNodes = (int)reader->readUnsignedShort();
-	return animation;
+	m_AnimatedNodesCount = (int)reader->readUnsignedShort();
+	m_AnimatedNodes = new NodeAnimation[m_AnimatedNodesCount];
+
+	for(int i = 0; i < m_AnimatedNodesCount; i++)
+	{
+		m_AnimatedNodes[i].read(reader, nodes);
+	}
 }

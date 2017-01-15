@@ -16,8 +16,10 @@ Actor::Actor() :
 			m_MaxTextureIndex(0),
 			m_ImageNodeCount(0),
 			m_SolverNodeCount(0),
+			m_AnimationsCount(0),
 			m_ImageNodes(NULL),
-			m_Solvers(NULL)
+			m_Solvers(NULL),
+			m_Animations(NULL)
 {
 
 }
@@ -32,6 +34,7 @@ Actor::~Actor()
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_Solvers;
+	delete [] m_Animations;
 }
 
 Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
@@ -102,8 +105,28 @@ Actor* Actor::fromFile(const char* filename)
 
 void Actor::readAnimationsBlock(BlockReader* block)
 {
-	//int animationCount = (int)block->readUnsignedShort();
+	int animationCount = (int)block->readUnsignedShort();
+	m_Animations = new ActorAnimation[animationCount];
 
+	printf("NUM ANIMATIONS %i\n", animationCount);
+	BlockReader* animationBlock = NULL;
+	int animationIndex = 0;
+	
+	while((animationBlock=block->readNextBlock()) != NULL)
+	{
+		switch(animationBlock->blockType())
+		{
+			case BlockReader::Animation:
+				// Sanity check.
+				if(animationIndex < animationCount)
+				{
+					m_Animations[animationIndex].read(animationBlock, m_Nodes);
+				}
+				break;
+			default:
+				break;
+		}
+	};
 }
 
 void Actor::readNodesBlock(BlockReader* block)

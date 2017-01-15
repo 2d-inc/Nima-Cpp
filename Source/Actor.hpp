@@ -5,6 +5,7 @@
 #include "ActorImage.hpp"
 #include "BlockReader.hpp"
 #include "Solver.hpp"
+#include "Animation/ActorAnimation.hpp"
 
 namespace nima
 {
@@ -25,9 +26,12 @@ namespace nima
 			int m_MaxTextureIndex;
 			int m_ImageNodeCount;
 			int m_SolverNodeCount;
+			int m_AnimationsCount;
 
 			ActorImage** m_ImageNodes;
 			Solver** m_Solvers;
+			ActorAnimation* m_Animations;
+
 
 		public:
 			static Actor* fromBytes(unsigned char* bytes, unsigned int length);

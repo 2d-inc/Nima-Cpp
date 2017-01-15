@@ -2,6 +2,7 @@
 #define _NIMA_ACTORANIMATION_HPP_
 
 #include <string>
+#include "NodeAnimation.hpp"
 
 namespace nima
 {
@@ -15,13 +16,16 @@ namespace nima
 			int m_FPS;
 			float m_Duration;
 			bool m_IsLooping;
-			//NodeAnimation[] m_AnimatedNodes;
+			NodeAnimation* m_AnimatedNodes;
+			int m_AnimatedNodesCount;
 
 		public:
+			ActorAnimation();
+			~ActorAnimation();
 			const std::string& name() const;
 			float duration() const;
 
-			static ActorAnimation* read(BlockReader* reader, ActorNode** nodes);
+			void read(BlockReader* reader, ActorNode** nodes);
 
 	};
 }
