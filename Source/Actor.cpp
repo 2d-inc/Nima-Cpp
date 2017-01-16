@@ -37,6 +37,16 @@ Actor::~Actor()
 	delete [] m_Animations;
 }
 
+ActorNode* Actor::getNode(unsigned int index) const
+{
+	return m_Nodes[index];
+}
+
+ActorNode* Actor::getNode(unsigned short index) const
+{
+	return m_Nodes[index];
+}
+
 Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 {
 	BlockReader reader(bytes, length);
@@ -53,7 +63,7 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 		return nullptr;
 	}
 	// And of supported version...
-	if(version != 11)
+	if(version != 12)
 	{
 		return nullptr;
 	}

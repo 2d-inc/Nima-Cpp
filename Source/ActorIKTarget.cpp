@@ -178,7 +178,7 @@ bool ActorIKTarget::needsSolve()
 	return isWorldDirty() || isDirty();
 }
 
-float ActorIKTarget::strength()
+float ActorIKTarget::strength() const
 {
 	return m_Strength;
 }

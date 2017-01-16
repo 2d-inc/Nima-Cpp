@@ -51,13 +51,17 @@ namespace nima
 			ActorNode* makeInstance(Actor* resetActor);
 			void copy(ActorImage* node, Actor* resetActor);
 			void resolveNodeIndices(ActorNode** nodes);
-			bool doesAnimationVertexDeform();
+			bool doesAnimationVertexDeform() const;
 			void doesAnimationVertexDeform(bool doesIt);
 			float* animationDeformedVertices();
-			bool isVertexDeformDirty();
+			bool isVertexDeformDirty() const;
 			void isVertexDeformDirty(bool isIt);
-			int textureIndex();
+			int textureIndex() const;
+			int drawOrder() const;
+			void drawOrder(int order);
 			void disposeGeometry();
+			int vertexCount() const;
+			int triangleCount() const;
 
 			int boneInfluenceMatricesLength();
 			float* boneInfluenceMatrices();

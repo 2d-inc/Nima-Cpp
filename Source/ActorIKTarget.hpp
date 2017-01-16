@@ -58,7 +58,7 @@ namespace nima
 			void suppressMarkDirty(bool suppressIt);
 			void solveStart();
 			void solve();
-			float strength();
+			float strength() const;
 			void strength(float s);
 			void resolveNodeIndices(ActorNode** nodes);
 

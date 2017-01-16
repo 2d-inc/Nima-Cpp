@@ -19,7 +19,7 @@ float KeyFrame::time() const
 	return m_Time;
 }
 
-bool KeyFrame::read(BlockReader* reader)
+bool KeyFrame::read(BlockReader* reader, ActorNode* node)
 {
 	m_Time = (float)reader->readDouble();
 

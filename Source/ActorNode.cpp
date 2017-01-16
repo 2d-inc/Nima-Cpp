@@ -66,7 +66,7 @@ bool ActorNode::isDirty() const
 	return m_IsDirty;
 }
 
-Actor* ActorNode::actor()
+Actor* ActorNode::actor() const
 {
 	return m_Actor;
 }

@@ -64,7 +64,7 @@ namespace nima
 			void suppressMarkDirty(bool suppress); 
 			bool isWorldDirty() const;
 			bool isDirty() const;
-			Actor* actor();
+			Actor* actor() const;
 			const std::string& name() const;
 			const Mat2D& transform();
 			const Mat2D& worldTransform();

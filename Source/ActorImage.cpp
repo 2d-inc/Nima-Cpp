@@ -44,7 +44,7 @@ ActorNode* ActorImage::makeInstance(Actor* resetActor)
 	return instanceNode;
 }
 
-bool ActorImage::doesAnimationVertexDeform()
+bool ActorImage::doesAnimationVertexDeform() const
 {
 	return m_AnimationDeformedVertices != NULL;
 }
@@ -67,7 +67,7 @@ float* ActorImage::animationDeformedVertices()
 	return m_AnimationDeformedVertices;	
 }
 
-bool ActorImage::isVertexDeformDirty()
+bool ActorImage::isVertexDeformDirty() const
 {
 	return m_IsVertexDeformDirty;
 }
@@ -225,7 +225,31 @@ void ActorImage::resolveNodeIndices(ActorNode** nodes)
 	}
 }
 
-int ActorImage::textureIndex()
+int ActorImage::textureIndex() const
 {
 	return m_TextureIndex;
+}
+
+int ActorImage::drawOrder() const
+{
+	return m_DrawOrder;
+}
+
+void ActorImage::drawOrder(int order)
+{
+	if(m_DrawOrder != order)
+	{
+		m_DrawOrder = order;
+		// TODO: Would be smart to track a draw order dirty state on the actor here.
+	}
+}
+
+int ActorImage::vertexCount() const
+{
+	return m_VertexCount;
+}
+
+int ActorImage::triangleCount() const
+{
+	return m_TriangleCount;
 }

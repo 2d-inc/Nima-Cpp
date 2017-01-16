@@ -1,29 +1,26 @@
-#ifndef _NIMA_KEYFRAMENUMERIC_HPP_
-#define _NIMA_KEYFRAMENUMERIC_HPP_
+#ifndef _NIMA_KEYFRAMEVERTEXDEFORM_HPP_
+#define _NIMA_KEYFRAMEVERTEXDEFORM_HPP_
 
 #include "KeyFrameWithInterpolation.hpp"
 
 namespace nima
 {
-	class BlockReader;
 	class ActorNode;
 
-	class KeyFrameNumeric : public KeyFrameWithInterpolation
+	class KeyFrameVertexDeform : public KeyFrameWithInterpolation
 	{
 		typedef KeyFrameWithInterpolation Base;
 		private:
-			float m_Value;
+			float* m_Vertices;
+			unsigned int m_VerticesCount;
 
-		public:
-			KeyFrameNumeric();
-			float value() const;
+		public:	
+			KeyFrameVertexDeform();
+			virtual ~KeyFrameVertexDeform();
 
 			bool read(BlockReader* reader, ActorNode* node) override;
 			void apply(ActorNode* node, float mix) override;
 			void applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix) override;
-			
-		protected:
-			virtual void setValue(ActorNode* node, float value, float mix) = 0;
 	};
 }
 

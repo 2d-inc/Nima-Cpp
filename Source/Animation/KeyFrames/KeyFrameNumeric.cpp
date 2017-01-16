@@ -1,6 +1,7 @@
 #include "KeyFrameNumeric.hpp"
 #include "../Interpolators/ValueTimeCurveInterpolator.hpp"
-#
+#include "../../BlockReader.hpp"
+
 using namespace nima;
 
 KeyFrameNumeric::KeyFrameNumeric() : 
@@ -12,6 +13,18 @@ KeyFrameNumeric::KeyFrameNumeric() :
 float KeyFrameNumeric::value() const
 {
 	return m_Value;
+}
+
+bool KeyFrameNumeric::read(BlockReader* reader, ActorNode* node)
+{
+	if(!Base::read(reader, node))
+	{
+		return false;
+	}
+
+	m_Value = reader->readFloat();
+
+	return true;
 }
 
 void KeyFrameNumeric::apply(ActorNode* node, float mix)

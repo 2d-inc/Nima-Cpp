@@ -28,7 +28,7 @@ namespace nima
 			InterpolationType interpolationType() const;
 			KeyFrameInterpolator* interpolator() const;
 
-			bool read(BlockReader* reader) override;
+			bool read(BlockReader* reader, ActorNode* node) override;
 			void setNext(KeyFrame* frame) override;
 	};
 }

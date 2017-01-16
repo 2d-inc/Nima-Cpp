@@ -30,7 +30,7 @@ namespace nima
 			
 			float time() const;
 
-			virtual bool read(BlockReader* reader);
+			virtual bool read(BlockReader* reader, ActorNode* node);
 			virtual void setNext(KeyFrame* frame) = 0;
 			virtual void apply(ActorNode* node, float mix) = 0;
 			virtual void applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix) = 0;

@@ -26,9 +26,9 @@ KeyFrameInterpolator* KeyFrameWithInterpolation::interpolator() const
 	return m_Interpolator;
 }
 
-bool KeyFrameWithInterpolation::read(BlockReader* reader)
+bool KeyFrameWithInterpolation::read(BlockReader* reader, ActorNode* node)
 {
-	if(!Base::read(reader))
+	if(!Base::read(reader, node))
 	{
 		return false;
 	}
