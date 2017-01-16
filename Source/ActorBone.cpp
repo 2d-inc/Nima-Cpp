@@ -65,7 +65,7 @@ void ActorBone::tipWorldTranslation(Vec2D& result)
 
 ActorBone* ActorBone::read(Actor* actor, BlockReader* reader, ActorBone* node)
 {
-	if(node == NULL)
+	if(node == nullptr)
 	{
 		node = new ActorBone();
 	}

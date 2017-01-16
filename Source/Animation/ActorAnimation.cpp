@@ -7,7 +7,7 @@ ActorAnimation::ActorAnimation() :
 			m_FPS(60),
 			m_Duration(0.0f),
 			m_IsLooping(false),
-			m_AnimatedNodes(NULL),
+			m_AnimatedNodes(nullptr),
 			m_AnimatedNodesCount(0)
 {
 

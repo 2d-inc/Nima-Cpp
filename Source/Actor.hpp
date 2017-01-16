@@ -9,6 +9,22 @@
 
 namespace nima
 {
+	enum class BlockType
+	{
+		Unknown = 0,
+		Nodes = 1,
+		ActorNode = 2,
+		ActorBone = 3,
+		ActorRootBone = 4,
+		ActorImage = 5,
+		View = 6,
+		Animation = 7,
+		Animations = 8,
+		Atlases = 9,
+		Atlas = 10,
+		ActorIKTarget = 11
+	};
+
 	class Actor
 	{
 		public:

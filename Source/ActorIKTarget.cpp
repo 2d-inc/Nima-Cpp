@@ -4,7 +4,7 @@
 
 using namespace nima;
 
-ActorIKTarget::InfluencedBone::InfluencedBone() : boneIndex(0), bone(NULL)
+ActorIKTarget::InfluencedBone::InfluencedBone() : boneIndex(0), bone(nullptr)
 {
 
 }
@@ -13,15 +13,15 @@ ActorIKTarget::ActorIKTarget() :
 		ActorNode(Node::Type::ActorIKTarget),
 
 		m_NumInfluencedBones(0),
-		m_InfluencedBones(NULL),
+		m_InfluencedBones(nullptr),
 		m_InvertDirection(false),
 		m_Strength(0.0f),
 		m_Order(0),
-		m_Bone1(NULL),
-		m_Bone1Child(NULL),
-		m_Bone2(NULL),
+		m_Bone1(nullptr),
+		m_Bone1Child(nullptr),
+		m_Bone2(nullptr),
 		m_ChainLength(0),
-		m_Chain(NULL)
+		m_Chain(nullptr)
 {
 
 }
@@ -57,7 +57,7 @@ void ActorIKTarget::copy(ActorIKTarget* node, Actor* resetActor)
 
 ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTarget* node)
 {
-	if(node == NULL)
+	if(node == nullptr)
 	{
 		node = new ActorIKTarget();
 	}
@@ -85,7 +85,7 @@ ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTar
 void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 {
 	Base::resolveNodeIndices(nodes);
-	if(m_InfluencedBones != NULL)
+	if(m_InfluencedBones != nullptr)
 	{
 		for(int i = 0; i < m_NumInfluencedBones; i++)
 		{
@@ -98,52 +98,52 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		m_Bone2 = m_InfluencedBones[m_NumInfluencedBones-1].bone;
 		ActorBone* b1c = m_Bone2;
 		ActorBone* b1 = m_Bone1;
-		while(b1c != NULL && b1c->parent() != b1)
+		while(b1c != nullptr && b1c->parent() != b1)
 		{
 			ActorNode* n = b1c->parent();
-			if(n != NULL && n->type() == Node::Type::ActorBone)
+			if(n != nullptr && n->type() == Node::Type::ActorBone)
 			{
 				b1c = reinterpret_cast<ActorBone*>(n);
 			}
 			else
 			{
-				b1c = NULL;
+				b1c = nullptr;
 			}
 		}
 		m_Bone1Child = b1c;
 
 		m_ChainLength = 0;
 		ActorNode* end = m_Bone2;
-		while(end != NULL && end != b1->parent())
+		while(end != nullptr && end != b1->parent())
 		{
 			m_ChainLength++;
 
 			ActorNode* n = end->parent();
-			if(n != NULL && n->type() == Node::Type::ActorBone)
+			if(n != nullptr && n->type() == Node::Type::ActorBone)
 			{
 				end = n;
 			}
 			else
 			{
-				end = NULL;
+				end = nullptr;
 			}
 		}
 
 		m_Chain = new BoneChain[m_ChainLength];
 		end = m_Bone2;
 		int chainIndex = 0;
-		while(end != NULL && end != b1->parent())
+		while(end != nullptr && end != b1->parent())
 		{
 			BoneChain& bc = m_Chain[chainIndex];
 			bc.bone = reinterpret_cast<ActorBone*>(end);
 			ActorNode* n = end->parent();
-			if(n != NULL && n->type() == Node::Type::ActorBone)
+			if(n != nullptr && n->type() == Node::Type::ActorBone)
 			{
 				end = n;
 			}
 			else
 			{
-				end = NULL;
+				end = nullptr;
 			}
 
 			bc.included = doesInfluence(bc.bone) || doesInfluence(reinterpret_cast<ActorBone*>(end)); // end is either null or an actorbone (for sure) here.
@@ -154,7 +154,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 
 bool ActorIKTarget::doesInfluence(ActorBone* bone)
 {
-	if(bone == NULL)
+	if(bone == nullptr)
 	{
 		return false;
 	}
@@ -204,7 +204,7 @@ void ActorIKTarget::suppressMarkDirty(bool suppressIt)
 
 void ActorIKTarget::solveStart()
 {
-	if(m_Bone1 == NULL)
+	if(m_Bone1 == nullptr)
 	{
 		return;
 	}
@@ -241,16 +241,16 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 	const Mat2D& world = b1->parent()->worldTransform();
 	Mat2D iworld;
 	ActorBone* b1c = b2;
-	while(b1c != NULL && b1c->parent() != b1)
+	while(b1c != nullptr && b1c->parent() != b1)
 	{
 		ActorNode* n = b1c->parent();
-		if(n != NULL && n->type() == Node::Type::ActorBone)
+		if(n != nullptr && n->type() == Node::Type::ActorBone)
 		{
 			b1c = reinterpret_cast<ActorBone*>(n);
 		}
 		else
 		{
-			b1c = NULL;
+			b1c = nullptr;
 		}
 	}
 
@@ -315,7 +315,7 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 
 void ActorIKTarget::solve()
 {
-	if(m_Chain == NULL)
+	if(m_Chain == nullptr)
 	{
 		return;
 	}

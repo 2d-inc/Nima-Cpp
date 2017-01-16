@@ -11,15 +11,15 @@ using namespace nima;
 
 Actor::Actor() : 
 			m_NodeCount(0), 
-			m_Nodes(NULL), 
+			m_Nodes(nullptr), 
 			m_Root(new ActorNode()),
 			m_MaxTextureIndex(0),
 			m_ImageNodeCount(0),
 			m_SolverNodeCount(0),
 			m_AnimationsCount(0),
-			m_ImageNodes(NULL),
-			m_Solvers(NULL),
-			m_Animations(NULL)
+			m_ImageNodes(nullptr),
+			m_Solvers(nullptr),
+			m_Animations(nullptr)
 {
 
 }
@@ -50,24 +50,24 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 	// Make sure it's a nima file.
 	if(N != 78 || I != 73 || M != 77 || A != 65)
 	{
-		return NULL;
+		return nullptr;
 	}
 	// And of supported version...
 	if(version != 11)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	Actor* actor = new Actor();
-	BlockReader* block = NULL;
-	while((block = reader.readNextBlock()) != NULL)
+	BlockReader* block = nullptr;
+	while((block = reader.readNextBlock()) != nullptr)
 	{
-		switch(block->blockType())
+		switch(block->blockType<BlockType>())
 		{
-			case BlockReader::Nodes:
+			case BlockType::Nodes:
 				actor->readNodesBlock(block);
 				break;
-			case BlockReader::Animations:
+			case BlockType::Animations:
 				actor->readAnimationsBlock(block);
 				break;
 			default:
@@ -109,14 +109,14 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	m_Animations = new ActorAnimation[animationCount];
 
 	printf("NUM ANIMATIONS %i\n", animationCount);
-	BlockReader* animationBlock = NULL;
+	BlockReader* animationBlock = nullptr;
 	int animationIndex = 0;
 	
-	while((animationBlock=block->readNextBlock()) != NULL)
+	while((animationBlock=block->readNextBlock()) != nullptr)
 	{
-		switch(animationBlock->blockType())
+		switch(animationBlock->blockType<BlockType>())
 		{
-			case BlockReader::Animation:
+			case BlockType::Animation:
 				// Sanity check.
 				if(animationIndex < animationCount)
 				{
@@ -135,23 +135,23 @@ void Actor::readNodesBlock(BlockReader* block)
 	m_Nodes = new ActorNode*[m_NodeCount];
 	m_Nodes[0] = m_Root;
 	printf("NUM NODES %i\n", m_NodeCount);
-	BlockReader* nodeBlock = NULL;
+	BlockReader* nodeBlock = nullptr;
 	int nodeIndex = 1;
-	while((nodeBlock=block->readNextBlock()) != NULL)
+	while((nodeBlock=block->readNextBlock()) != nullptr)
 	{
-		ActorNode* node = NULL;
-		switch(nodeBlock->blockType())
+		ActorNode* node = nullptr;
+		switch(nodeBlock->blockType<BlockType>())
 		{
-			case BlockReader::ActorNode:
+			case BlockType::ActorNode:
 				node = ActorNode::read(this, nodeBlock);
 				break;
-			case BlockReader::ActorBone:
+			case BlockType::ActorBone:
 				node = ActorBone::read(this, nodeBlock);
 				break;
-			case BlockReader::ActorRootBone:
+			case BlockType::ActorRootBone:
 				node = ActorRootBone::read(this, nodeBlock);
 				break;
-			case BlockReader::ActorImage:
+			case BlockType::ActorImage:
 			{
 				m_ImageNodeCount++;
 				node = ActorImage::read(this, nodeBlock);
@@ -162,7 +162,7 @@ void Actor::readNodesBlock(BlockReader* block)
 				}
 				break;
 			}
-			case BlockReader::ActorIKTarget:
+			case BlockType::ActorIKTarget:
 				m_SolverNodeCount++;
 				node = ActorIKTarget::read(this, nodeBlock);
 				break;
@@ -188,7 +188,7 @@ void Actor::readNodesBlock(BlockReader* block)
 	for(int i = 1; i < m_NodeCount; i++)
 	{
 		ActorNode* n = m_Nodes[i];
-		if(n != NULL)
+		if(n != nullptr)
 		{
 			n->resolveNodeIndices(m_Nodes);
 

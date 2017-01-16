@@ -20,7 +20,7 @@ void ActorRootBone::copy(ActorRootBone* node, Actor* resetActor)
 
 ActorRootBone* ActorRootBone::read(Actor* actor, BlockReader* reader, ActorRootBone* node)
 {
-	if(node == NULL)
+	if(node == nullptr)
 	{
 		node = new ActorRootBone();
 	}

@@ -1,8 +1,6 @@
 #ifndef _NIMA_CUBICSOLVER_HPP_
 #define _NIMA_CUBICSOLVER_HPP_
 
-#include <string>
-
 namespace nima
 {
 	class BlockReader;
