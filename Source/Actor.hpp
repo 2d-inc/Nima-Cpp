@@ -51,7 +51,7 @@ namespace nima
 
 		public:
 			static Actor* fromBytes(unsigned char* bytes, unsigned int length);
-			static Actor* fromFile(const char* filename);
+			static Actor* fromFile(const std::string& filename);
 
 			ActorNode* getNode(unsigned int index) const;
 			ActorNode* getNode(unsigned short index) const;

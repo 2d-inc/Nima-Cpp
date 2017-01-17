@@ -103,9 +103,9 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 	return actor;
 }
 
-Actor* Actor::fromFile(const char* filename)
+Actor* Actor::fromFile(const std::string& filename)
 {
-	FILE* fp = fopen(filename, "rb");
+	FILE* fp = fopen(filename.c_str(), "rb");
 	fseek(fp, 0, SEEK_END);
 	long length = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
