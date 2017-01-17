@@ -28,6 +28,19 @@ float ActorAnimation::duration() const
 	return m_Duration;
 }
 
+bool ActorAnimation::isLooping() const
+{
+	return m_IsLooping;
+}
+
+void ActorAnimation::apply(float time, Actor* actor, float mix)
+{
+	for(int i = 0; i < m_AnimatedNodesCount; i++)
+	{
+		m_AnimatedNodes[i].apply(time, actor, mix);
+	}
+}
+
 void ActorAnimation::read(BlockReader* reader, ActorNode** nodes)
 {
 	m_Name = reader->readString();

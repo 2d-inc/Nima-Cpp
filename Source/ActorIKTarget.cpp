@@ -10,18 +10,18 @@ ActorIKTarget::InfluencedBone::InfluencedBone() : boneIndex(0), bone(nullptr)
 }
 
 ActorIKTarget::ActorIKTarget() :
-		ActorNode(Node::Type::ActorIKTarget),
+	ActorNode(NodeType::ActorIKTarget),
 
-		m_NumInfluencedBones(0),
-		m_InfluencedBones(nullptr),
-		m_InvertDirection(false),
-		m_Strength(0.0f),
-		m_Order(0),
-		m_Bone1(nullptr),
-		m_Bone1Child(nullptr),
-		m_Bone2(nullptr),
-		m_ChainLength(0),
-		m_Chain(nullptr)
+	m_NumInfluencedBones(0),
+	m_InfluencedBones(nullptr),
+	m_InvertDirection(false),
+	m_Strength(0.0f),
+	m_Order(0),
+	m_Bone1(nullptr),
+	m_Bone1Child(nullptr),
+	m_Bone2(nullptr),
+	m_ChainLength(0),
+	m_Chain(nullptr)
 {
 
 }
@@ -48,7 +48,7 @@ void ActorIKTarget::copy(ActorIKTarget* node, Actor* resetActor)
 	m_Strength = node->m_Strength;
 	m_NumInfluencedBones = node->m_NumInfluencedBones;
 	m_InfluencedBones = new InfluencedBone[m_NumInfluencedBones];
-	for(int i = 0; i < m_NumInfluencedBones; i++)
+	for (int i = 0; i < m_NumInfluencedBones; i++)
 	{
 		InfluencedBone& ib = m_InfluencedBones[i];
 		ib.boneIndex = node->m_InfluencedBones[i].boneIndex;
@@ -57,7 +57,7 @@ void ActorIKTarget::copy(ActorIKTarget* node, Actor* resetActor)
 
 ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTarget* node)
 {
-	if(node == nullptr)
+	if (node == nullptr)
 	{
 		node = new ActorIKTarget();
 	}
@@ -66,13 +66,13 @@ ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTar
 
 	node->m_Order = reader->readUnsignedShort();
 	node->m_Strength = reader->readFloat();
-	node->m_InvertDirection = reader->readByte() == 1;	
+	node->m_InvertDirection = reader->readByte() == 1;
 
 	node->m_NumInfluencedBones = (int)reader->readByte();
-	if(node->m_NumInfluencedBones > 0)
+	if (node->m_NumInfluencedBones > 0)
 	{
 		node->m_InfluencedBones = new InfluencedBone[node->m_NumInfluencedBones];
-		for(int i = 0; i < node->m_NumInfluencedBones; i++)
+		for (int i = 0; i < node->m_NumInfluencedBones; i++)
 		{
 			InfluencedBone& ib = node->m_InfluencedBones[i];
 			ib.boneIndex = reader->readUnsignedShort();
@@ -85,9 +85,9 @@ ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTar
 void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 {
 	Base::resolveNodeIndices(nodes);
-	if(m_InfluencedBones != nullptr)
+	if (m_InfluencedBones != nullptr)
 	{
-		for(int i = 0; i < m_NumInfluencedBones; i++)
+		for (int i = 0; i < m_NumInfluencedBones; i++)
 		{
 			InfluencedBone& ib = m_InfluencedBones[i];
 			ib.bone = reinterpret_cast<ActorBone*>(nodes[ib.boneIndex]);
@@ -95,13 +95,13 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		}
 
 		m_Bone1 = m_InfluencedBones[0].bone;
-		m_Bone2 = m_InfluencedBones[m_NumInfluencedBones-1].bone;
+		m_Bone2 = m_InfluencedBones[m_NumInfluencedBones - 1].bone;
 		ActorBone* b1c = m_Bone2;
 		ActorBone* b1 = m_Bone1;
-		while(b1c != nullptr && b1c->parent() != b1)
+		while (b1c != nullptr && b1c->parent() != b1)
 		{
 			ActorNode* n = b1c->parent();
-			if(n != nullptr && n->type() == Node::Type::ActorBone)
+			if (n != nullptr && n->type() == NodeType::ActorBone)
 			{
 				b1c = reinterpret_cast<ActorBone*>(n);
 			}
@@ -114,12 +114,12 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 
 		m_ChainLength = 0;
 		ActorNode* end = m_Bone2;
-		while(end != nullptr && end != b1->parent())
+		while (end != nullptr && end != b1->parent())
 		{
 			m_ChainLength++;
 
 			ActorNode* n = end->parent();
-			if(n != nullptr && n->type() == Node::Type::ActorBone)
+			if (n != nullptr && n->type() == NodeType::ActorBone)
 			{
 				end = n;
 			}
@@ -132,12 +132,12 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		m_Chain = new BoneChain[m_ChainLength];
 		end = m_Bone2;
 		int chainIndex = 0;
-		while(end != nullptr && end != b1->parent())
+		while (end != nullptr && end != b1->parent())
 		{
 			BoneChain& bc = m_Chain[chainIndex];
 			bc.bone = reinterpret_cast<ActorBone*>(end);
 			ActorNode* n = end->parent();
-			if(n != nullptr && n->type() == Node::Type::ActorBone)
+			if (n != nullptr && n->type() == NodeType::ActorBone)
 			{
 				end = n;
 			}
@@ -154,13 +154,13 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 
 bool ActorIKTarget::doesInfluence(ActorBone* bone)
 {
-	if(bone == nullptr)
+	if (bone == nullptr)
 	{
 		return false;
 	}
-	for(int i = 0; i < m_NumInfluencedBones; i++)
+	for (int i = 0; i < m_NumInfluencedBones; i++)
 	{
-		if(m_InfluencedBones[i].bone == bone)
+		if (m_InfluencedBones[i].bone == bone)
 		{
 			return true;
 		}
@@ -185,7 +185,7 @@ float ActorIKTarget::strength() const
 
 void ActorIKTarget::strength(float s)
 {
-	if(m_Strength != s)
+	if (m_Strength != s)
 	{
 		m_Strength = s;
 		markDirty();
@@ -204,18 +204,18 @@ void ActorIKTarget::suppressMarkDirty(bool suppressIt)
 
 void ActorIKTarget::solveStart()
 {
-	if(m_Bone1 == nullptr)
+	if (m_Bone1 == nullptr)
 	{
 		return;
 	}
 
 	// Reset all rotation overrides to FK ones,
-	if(m_Bone1Child != m_Bone2)
+	if (m_Bone1Child != m_Bone2)
 	{
 		m_Bone1Child->setRotationOverride(m_Bone1Child->rotation());
 	}
 
-	for(int i = 0; i < m_NumInfluencedBones; i++)
+	for (int i = 0; i < m_NumInfluencedBones; i++)
 	{
 		InfluencedBone& ib = m_InfluencedBones[i];
 		ib.bone->setRotationOverride(ib.bone->rotation());
@@ -233,7 +233,7 @@ void ActorIKTarget::solve1(ActorBone* b1, Vec2D& worldTargetTranslation)
 
 	float a = atan2(targetLocal[1], targetLocal[0]);
 
-	b1->setRotationOverride(b1->overrideRotationValue()+a);
+	b1->setRotationOverride(b1->overrideRotationValue() + a);
 }
 
 void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert)
@@ -241,10 +241,10 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 	const Mat2D& world = b1->parent()->worldTransform();
 	Mat2D iworld;
 	ActorBone* b1c = b2;
-	while(b1c != nullptr && b1c->parent() != b1)
+	while (b1c != nullptr && b1c->parent() != b1)
 	{
 		ActorNode* n = b1c->parent();
-		if(n != nullptr && n->type() == Node::Type::ActorBone)
+		if (n != nullptr && n->type() == NodeType::ActorBone)
 		{
 			b1c = reinterpret_cast<ActorBone*>(n);
 		}
@@ -256,7 +256,7 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 
 	ActorNode* b1pn = b1->parent();
 	// Get the world transform to the bone tip position.
-	if(b1pn->type() == Node::Type::ActorBone)
+	if (b1pn->type() == NodeType::ActorBone)
 	{
 		Mat2D t;
 		t[4] = reinterpret_cast<ActorBone*>(b1pn)->length();
@@ -288,11 +288,11 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 	Vec2D cv; Vec2D::subtract(cv, pBT, pA);
 	float c = Vec2D::length(cv);
 
-	float A = acos(std::max(-1.0f,std::min(1.0f,(-a*a+b*b+c*c)/(2.0f*b*c))));
-	float C = acos(std::max(-1.0f, std::min(1.0f,(a*a+b*b-c*c)/(2.0f*a*b))));
+	float A = acos(std::max(-1.0f, std::min(1.0f, (-a * a + b * b + c * c) / (2.0f * b * c))));
+	float C = acos(std::max(-1.0f, std::min(1.0f, (a * a + b * b - c * c) / (2.0f * a * b))));
 
 	float angleCorrection = 0.0f;
-	if(b1c != b2)
+	if (b1c != b2)
 	{
 		Mat2D iworld2;
 		Mat2D::invert(iworld2, b1c->worldTransform());
@@ -301,21 +301,21 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 		Vec2D tipBone2Local; Vec2D::transform(pa2, pa2, iworld2);
 		angleCorrection = -atan2(tipBone2Local[1], tipBone2Local[0]);
 	}
-	if(invert)
+	if (invert)
 	{
-		b1->setRotationOverride(atan2(pBT[1],pBT[0]) - A);
-		b1c->setRotationOverride(-C+M_PI+angleCorrection);
+		b1->setRotationOverride(atan2(pBT[1], pBT[0]) - A);
+		b1c->setRotationOverride(-C + M_PI + angleCorrection);
 	}
 	else
 	{
-		b1->setRotationOverride(A+atan2(pBT[1],pBT[0]));
-		b1c->setRotationOverride(C-M_PI+angleCorrection);
+		b1->setRotationOverride(A + atan2(pBT[1], pBT[0]));
+		b1c->setRotationOverride(C - M_PI + angleCorrection);
 	}
 }
 
 void ActorIKTarget::solve()
 {
-	if(m_Chain == nullptr)
+	if (m_Chain == nullptr)
 	{
 		return;
 	}
@@ -325,36 +325,36 @@ void ActorIKTarget::solve()
 	worldTargetTranslation[0] = wt[4];
 	worldTargetTranslation[1] = wt[5];
 
-	for(int i = 0; i < m_ChainLength; i++)
+	for (int i = 0; i < m_ChainLength; i++)
 	{
 		BoneChain& fk = m_Chain[i];
 		fk.angle = fk.bone->overrideRotationValue();
 	}
 
-	if(m_NumInfluencedBones == 1)
+	if (m_NumInfluencedBones == 1)
 	{
 		solve1(m_InfluencedBones[0].bone, worldTargetTranslation);
 	}
-	else if(m_NumInfluencedBones == 2)
+	else if (m_NumInfluencedBones == 2)
 	{
 		solve2(m_InfluencedBones[0].bone, m_InfluencedBones[1].bone, worldTargetTranslation, m_InvertDirection);
 	}
 	else
 	{
-		for(int i = 0; i < m_NumInfluencedBones-1; i++)
+		for (int i = 0; i < m_NumInfluencedBones - 1; i++)
 		{
 			solve2(m_InfluencedBones[i].bone, m_Bone2, worldTargetTranslation, m_InvertDirection);
 		}
 	}
 
 	// At the end, mix the FK angle with the IK angle by strength
-	if(m_Strength != 1.0f)
+	if (m_Strength != 1.0f)
 	{
-		float im = 1.0f-m_Strength;
-		for(int i = 0; i < m_ChainLength; i++)
+		float im = 1.0f - m_Strength;
+		for (int i = 0; i < m_ChainLength; i++)
 		{
 			BoneChain& fk = m_Chain[i];
-			if(fk.included)
+			if (fk.included)
 			{
 				fk.bone->setRotationOverride(fk.bone->overrideRotationValue() * m_Strength + fk.angle * im);
 			}

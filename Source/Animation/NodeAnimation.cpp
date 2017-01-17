@@ -1,4 +1,5 @@
 #include "NodeAnimation.hpp"
+#include "../Actor.hpp"
 #include "../BlockReader.hpp"
 
 using namespace nima;
@@ -18,6 +19,15 @@ NodeAnimation::~NodeAnimation()
 int NodeAnimation::nodeIndex() const
 {
 	return m_NodeIndex;
+}
+
+void NodeAnimation::apply(float time, Actor* actor, float mix)
+{
+	ActorNode* node = actor->getNode(m_NodeIndex);
+	for (int i = 0; i < m_PropertiesCount; i++)
+	{
+		m_Properties[i].apply(time, node, mix);
+	}
 }
 
 void NodeAnimation::read(BlockReader* reader, ActorNode** nodes)

@@ -4,21 +4,21 @@
 #include <cassert>
 using namespace nima;
 
-ActorNode::ActorNode(Actor* actor) : ActorNode(actor, Node::Type::ActorNode)
+ActorNode::ActorNode(Actor* actor) : ActorNode(actor, NodeType::ActorNode)
 {
 
 			
 }
 
-ActorNode::ActorNode(Node::Type type) : ActorNode(NULL, type)
+ActorNode::ActorNode(NodeType type) : ActorNode(nullptr, type)
 {
 
 			
 }
 
-ActorNode::ActorNode(Actor* actor, Node::Type type) : 
+ActorNode::ActorNode(Actor* actor, NodeType type) : 
 			m_Type(type),
-			m_Parent(NULL),
+			m_Parent(nullptr),
 			m_Actor(actor),
 			m_Rotation(0.0f),
 			m_Scale(1.0f, 1.0f),
@@ -36,7 +36,7 @@ ActorNode::ActorNode(Actor* actor, Node::Type type) :
 
 }
 
-ActorNode::ActorNode() : ActorNode(NULL, Node::Type::ActorNode)
+ActorNode::ActorNode() : ActorNode(nullptr, NodeType::ActorNode)
 {
 
 }
@@ -111,7 +111,7 @@ void ActorNode::clearWorldTransformOverride()
 	markWorldDirty();
 }
 
-Node::Type ActorNode::type() const
+NodeType ActorNode::type() const
 {
 	return m_Type;
 }
@@ -356,7 +356,7 @@ void ActorNode::updateWorldTransform()
 
 	m_RenderOpacity = m_Opacity;
 
-	if(m_Parent != NULL)
+	if(m_Parent != nullptr)
 	{
 		m_Parent->updateTransforms();
 		m_RenderOpacity *= m_Parent->renderOpacity();
@@ -373,8 +373,8 @@ void ActorNode::updateWorldTransform()
 
 void ActorNode::addChild(ActorNode* node)
 {
-	assert(node != NULL);
-	if(node->m_Parent != NULL)
+	assert(node != nullptr);
+	if(node->m_Parent != nullptr)
 	{
 		node->m_Parent->removeChild(node);
 	}
@@ -390,7 +390,7 @@ void ActorNode::removeChild(ActorNode* node)
 		return;
 	}
 	m_Children.erase(itr);
-	node->m_Parent = NULL;
+	node->m_Parent = nullptr;
 
 }
 
@@ -428,7 +428,7 @@ void ActorNode::copy(ActorNode* node, Actor* resetActor)
 
 ActorNode* ActorNode::read(Actor* actor, BlockReader* reader, ActorNode* node)
 {
-	if(node == NULL)
+	if(node == nullptr)
 	{
 		node = new ActorNode();
 	}

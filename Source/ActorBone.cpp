@@ -3,7 +3,7 @@
 
 using namespace nima;
 
-ActorBone::ActorBone() : ActorNode(Node::Type::ActorBone), m_Length(0.0f), m_IsConnectedToImage(false)
+ActorBone::ActorBone() : ActorNode(NodeType::ActorBone), m_Length(0.0f), m_IsConnectedToImage(false)
 {
 }
 
@@ -21,7 +21,7 @@ void ActorBone::length(float l)
 	m_Length = l;
 	for(ActorNode* node : m_Children)
 	{
-		if(node->type() == Node::Type::ActorBone)
+		if(node->type() == NodeType::ActorBone)
 		{
 			ActorBone* bone = reinterpret_cast<ActorBone*>(node);
 			bone->x(l);

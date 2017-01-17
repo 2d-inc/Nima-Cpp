@@ -2,7 +2,7 @@
 
 using namespace nima;
 
-ActorRootBone::ActorRootBone() : ActorNode(Node::Type::ActorRootBone)
+ActorRootBone::ActorRootBone() : ActorNode(NodeType::ActorRootBone)
 {
 }
 
@@ -20,7 +20,7 @@ void ActorRootBone::copy(ActorRootBone* node, Actor* resetActor)
 
 ActorRootBone* ActorRootBone::read(Actor* actor, BlockReader* reader, ActorRootBone* node)
 {
-	if(node == nullptr)
+	if (node == nullptr)
 	{
 		node = new ActorRootBone();
 	}

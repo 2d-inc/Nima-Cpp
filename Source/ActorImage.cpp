@@ -5,21 +5,21 @@
 
 using namespace nima;
 
-ActorImage::ActorImage() : 
-		ActorNode(Node::Type::ActorImage),
+ActorImage::ActorImage() :
+	ActorNode(NodeType::ActorImage),
 
-		m_DrawOrder(0),
-		m_BlendMode(BlendModes::Normal),
-		m_TextureIndex(-1),
-		m_Vertices(NULL),
-		m_Triangles(NULL),
-		m_VertexCount(0),
-		m_TriangleCount(0),
-		m_AnimationDeformedVertices(NULL),
-		m_IsVertexDeformDirty(false),
-		m_BoneMatrices(NULL),
-		m_NumConnectedBones(0),
-		m_BoneConnections(NULL)
+	m_DrawOrder(0),
+	m_BlendMode(BlendModes::Normal),
+	m_TextureIndex(-1),
+	m_Vertices(NULL),
+	m_Triangles(NULL),
+	m_VertexCount(0),
+	m_TriangleCount(0),
+	m_AnimationDeformedVertices(NULL),
+	m_IsVertexDeformDirty(false),
+	m_BoneMatrices(NULL),
+	m_NumConnectedBones(0),
+	m_BoneConnections(NULL)
 {
 
 }
@@ -51,7 +51,7 @@ bool ActorImage::doesAnimationVertexDeform() const
 
 void ActorImage::doesAnimationVertexDeform(bool doesIt)
 {
-	if(doesIt)
+	if (doesIt)
 	{
 		m_AnimationDeformedVertices = new float [m_VertexCount * 2];
 	}
@@ -64,7 +64,7 @@ void ActorImage::doesAnimationVertexDeform(bool doesIt)
 
 float* ActorImage::animationDeformedVertices()
 {
-	return m_AnimationDeformedVertices;	
+	return m_AnimationDeformedVertices;
 }
 
 bool ActorImage::isVertexDeformDirty() const
@@ -80,7 +80,7 @@ void ActorImage::isVertexDeformDirty(bool isIt)
 void ActorImage::disposeGeometry()
 {
 	// Delete vertices only if we do not vertex deform at runtime.
-	if(m_AnimationDeformedVertices == NULL)
+	if (m_AnimationDeformedVertices == NULL)
 	{
 		delete [] m_Vertices;
 		m_Vertices = NULL;
@@ -95,7 +95,7 @@ int ActorImage::boneInfluenceMatricesLength()
 }
 float* ActorImage::boneInfluenceMatrices()
 {
-	if(m_BoneMatrices == NULL)
+	if (m_BoneMatrices == NULL)
 	{
 		m_BoneMatrices = new float[boneInfluenceMatricesLength()];
 		// First bone transform is always identity.
@@ -109,7 +109,7 @@ float* ActorImage::boneInfluenceMatrices()
 
 	Mat2D mat;
 	int bidx = 6;
-	for(int i = 0; i < m_NumConnectedBones; i++)
+	for (int i = 0; i < m_NumConnectedBones; i++)
 	{
 		BoneConnection& bc = m_BoneConnections[i];
 		bc.node->updateTransforms();
@@ -136,18 +136,18 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 	m_TriangleCount = node->m_TriangleCount;
 	m_Vertices = node->m_Vertices;
 	m_Triangles = node->m_Triangles;
-	if(node->m_AnimationDeformedVertices != NULL)
+	if (node->m_AnimationDeformedVertices != NULL)
 	{
 		int deformedVertexLength = m_VertexCount * 2;
 		m_AnimationDeformedVertices = new float[deformedVertexLength];
 		std::memmove(m_AnimationDeformedVertices, node->m_AnimationDeformedVertices, deformedVertexLength * sizeof(float));
 	}
 
-	if(node->m_BoneConnections != NULL)
+	if (node->m_BoneConnections != NULL)
 	{
 		m_NumConnectedBones = node->m_NumConnectedBones;
 		m_BoneConnections = new BoneConnection[node->m_NumConnectedBones];
-		for(int i = 0; i < m_NumConnectedBones; i++)
+		for (int i = 0; i < m_NumConnectedBones; i++)
 		{
 			BoneConnection& bcT = m_BoneConnections[i];
 			BoneConnection& bcF = node->m_BoneConnections[i];
@@ -155,13 +155,13 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 			bcT.boneIndex = bcF.boneIndex;
 			Mat2D::copy(bcT.bind, bcF.bind);
 			Mat2D::copy(bcT.ibind, bcF.ibind);
-		} 
+		}
 	}
 }
 
 ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node)
 {
-	if(node == NULL)
+	if (node == NULL)
 	{
 		node = new ActorImage();
 	}
@@ -169,17 +169,17 @@ ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node
 	Base::read(actor, reader, node);
 
 	bool isVisible = reader->readByte() != 0;
-	if(isVisible)
+	if (isVisible)
 	{
 		node->m_BlendMode = (BlendModes)reader->readByte();
 		node->m_DrawOrder = (int)reader->readUnsignedShort();
 		node->m_TextureIndex = (int)reader->readByte();
 
 		node->m_NumConnectedBones = (int)reader->readByte();
-		if(node->m_NumConnectedBones != 0)
+		if (node->m_NumConnectedBones != 0)
 		{
 			node->m_BoneConnections = new BoneConnection[node->m_NumConnectedBones];
-			for(int i = 0; i < node->m_NumConnectedBones; i++)
+			for (int i = 0; i < node->m_NumConnectedBones; i++)
 			{
 				BoneConnection& bc = node->m_BoneConnections[i];
 				bc.boneIndex = reader->readUnsignedShort();
@@ -213,9 +213,9 @@ ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node
 void ActorImage::resolveNodeIndices(ActorNode** nodes)
 {
 	Base::resolveNodeIndices(nodes);
-	if(m_BoneConnections != NULL)
+	if (m_BoneConnections != NULL)
 	{
-		for(int i = 0; i < m_NumConnectedBones; i++)
+		for (int i = 0; i < m_NumConnectedBones; i++)
 		{
 			BoneConnection& bc = m_BoneConnections[i];
 			bc.node = nodes[bc.boneIndex];
@@ -237,7 +237,7 @@ int ActorImage::drawOrder() const
 
 void ActorImage::drawOrder(int order)
 {
-	if(m_DrawOrder != order)
+	if (m_DrawOrder != order)
 	{
 		m_DrawOrder = order;
 		// TODO: Would be smart to track a draw order dirty state on the actor here.

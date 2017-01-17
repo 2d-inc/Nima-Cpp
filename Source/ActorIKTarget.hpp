@@ -13,7 +13,7 @@ namespace nima
 
 	class ActorIKTarget : public ActorNode, public Solver
 	{
-		typedef ActorNode Base;
+			typedef ActorNode Base;
 		public:
 			struct InfluencedBone
 			{

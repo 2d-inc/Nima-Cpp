@@ -8,7 +8,8 @@ namespace nima
 {
 	class BlockReader;
 	class ActorNode;
-
+	class Actor;
+	
 	class NodeAnimation
 	{
 		private:
@@ -22,6 +23,7 @@ namespace nima
 			int nodeIndex() const;
 
 			void read(BlockReader* reader, ActorNode** nodes);
+			void apply(float time, Actor* actor, float mix);
 
 	};
 }

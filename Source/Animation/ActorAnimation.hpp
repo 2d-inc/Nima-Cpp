@@ -24,8 +24,11 @@ namespace nima
 			~ActorAnimation();
 			const std::string& name() const;
 			float duration() const;
+			bool isLooping() const;
 
 			void read(BlockReader* reader, ActorNode** nodes);
+
+			void apply(float time, Actor* actor, float mix);
 
 	};
 }

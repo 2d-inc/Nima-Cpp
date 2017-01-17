@@ -29,7 +29,7 @@ namespace nima
 	{
 		public:
 			Actor();
-			~Actor();
+			virtual ~Actor();
 
 		private:
 			int m_NodeCount;
@@ -37,7 +37,7 @@ namespace nima
 			ActorNode* m_Root;
 			void readNodesBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
-		
+
 		protected:
 			int m_MaxTextureIndex;
 			int m_ImageNodeCount;
@@ -55,6 +55,9 @@ namespace nima
 
 			ActorNode* getNode(unsigned int index) const;
 			ActorNode* getNode(unsigned short index) const;
+			ActorAnimation* getAnimation(const std::string& name) const;
+
+			void copy(const Actor& actor);
 	};
 }
 #endif

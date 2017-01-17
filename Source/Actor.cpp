@@ -6,20 +6,21 @@
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
 #include <stdio.h>
+#include <algorithm>
 
 using namespace nima;
 
-Actor::Actor() : 
-			m_NodeCount(0), 
-			m_Nodes(nullptr), 
-			m_Root(new ActorNode()),
-			m_MaxTextureIndex(0),
-			m_ImageNodeCount(0),
-			m_SolverNodeCount(0),
-			m_AnimationsCount(0),
-			m_ImageNodes(nullptr),
-			m_Solvers(nullptr),
-			m_Animations(nullptr)
+Actor::Actor() :
+	m_NodeCount(0),
+	m_Nodes(nullptr),
+	m_Root(new ActorNode()),
+	m_MaxTextureIndex(0),
+	m_ImageNodeCount(0),
+	m_SolverNodeCount(0),
+	m_AnimationsCount(0),
+	m_ImageNodes(nullptr),
+	m_Solvers(nullptr),
+	m_Animations(nullptr)
 {
 
 }
@@ -27,9 +28,9 @@ Actor::Actor() :
 Actor::~Actor()
 {
 	delete m_Root;
-	for(int i = 1; i < m_NodeCount; i++)
+	for (int i = 1; i < m_NodeCount; i++)
 	{
-		delete m_Nodes[i];	
+		delete m_Nodes[i];
 	}
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
@@ -47,6 +48,19 @@ ActorNode* Actor::getNode(unsigned short index) const
 	return m_Nodes[index];
 }
 
+ActorAnimation* Actor::getAnimation(const std::string& name) const
+{
+	for(int i = 0; i < m_AnimationsCount; i++)
+	{
+		ActorAnimation& a = m_Animations[i];
+		if(a.name() == name)
+		{
+			return &a;
+		}
+	}
+	return nullptr;
+}
+
 Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 {
 	BlockReader reader(bytes, length);
@@ -58,21 +72,21 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 	unsigned int version = reader.readUnsignedInt();
 
 	// Make sure it's a nima file.
-	if(N != 78 || I != 73 || M != 77 || A != 65)
+	if (N != 78 || I != 73 || M != 77 || A != 65)
 	{
 		return nullptr;
 	}
 	// And of supported version...
-	if(version != 12)
+	if (version != 12)
 	{
 		return nullptr;
 	}
 
 	Actor* actor = new Actor();
 	BlockReader* block = nullptr;
-	while((block = reader.readNextBlock()) != nullptr)
+	while ((block = reader.readNextBlock()) != nullptr)
 	{
-		switch(block->blockType<BlockType>())
+		switch (block->blockType<BlockType>())
 		{
 			case BlockType::Nodes:
 				actor->readNodesBlock(block);
@@ -99,14 +113,14 @@ Actor* Actor::fromFile(const char* filename)
 	unsigned char* bytes = new unsigned char[length];
 	fread(bytes, length, 1, fp);
 	fclose(fp);
-	
+
 	try
 	{
-		Actor* actor = Actor::fromBytes(bytes, (unsigned int)length);	
+		Actor* actor = Actor::fromBytes(bytes, (unsigned int)length);
 		delete [] bytes;
 		return actor;
 	}
-	catch(OverflowException ex)
+	catch (OverflowException ex)
 	{
 		delete [] bytes;
 		throw ex;
@@ -121,14 +135,14 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	printf("NUM ANIMATIONS %i\n", animationCount);
 	BlockReader* animationBlock = nullptr;
 	int animationIndex = 0;
-	
-	while((animationBlock=block->readNextBlock()) != nullptr)
+
+	while ((animationBlock = block->readNextBlock()) != nullptr)
 	{
-		switch(animationBlock->blockType<BlockType>())
+		switch (animationBlock->blockType<BlockType>())
 		{
 			case BlockType::Animation:
 				// Sanity check.
-				if(animationIndex < animationCount)
+				if (animationIndex < animationCount)
 				{
 					m_Animations[animationIndex].read(animationBlock, m_Nodes);
 				}
@@ -141,16 +155,16 @@ void Actor::readAnimationsBlock(BlockReader* block)
 
 void Actor::readNodesBlock(BlockReader* block)
 {
-	m_NodeCount = block->readUnsignedShort()+1;
+	m_NodeCount = block->readUnsignedShort() + 1;
 	m_Nodes = new ActorNode*[m_NodeCount];
 	m_Nodes[0] = m_Root;
 	printf("NUM NODES %i\n", m_NodeCount);
 	BlockReader* nodeBlock = nullptr;
 	int nodeIndex = 1;
-	while((nodeBlock=block->readNextBlock()) != nullptr)
+	while ((nodeBlock = block->readNextBlock()) != nullptr)
 	{
 		ActorNode* node = nullptr;
-		switch(nodeBlock->blockType<BlockType>())
+		switch (nodeBlock->blockType<BlockType>())
 		{
 			case BlockType::ActorNode:
 				node = ActorNode::read(this, nodeBlock);
@@ -166,7 +180,7 @@ void Actor::readNodesBlock(BlockReader* block)
 				m_ImageNodeCount++;
 				node = ActorImage::read(this, nodeBlock);
 				ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
-				if(imageNode->textureIndex() > m_MaxTextureIndex)
+				if (imageNode->textureIndex() > m_MaxTextureIndex)
 				{
 					m_MaxTextureIndex = imageNode->textureIndex();
 				}
@@ -179,11 +193,11 @@ void Actor::readNodesBlock(BlockReader* block)
 
 			default:
 				// Name is first thing in each block.
-				{
-					std::string name = nodeBlock->readString();
-					printf("NAME IS %s\n", name.c_str());
-				}
-				break;
+			{
+				std::string name = nodeBlock->readString();
+				printf("NAME IS %s\n", name.c_str());
+			}
+			break;
 		}
 		m_Nodes[nodeIndex] = node;
 		nodeIndex++;
@@ -195,24 +209,98 @@ void Actor::readNodesBlock(BlockReader* block)
 	// Resolve nodes.
 	int imdIdx = 0;
 	int slvIdx = 0;
-	for(int i = 1; i < m_NodeCount; i++)
+	for (int i = 1; i < m_NodeCount; i++)
 	{
 		ActorNode* n = m_Nodes[i];
-		if(n != nullptr)
+		if (n != nullptr)
 		{
 			n->resolveNodeIndices(m_Nodes);
 
-			switch(n->type())
+			switch (n->type())
 			{
-				case Node::Type::ActorImage:
+				case NodeType::ActorImage:
 					m_ImageNodes[imdIdx++] = reinterpret_cast<ActorImage*>(n);
 					break;
-				case Node::Type::ActorIKTarget:
+				case NodeType::ActorIKTarget:
 					m_Solvers[slvIdx++] = reinterpret_cast<Solver*>(n);
 					break;
 				default:
 					break;
 			}
+		}
+	}
+}
+
+static bool SolverComparer(Solver* i, Solver* j)
+{
+	return i->order() > j->order();
+}
+
+void Actor::copy(const Actor& actor)
+{
+	m_Animations = actor.m_Animations;
+	m_MaxTextureIndex = actor.m_MaxTextureIndex;
+	m_ImageNodeCount = actor.m_ImageNodeCount;
+	m_SolverNodeCount = actor.m_SolverNodeCount;
+	m_NodeCount = actor.m_NodeCount;
+
+	if (m_Nodes != 0)
+	{
+		m_Nodes = new ActorNode*[m_NodeCount];
+	}
+	if (m_ImageNodeCount != 0)
+	{
+		m_ImageNodes = new ActorImage*[m_ImageNodeCount];
+	}
+	if (m_SolverNodeCount != 0)
+	{
+		m_Solvers = new Solver*[m_SolverNodeCount];
+	}
+
+	if (m_NodeCount > 0)
+	{
+		int idx = 0;
+		int imgIdx = 0;
+		int slvIdx = 0;
+
+		for (int i = 0; i < m_NodeCount; i++)
+		{
+			ActorNode* node = m_Nodes[i];
+			if (node == nullptr)
+			{
+				m_Nodes[idx++] = nullptr;
+				continue;
+			}
+			ActorNode* instanceNode = node->makeInstance(this);
+			m_Nodes[idx++] = instanceNode;
+			switch (instanceNode->type())
+			{
+				case NodeType::ActorImage:
+					m_ImageNodes[imgIdx++] = reinterpret_cast<ActorImage*>(instanceNode);
+					break;
+				case NodeType::ActorIKTarget:
+					m_Solvers[slvIdx++] = reinterpret_cast<Solver*>(instanceNode);
+					break;
+				default:
+					break;
+			}
+		}
+
+		// Resolve indices.
+		m_Root = m_Nodes[0];
+		for (int i = 0; i < m_NodeCount; i++)
+		{
+			ActorNode* node = m_Nodes[i];
+			if (m_Root == node || node == nullptr)
+			{
+				continue;
+			}
+			node->resolveNodeIndices(m_Nodes);
+		}
+
+		if (m_Solvers != nullptr)
+		{
+			std::sort(m_Solvers, m_Solvers + m_SolverNodeCount, SolverComparer);
 		}
 	}
 }

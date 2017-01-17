@@ -11,16 +11,13 @@ namespace nima
 	class Actor;
 	class BlockReader;
 
-	struct Node
+	enum class NodeType
 	{
-		enum Type
-		{
-			ActorNode = 2,
-			ActorBone = 3,
-			ActorRootBone = 4,
-			ActorImage = 5,
-			ActorIKTarget = 11
-		};
+		ActorNode = 2,
+		ActorBone = 3,
+		ActorRootBone = 4,
+		ActorImage = 5,
+		ActorIKTarget = 11
 	};
 
 	class ActorNode
@@ -28,7 +25,7 @@ namespace nima
 		public:
 
 		protected:
-			Node::Type m_Type;
+			NodeType m_Type;
 			std::string m_Name;
 			ActorNode* m_Parent;
 			Actor* m_Actor;
@@ -53,9 +50,9 @@ namespace nima
 			float m_OverrideRotationValue;
 
 		protected:
-			ActorNode(Node::Type type);
+			ActorNode(NodeType type);
 		private:
-			ActorNode(Actor* actor, Node::Type type);
+			ActorNode(Actor* actor, NodeType type);
 		public:
 			ActorNode(Actor* actor);
 			ActorNode();
@@ -70,7 +67,7 @@ namespace nima
 			const Mat2D& worldTransform();
 			void overrideWorldTransform(const Mat2D& transform);
 			void clearWorldTransformOverride();
-			Node::Type type() const;
+			NodeType type() const;
 
 			float x() const;
 			void x(float v);
