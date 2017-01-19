@@ -6,12 +6,14 @@
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
 #include "Exceptions/UnsupportedVersionException.hpp"
+#include "Exceptions/MissingFileException.hpp"
 #include <stdio.h>
 #include <algorithm>
 
 using namespace nima;
 
 Actor::Actor() :
+	m_Flags(IsImageDrawOrderDirty|IsVertexDeformDirty),
 	m_NodeCount(0),
 	m_Nodes(nullptr),
 	m_Root(nullptr),
@@ -92,12 +94,12 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 	// Make sure it's a nima file.
 	if (N != 78 || I != 73 || M != 77 || A != 65)
 	{
-		throw new UnsupportedVersionException("Unsupported file version", 0, 12);
+		throw UnsupportedVersionException("Unsupported file version", 0, 12);
 	}
 	// And of supported version...
 	if (version != 12)
 	{
-		throw new UnsupportedVersionException("Unsupported file version", version, 12);
+		throw UnsupportedVersionException("Unsupported file version", version, 12);
 	}
 
 	m_Root = new ActorNode();
@@ -130,13 +132,12 @@ void Actor::load(const std::string& filename)
 	{
 		m_BaseFilename = std::string(filename, 0, index);
 	}
-	printf("BASE %s\n", m_BaseFilename.c_str());
-
-
-	std::string extension(filename, index);
-	m_BaseFilename = filename;
 
 	FILE* fp = fopen(filename.c_str(), "rb");
+	if(fp == nullptr)
+	{
+		throw MissingFileException("nima file is missing", filename);
+	}
 	fseek(fp, 0, SEEK_END);
 	long length = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -214,7 +215,7 @@ void Actor::readNodesBlock(BlockReader* block)
 			{
 				m_ImageNodeCount++;
 				node = ActorImage::read(this, nodeBlock, makeImageNode());
-				ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
+				ActorImage* imageNode = static_cast<ActorImage*>(node);
 				if (imageNode->textureIndex() > m_MaxTextureIndex)
 				{
 					m_MaxTextureIndex = imageNode->textureIndex();
@@ -254,16 +255,21 @@ void Actor::readNodesBlock(BlockReader* block)
 			switch (n->type())
 			{
 				case NodeType::ActorImage:
-					m_ImageNodes[imdIdx++] = reinterpret_cast<ActorImage*>(n);
+					m_ImageNodes[imdIdx++] = static_cast<ActorImage*>(n);
 					break;
 				case NodeType::ActorIKTarget:
-					m_Solvers[slvIdx++] = reinterpret_cast<Solver*>(n);
+					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(n);
 					break;
 				default:
 					break;
 			}
 		}
 	}
+}
+
+static bool ImageDrawOrderComparer(ActorImage* i, ActorImage* j)
+{
+	return i->drawOrder() > j->drawOrder();
 }
 
 static bool SolverComparer(Solver* i, Solver* j)
@@ -273,11 +279,13 @@ static bool SolverComparer(Solver* i, Solver* j)
 
 void Actor::copy(const Actor& actor)
 {
+	m_Flags = actor.m_Flags;
 	m_Animations = actor.m_Animations;
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
 	m_ImageNodeCount = actor.m_ImageNodeCount;
 	m_SolverNodeCount = actor.m_SolverNodeCount;
 	m_NodeCount = actor.m_NodeCount;
+	m_BaseFilename = actor.m_BaseFilename;
 
 	if (m_NodeCount != 0)
 	{
@@ -348,4 +356,103 @@ const int Actor::textureCount() const
 const std::string& Actor::baseFilename() const
 {
 	return m_BaseFilename;
+}
+
+void Actor::markImageDrawOrderDirty()
+{
+	m_Flags |= IsImageDrawOrderDirty;
+}
+
+void Actor::advance(float elapsedSeconds)
+{
+	bool runSolvers = false;
+	for(int i = 0; i < m_SolverNodeCount; i++)
+	{
+		Solver* solver = m_Solvers[i];
+		if(solver != nullptr && solver->needsSolve())
+		{
+			runSolvers = true;
+			break;
+		}
+	}
+
+	for(int i = 0; i < m_NodeCount; i++)
+	{
+		ActorNode* node = m_Nodes[i];
+		if(node != nullptr)
+		{
+			node->updateTransforms();
+		}
+	}
+
+	if(runSolvers)
+	{
+		for(int i = 0; i < m_SolverNodeCount; i++)
+		{
+			Solver* solver = m_Solvers[i];
+			if(solver != nullptr && solver->needsSolve())
+			{
+				solver->solveStart();
+			}
+		}
+
+		for(int i = 0; i < m_SolverNodeCount; i++)
+		{
+			Solver* solver = m_Solvers[i];
+			if(solver != nullptr && solver->needsSolve())
+			{
+				solver->solve();
+			}
+		}
+
+		for(int i = 0; i < m_SolverNodeCount; i++)
+		{
+			Solver* solver = m_Solvers[i];
+			if(solver != nullptr && solver->needsSolve())
+			{
+				solver->suppressMarkDirty(true);
+			}
+		}
+
+		for(int i = 0; i < m_NodeCount; i++)
+		{
+			ActorNode* node = m_Nodes[i];
+			if(node != nullptr)
+			{
+				node->updateTransforms();
+			}
+		}
+
+		for(int i = 0; i < m_SolverNodeCount; i++)
+		{
+			Solver* solver = m_Solvers[i];
+			if(solver != nullptr && solver->needsSolve())
+			{
+				solver->suppressMarkDirty(false);
+			}
+		}
+	}
+
+	if((m_Flags & IsImageDrawOrderDirty) != 0)
+	{
+		m_Flags &= ~IsImageDrawOrderDirty;
+
+		if (m_ImageNodes != nullptr)
+		{
+			std::sort(m_ImageNodes, m_ImageNodes + m_ImageNodeCount, ImageDrawOrderComparer);
+		}
+	}
+	if((m_Flags & IsVertexDeformDirty) != 0)
+	{
+		m_Flags &= ~IsVertexDeformDirty;
+		for(int i = 0; i < m_ImageNodeCount; i++)
+		{
+			ActorImage* imageNode = m_ImageNodes[i];
+			if(imageNode != nullptr && imageNode->isVertexDeformDirty())
+			{
+				imageNode->isVertexDeformDirty(false);
+				updateVertexDeform(imageNode);
+			}
+		}
+	}
 }

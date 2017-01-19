@@ -2,6 +2,7 @@
 #define _NIMA_ACTORIMAGE_HPP_
 
 #include "ActorNode.hpp"
+#include "BlendMode.hpp"
 
 namespace nima
 {
@@ -9,20 +10,12 @@ namespace nima
 	class BlockReader;
 	class ActorNode;
 
-	enum BlendModes
-	{
-		Normal = 0,
-		Multiply = 1,
-		Screen = 2,
-		Additive = 3
-	};
-
 	class ActorImage : public ActorNode
 	{
 		typedef ActorNode Base;
 		private:
 			int m_DrawOrder;
-			BlendModes m_BlendMode;
+			BlendMode m_BlendMode;
 			int m_TextureIndex;
 			float* m_Vertices;
 			unsigned short* m_Triangles;
@@ -70,6 +63,7 @@ namespace nima
 
 			float* vertices() const;
 			unsigned short* triangles() const;
+			BlendMode blendMode() const;
 
 			static ActorImage* read(Actor* actor, BlockReader* reader, ActorImage* node = NULL);
 	};

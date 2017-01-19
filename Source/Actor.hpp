@@ -31,7 +31,13 @@ namespace nima
 			Actor();
 			virtual ~Actor();
 
+			enum Flags
+			{
+				IsImageDrawOrderDirty = 1<<0,
+				IsVertexDeformDirty = 1<<1,
+			};
 		private:
+			unsigned short m_Flags;
 			int m_NodeCount;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
@@ -51,6 +57,7 @@ namespace nima
 
 			virtual ActorImage* makeImageNode();
 			virtual void dispose();
+			virtual void updateVertexDeform(ActorImage* image) {};
 
 		public:
 			void load(unsigned char* bytes, unsigned int length);
@@ -63,6 +70,8 @@ namespace nima
 			void copy(const Actor& actor);
 			const int textureCount() const;
 			const std::string& baseFilename() const;
+			virtual void advance(float elapsedSeconds);
+			void markImageDrawOrderDirty();
 	};
 }
 #endif

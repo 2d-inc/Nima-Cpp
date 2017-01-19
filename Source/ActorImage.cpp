@@ -1,6 +1,7 @@
 #include "ActorImage.hpp"
 #include "ActorBone.hpp"
 #include "BlockReader.hpp"
+#include "Actor.hpp"
 #include <cstring>
 
 using namespace nima;
@@ -9,7 +10,7 @@ ActorImage::ActorImage() :
 	ActorNode(NodeType::ActorImage),
 
 	m_DrawOrder(0),
-	m_BlendMode(BlendModes::Normal),
+	m_BlendMode(BlendMode::Normal),
 	m_TextureIndex(-1),
 	m_Vertices(NULL),
 	m_Triangles(NULL),
@@ -171,7 +172,7 @@ ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node
 	bool isVisible = reader->readByte() != 0;
 	if (isVisible)
 	{
-		node->m_BlendMode = (BlendModes)reader->readByte();
+		node->m_BlendMode = (BlendMode)reader->readByte();
 		node->m_DrawOrder = (int)reader->readUnsignedShort();
 		node->m_TextureIndex = (int)reader->readByte();
 
@@ -240,7 +241,10 @@ void ActorImage::drawOrder(int order)
 	if (m_DrawOrder != order)
 	{
 		m_DrawOrder = order;
-		// TODO: Would be smart to track a draw order dirty state on the actor here.
+		if(m_Actor != nullptr)
+		{
+			m_Actor->markImageDrawOrderDirty();
+		}
 	}
 }
 
@@ -272,4 +276,9 @@ int ActorImage::connectedBoneCount() const
 int ActorImage::vertexStride() const
 {
 	return m_NumConnectedBones > 0 ? 12 : 4;
+}
+
+BlendMode ActorImage::blendMode() const
+{
+	return m_BlendMode;
 }
