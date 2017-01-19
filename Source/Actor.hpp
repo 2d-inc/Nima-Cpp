@@ -37,7 +37,7 @@ namespace nima
 			ActorNode* m_Root;
 			void readNodesBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
-
+			
 		protected:
 			int m_MaxTextureIndex;
 			int m_ImageNodeCount;
@@ -48,10 +48,12 @@ namespace nima
 			Solver** m_Solvers;
 			ActorAnimation* m_Animations;
 
+			virtual ActorImage* makeImageNode();
+			virtual void dispose();
 
 		public:
-			static Actor* fromBytes(unsigned char* bytes, unsigned int length);
-			static Actor* fromFile(const std::string& filename);
+			void load(unsigned char* bytes, unsigned int length);
+			void load(const std::string& filename);
 
 			ActorNode* getNode(unsigned int index) const;
 			ActorNode* getNode(unsigned short index) const;

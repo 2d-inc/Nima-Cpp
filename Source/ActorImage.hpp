@@ -62,9 +62,14 @@ namespace nima
 			void disposeGeometry();
 			int vertexCount() const;
 			int triangleCount() const;
+			int connectedBoneCount() const;
+			int vertexStride() const;
 
 			int boneInfluenceMatricesLength();
 			float* boneInfluenceMatrices();
+
+			float* vertices() const;
+			unsigned short* triangles() const;
 
 			static ActorImage* read(Actor* actor, BlockReader* reader, ActorImage* node = NULL);
 	};

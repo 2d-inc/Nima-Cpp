@@ -5,6 +5,7 @@
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
+#include "Exceptions/UnsupportedVersionException.hpp"
 #include <stdio.h>
 #include <algorithm>
 
@@ -13,7 +14,7 @@ using namespace nima;
 Actor::Actor() :
 	m_NodeCount(0),
 	m_Nodes(nullptr),
-	m_Root(new ActorNode()),
+	m_Root(nullptr),
 	m_MaxTextureIndex(0),
 	m_ImageNodeCount(0),
 	m_SolverNodeCount(0),
@@ -27,15 +28,30 @@ Actor::Actor() :
 
 Actor::~Actor()
 {
-	delete m_Root;
-	for (int i = 1; i < m_NodeCount; i++)
+	dispose();
+}
+
+void Actor::dispose()
+{
+	for (int i = 0; i < m_NodeCount; i++)
 	{
 		delete m_Nodes[i];
 	}
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_Solvers;
-	delete [] m_Animations;
+	delete [] m_Animations;	
+
+	m_NodeCount = 0;
+	m_MaxTextureIndex = 0;
+	m_ImageNodeCount = 0;
+	m_SolverNodeCount = 0;
+	m_AnimationsCount = 0;
+	m_Nodes = nullptr;
+	m_ImageNodes = nullptr;
+	m_Solvers = nullptr;
+	m_Animations = nullptr;
+	m_Root = nullptr;
 }
 
 ActorNode* Actor::getNode(unsigned int index) const
@@ -61,8 +77,10 @@ ActorAnimation* Actor::getAnimation(const std::string& name) const
 	return nullptr;
 }
 
-Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
+void Actor::load(unsigned char* bytes, unsigned int length)
 {
+	dispose();
+
 	BlockReader reader(bytes, length);
 
 	unsigned char N = reader.readByte();
@@ -74,36 +92,34 @@ Actor* Actor::fromBytes(unsigned char* bytes, unsigned int length)
 	// Make sure it's a nima file.
 	if (N != 78 || I != 73 || M != 77 || A != 65)
 	{
-		return nullptr;
+		throw new UnsupportedVersionException("Unsupported file version", 0, 12);
 	}
 	// And of supported version...
 	if (version != 12)
 	{
-		return nullptr;
+		throw new UnsupportedVersionException("Unsupported file version", version, 12);
 	}
 
-	Actor* actor = new Actor();
+	m_Root = new ActorNode();
 	BlockReader* block = nullptr;
 	while ((block = reader.readNextBlock()) != nullptr)
 	{
 		switch (block->blockType<BlockType>())
 		{
 			case BlockType::Nodes:
-				actor->readNodesBlock(block);
+				readNodesBlock(block);
 				break;
 			case BlockType::Animations:
-				actor->readAnimationsBlock(block);
+				readAnimationsBlock(block);
 				break;
 			default:
 				break;
 		}
 		delete block;
 	}
-
-	return actor;
 }
 
-Actor* Actor::fromFile(const std::string& filename)
+void Actor::load(const std::string& filename)
 {
 	FILE* fp = fopen(filename.c_str(), "rb");
 	fseek(fp, 0, SEEK_END);
@@ -116,9 +132,8 @@ Actor* Actor::fromFile(const std::string& filename)
 
 	try
 	{
-		Actor* actor = Actor::fromBytes(bytes, (unsigned int)length);
+		load(bytes, (unsigned int)length);
 		delete [] bytes;
-		return actor;
 	}
 	catch (OverflowException ex)
 	{
@@ -153,6 +168,11 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	};
 }
 
+ActorImage* Actor::makeImageNode()
+{
+	return new ActorImage();
+}
+
 void Actor::readNodesBlock(BlockReader* block)
 {
 	m_NodeCount = block->readUnsignedShort() + 1;
@@ -178,7 +198,7 @@ void Actor::readNodesBlock(BlockReader* block)
 			case BlockType::ActorImage:
 			{
 				m_ImageNodeCount++;
-				node = ActorImage::read(this, nodeBlock);
+				node = ActorImage::read(this, nodeBlock, makeImageNode());
 				ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
 				if (imageNode->textureIndex() > m_MaxTextureIndex)
 				{

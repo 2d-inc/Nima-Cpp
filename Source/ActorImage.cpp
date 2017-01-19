@@ -253,3 +253,23 @@ int ActorImage::triangleCount() const
 {
 	return m_TriangleCount;
 }
+
+float* ActorImage::vertices() const
+{
+	return m_Vertices;
+}
+
+unsigned short* ActorImage::triangles() const
+{
+	return m_Triangles;
+}
+
+int ActorImage::connectedBoneCount() const
+{
+	return m_NumConnectedBones;
+}
+
+int ActorImage::vertexStride() const
+{
+	return m_NumConnectedBones > 0 ? 12 : 4;
+}
