@@ -43,6 +43,7 @@ namespace nima
 			int m_ImageNodeCount;
 			int m_SolverNodeCount;
 			int m_AnimationsCount;
+			std::string m_BaseFilename;
 
 			ActorImage** m_ImageNodes;
 			Solver** m_Solvers;
@@ -60,6 +61,8 @@ namespace nima
 			ActorAnimation* getAnimation(const std::string& name) const;
 
 			void copy(const Actor& actor);
+			const int textureCount() const;
+			const std::string& baseFilename() const;
 	};
 }
 #endif

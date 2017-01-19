@@ -121,6 +121,21 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 
 void Actor::load(const std::string& filename)
 {
+	size_t index = filename.rfind('.');
+	if (index == std::string::npos)
+	{
+		m_BaseFilename = filename;
+	}
+	else
+	{
+		m_BaseFilename = std::string(filename, 0, index);
+	}
+	printf("BASE %s\n", m_BaseFilename.c_str());
+
+
+	std::string extension(filename, index);
+	m_BaseFilename = filename;
+
 	FILE* fp = fopen(filename.c_str(), "rb");
 	fseek(fp, 0, SEEK_END);
 	long length = ftell(fp);
@@ -264,7 +279,7 @@ void Actor::copy(const Actor& actor)
 	m_SolverNodeCount = actor.m_SolverNodeCount;
 	m_NodeCount = actor.m_NodeCount;
 
-	if (m_Nodes != 0)
+	if (m_NodeCount != 0)
 	{
 		m_Nodes = new ActorNode*[m_NodeCount];
 	}
@@ -285,7 +300,7 @@ void Actor::copy(const Actor& actor)
 
 		for (int i = 0; i < m_NodeCount; i++)
 		{
-			ActorNode* node = m_Nodes[i];
+			ActorNode* node = actor.m_Nodes[i];
 			if (node == nullptr)
 			{
 				m_Nodes[idx++] = nullptr;
@@ -296,10 +311,10 @@ void Actor::copy(const Actor& actor)
 			switch (instanceNode->type())
 			{
 				case NodeType::ActorImage:
-					m_ImageNodes[imgIdx++] = reinterpret_cast<ActorImage*>(instanceNode);
+					m_ImageNodes[imgIdx++] = static_cast<ActorImage*>(instanceNode);
 					break;
 				case NodeType::ActorIKTarget:
-					m_Solvers[slvIdx++] = reinterpret_cast<Solver*>(instanceNode);
+					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(instanceNode);
 					break;
 				default:
 					break;
@@ -323,4 +338,14 @@ void Actor::copy(const Actor& actor)
 			std::sort(m_Solvers, m_Solvers + m_SolverNodeCount, SolverComparer);
 		}
 	}
+}
+
+const int Actor::textureCount() const
+{
+	return m_MaxTextureIndex + 1;
+}
+
+const std::string& Actor::baseFilename() const
+{
+	return m_BaseFilename;
 }

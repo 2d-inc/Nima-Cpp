@@ -49,18 +49,18 @@ namespace nima
 		public:
 			ActorIKTarget();
 			~ActorIKTarget();
-			ActorNode* makeInstance(Actor* resetActor);
+			ActorNode* makeInstance(Actor* resetActor) override;
 			void copy(ActorIKTarget* node, Actor* resetActor);
 
-			int order();
-			bool needsSolve();
-			bool suppressMarkDirty();
-			void suppressMarkDirty(bool suppressIt);
-			void solveStart();
-			void solve();
+			int order() override;
+			bool needsSolve() override;
+			bool suppressMarkDirty() override;
+			void suppressMarkDirty(bool suppressIt) override;
+			void solveStart() override;
+			void solve() override;
 			float strength() const;
 			void strength(float s);
-			void resolveNodeIndices(ActorNode** nodes);
+			void resolveNodeIndices(ActorNode** nodes) override;
 
 			static ActorIKTarget* read(Actor* actor, BlockReader* reader, ActorIKTarget* node = NULL);
 	};
