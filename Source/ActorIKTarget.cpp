@@ -98,16 +98,20 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		m_Bone2 = m_InfluencedBones[m_NumInfluencedBones - 1].bone;
 		ActorBone* b1c = m_Bone2;
 		ActorBone* b1 = m_Bone1;
-		while (b1c != nullptr && b1c->parent() != b1)
+
+		if(m_NumInfluencedBones > 1)
 		{
-			ActorNode* n = b1c->parent();
-			if (n != nullptr && n->type() == NodeType::ActorBone)
+			while (b1c != nullptr && b1c->parent() != b1)
 			{
-				b1c = reinterpret_cast<ActorBone*>(n);
-			}
-			else
-			{
-				b1c = nullptr;
+				ActorNode* n = b1c->parent();
+				if (n != nullptr && n->type() == NodeType::ActorBone)
+				{
+					b1c = dynamic_cast<ActorBone*>(n);
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 		m_Bone1Child = b1c;
@@ -134,8 +138,9 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 		int chainIndex = 0;
 		while (end != nullptr && end != b1->parent())
 		{
-			BoneChain& bc = m_Chain[chainIndex];
+			BoneChain& bc = m_Chain[chainIndex++];
 			bc.bone = reinterpret_cast<ActorBone*>(end);
+			bc.angle = 0.0f;
 			ActorNode* n = end->parent();
 			if (n != nullptr && n->type() == NodeType::ActorBone)
 			{
@@ -147,7 +152,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 			}
 
 			bc.included = doesInfluence(bc.bone) || doesInfluence(reinterpret_cast<ActorBone*>(end)); // end is either null or an actorbone (for sure) here.
-			bc.angle = 0.0f;
+			
 		}
 	}
 }
@@ -204,6 +209,7 @@ void ActorIKTarget::suppressMarkDirty(bool suppressIt)
 
 void ActorIKTarget::solveStart()
 {
+	printf("CHAIN %i\n", m_ChainLength);
 	if (m_Bone1 == nullptr)
 	{
 		return;
@@ -333,14 +339,17 @@ void ActorIKTarget::solve()
 
 	if (m_NumInfluencedBones == 1)
 	{
+		printf("A\n");
 		solve1(m_InfluencedBones[0].bone, worldTargetTranslation);
 	}
 	else if (m_NumInfluencedBones == 2)
 	{
+		printf("B\n");
 		solve2(m_InfluencedBones[0].bone, m_InfluencedBones[1].bone, worldTargetTranslation, m_InvertDirection);
 	}
 	else
 	{
+		printf("C\n");
 		for (int i = 0; i < m_NumInfluencedBones - 1; i++)
 		{
 			solve2(m_InfluencedBones[i].bone, m_Bone2, worldTargetTranslation, m_InvertDirection);

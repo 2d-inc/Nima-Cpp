@@ -160,8 +160,8 @@ void Actor::load(const std::string& filename)
 
 void Actor::readAnimationsBlock(BlockReader* block)
 {
-	int animationCount = (int)block->readUnsignedShort();
-	m_Animations = new ActorAnimation[animationCount];
+	m_AnimationsCount = (int)block->readUnsignedShort();
+	m_Animations = new ActorAnimation[m_AnimationsCount];
 
 	BlockReader* animationBlock = nullptr;
 	int animationIndex = 0;
@@ -172,9 +172,9 @@ void Actor::readAnimationsBlock(BlockReader* block)
 		{
 			case BlockType::Animation:
 				// Sanity check.
-				if (animationIndex < animationCount)
+				if (animationIndex < m_AnimationsCount)
 				{
-					m_Animations[animationIndex].read(animationBlock, m_Nodes);
+					m_Animations[animationIndex++].read(animationBlock, m_Nodes);
 				}
 				break;
 			default:
@@ -278,6 +278,7 @@ void Actor::copy(const Actor& actor)
 {
 	m_Flags = actor.m_Flags;
 	m_Animations = actor.m_Animations;
+	m_AnimationsCount = actor.m_AnimationsCount;
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
 	m_ImageNodeCount = actor.m_ImageNodeCount;
 	m_SolverNodeCount = actor.m_SolverNodeCount;
@@ -384,10 +385,11 @@ void Actor::advance(float elapsedSeconds)
 
 	if(runSolvers)
 	{
+
 		for(int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr && solver->needsSolve())
+			if(solver != nullptr)
 			{
 				solver->solveStart();
 			}
@@ -396,7 +398,7 @@ void Actor::advance(float elapsedSeconds)
 		for(int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr && solver->needsSolve())
+			if(solver != nullptr)
 			{
 				solver->solve();
 			}
@@ -405,7 +407,7 @@ void Actor::advance(float elapsedSeconds)
 		for(int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr && solver->needsSolve())
+			if(solver != nullptr)
 			{
 				solver->suppressMarkDirty(true);
 			}
