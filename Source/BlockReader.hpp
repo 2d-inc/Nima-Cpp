@@ -8,6 +8,10 @@ namespace nima
 {
 	class Mat2D;
 	class Vec2D;
+
+	class BlockReader;
+	typedef std::shared_ptr<BlockReader> BlockReaderPtr;
+
 	class BlockReader : public BinaryReader
 	{
 		private:
@@ -23,6 +27,8 @@ namespace nima
 			int blockType() const { return m_BlockType; }
 			void read(Mat2D& mat);
 			void read(Vec2D& vec);
+			void close() { delete this; }
 	};
+
 }
 #endif

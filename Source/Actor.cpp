@@ -117,7 +117,7 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 			default:
 				break;
 		}
-		delete block;
+		block->close();
 	}
 }
 
@@ -163,7 +163,6 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	int animationCount = (int)block->readUnsignedShort();
 	m_Animations = new ActorAnimation[animationCount];
 
-	printf("NUM ANIMATIONS %i\n", animationCount);
 	BlockReader* animationBlock = nullptr;
 	int animationIndex = 0;
 
@@ -181,6 +180,8 @@ void Actor::readAnimationsBlock(BlockReader* block)
 			default:
 				break;
 		}
+
+		animationBlock->close();
 	};
 }
 
@@ -194,7 +195,6 @@ void Actor::readNodesBlock(BlockReader* block)
 	m_NodeCount = block->readUnsignedShort() + 1;
 	m_Nodes = new ActorNode*[m_NodeCount];
 	m_Nodes[0] = m_Root;
-	printf("NUM NODES %i\n", m_NodeCount);
 	BlockReader* nodeBlock = nullptr;
 	int nodeIndex = 1;
 	while ((nodeBlock = block->readNextBlock()) != nullptr)
@@ -226,17 +226,14 @@ void Actor::readNodesBlock(BlockReader* block)
 				m_SolverNodeCount++;
 				node = ActorIKTarget::read(this, nodeBlock);
 				break;
-
 			default:
-				// Name is first thing in each block.
-			{
-				std::string name = nodeBlock->readString();
-				printf("NAME IS %s\n", name.c_str());
-			}
-			break;
+				// Not handled/expected block.
+				break;
 		}
 		m_Nodes[nodeIndex] = node;
 		nodeIndex++;
+
+		nodeBlock->close();
 	}
 
 	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
@@ -267,9 +264,9 @@ void Actor::readNodesBlock(BlockReader* block)
 	}
 }
 
-static bool ImageDrawOrderComparer(ActorImage* i, ActorImage* j)
+static bool ImageDrawOrderComparer(ActorImage* a, ActorImage* b)
 {
-	return i->drawOrder() > j->drawOrder();
+	return a->drawOrder() < b->drawOrder();
 }
 
 static bool SolverComparer(Solver* i, Solver* j)

@@ -42,6 +42,7 @@ void PropertyAnimation::read(BlockReader* reader, ActorNode* node)
 	m_Type = block->blockType<PropertyType>();
 	if(m_Type >= PropertyType::Max)
 	{
+		block->close();
 		return;
 	}
 	m_KeyFramesCount = (int)block->readUnsignedShort();
@@ -106,6 +107,7 @@ void PropertyAnimation::read(BlockReader* reader, ActorNode* node)
 			m_KeyFramesCount--;
 		}
 	}
+	block->close();
 }
 
 void PropertyAnimation::apply(float time, ActorNode* node, float mix)
