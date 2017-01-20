@@ -209,7 +209,6 @@ void ActorIKTarget::suppressMarkDirty(bool suppressIt)
 
 void ActorIKTarget::solveStart()
 {
-	printf("CHAIN %i\n", m_ChainLength);
 	if (m_Bone1 == nullptr)
 	{
 		return;
@@ -275,7 +274,7 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 	}
 
 	Vec2D pA; b1->worldTranslation(pA);
-	Vec2D pC; b1->tipWorldTranslation(pA);
+	Vec2D pC; b1->tipWorldTranslation(pC);
 	Vec2D pB; b2->tipWorldTranslation(pB);
 	Vec2D pBT(worldTargetTranslation);
 
@@ -339,17 +338,14 @@ void ActorIKTarget::solve()
 
 	if (m_NumInfluencedBones == 1)
 	{
-		printf("A\n");
 		solve1(m_InfluencedBones[0].bone, worldTargetTranslation);
 	}
 	else if (m_NumInfluencedBones == 2)
 	{
-		printf("B\n");
 		solve2(m_InfluencedBones[0].bone, m_InfluencedBones[1].bone, worldTargetTranslation, m_InvertDirection);
 	}
 	else
 	{
-		printf("C\n");
 		for (int i = 0; i < m_NumInfluencedBones - 1; i++)
 		{
 			solve2(m_InfluencedBones[i].bone, m_Bone2, worldTargetTranslation, m_InvertDirection);

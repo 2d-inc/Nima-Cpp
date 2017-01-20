@@ -65,6 +65,7 @@ namespace nima
 
 			ActorNode* getNode(unsigned int index) const;
 			ActorNode* getNode(unsigned short index) const;
+			ActorNode* getNode(const std::string& name) const;
 			ActorAnimation* getAnimation(const std::string& name) const;
 
 			void copy(const Actor& actor);

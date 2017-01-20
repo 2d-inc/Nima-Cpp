@@ -66,6 +66,19 @@ ActorNode* Actor::getNode(unsigned short index) const
 	return m_Nodes[index];
 }
 
+ActorNode* Actor::getNode(const std::string& name) const
+{
+	for(int i = 0; i < m_NodeCount; i++)
+	{
+		ActorNode* a = m_Nodes[i];
+		if(a->name() == name)
+		{
+			return a;
+		}
+	}
+	return nullptr;
+}
+
 ActorAnimation* Actor::getAnimation(const std::string& name) const
 {
 	for(int i = 0; i < m_AnimationsCount; i++)
@@ -269,9 +282,9 @@ static bool ImageDrawOrderComparer(ActorImage* a, ActorImage* b)
 	return a->drawOrder() < b->drawOrder();
 }
 
-static bool SolverComparer(Solver* i, Solver* j)
+static bool SolverComparer(Solver* a, Solver* b)
 {
-	return i->order() > j->order();
+	return a->order() < b->order();
 }
 
 void Actor::copy(const Actor& actor)
