@@ -35,6 +35,7 @@ namespace nima
 			{
 				IsImageDrawOrderDirty = 1<<0,
 				IsVertexDeformDirty = 1<<1,
+				IsInstance = 1<<2
 			};
 		private:
 			unsigned short m_Flags;
@@ -63,10 +64,11 @@ namespace nima
 			void load(unsigned char* bytes, unsigned int length);
 			void load(const std::string& filename);
 
-			ActorNode* getNode(unsigned int index) const;
-			ActorNode* getNode(unsigned short index) const;
-			ActorNode* getNode(const std::string& name) const;
-			ActorAnimation* getAnimation(const std::string& name) const;
+			ActorNode* node(unsigned int index) const;
+			ActorNode* node(unsigned short index) const;
+			ActorNode* node(const std::string& name) const;
+			ActorNode* root() const;
+			ActorAnimation* animation(const std::string& name) const;
 
 			void copy(const Actor& actor);
 			const int textureCount() const;

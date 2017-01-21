@@ -50,7 +50,7 @@ void KeyFrameDrawOrder::apply(ActorNode* node, float mix)
 		DrawOrderIndex& doi = m_OrderedNodes[i];
 		// Some pretty hard assumptions being made here. We're assuming we had good data to begin with.
 		// Could validate it at load time by passing the actor into the read methods.
-		ActorImage* actorImage = reinterpret_cast<ActorImage*>(actor->getNode(doi.nodeIdx));
+		ActorImage* actorImage = reinterpret_cast<ActorImage*>(actor->node(doi.nodeIdx));
 		if(actorImage != nullptr)
 		{
 			actorImage->drawOrder(doi.order);

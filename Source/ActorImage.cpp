@@ -9,31 +9,35 @@ using namespace nima;
 ActorImage::ActorImage() :
 	ActorNode(NodeType::ActorImage),
 
+	m_IsInstance(false),
 	m_DrawOrder(0),
 	m_BlendMode(BlendMode::Normal),
 	m_TextureIndex(-1),
-	m_Vertices(NULL),
-	m_Triangles(NULL),
+	m_Vertices(nullptr),
+	m_Triangles(nullptr),
 	m_VertexCount(0),
 	m_TriangleCount(0),
-	m_AnimationDeformedVertices(NULL),
+	m_AnimationDeformedVertices(nullptr),
 	m_IsVertexDeformDirty(false),
-	m_BoneMatrices(NULL),
+	m_BoneMatrices(nullptr),
 	m_NumConnectedBones(0),
-	m_BoneConnections(NULL)
+	m_BoneConnections(nullptr)
 {
 
 }
 
-ActorImage::BoneConnection::BoneConnection() : boneIndex(0), node(NULL)
+ActorImage::BoneConnection::BoneConnection() : boneIndex(0), node(nullptr)
 {
 
 }
 
 ActorImage::~ActorImage()
 {
-	delete [] m_Vertices;
-	delete [] m_Triangles;
+	if(!m_IsInstance)
+	{
+		delete [] m_Vertices;
+		delete [] m_Triangles;
+	}
 	delete [] m_AnimationDeformedVertices;
 	delete [] m_BoneMatrices;
 }
@@ -47,19 +51,20 @@ ActorNode* ActorImage::makeInstance(Actor* resetActor)
 
 bool ActorImage::doesAnimationVertexDeform() const
 {
-	return m_AnimationDeformedVertices != NULL;
+	return m_AnimationDeformedVertices != nullptr;
 }
 
 void ActorImage::doesAnimationVertexDeform(bool doesIt)
 {
 	if (doesIt)
 	{
+		delete [] m_AnimationDeformedVertices;
 		m_AnimationDeformedVertices = new float [m_VertexCount * 2];
 	}
 	else
 	{
 		delete [] m_AnimationDeformedVertices;
-		m_AnimationDeformedVertices = NULL;
+		m_AnimationDeformedVertices = nullptr;
 	}
 }
 
@@ -80,14 +85,14 @@ void ActorImage::isVertexDeformDirty(bool isIt)
 
 void ActorImage::disposeGeometry()
 {
-	// Delete vertices only if we do not vertex deform at runtime.
-	if (m_AnimationDeformedVertices == NULL)
+	if(m_IsInstance)
 	{
-		delete [] m_Vertices;
-		m_Vertices = NULL;
+		return;
 	}
+	delete [] m_Vertices;
+	m_Vertices = nullptr;
 	delete [] m_Triangles;
-	m_Triangles = NULL;
+	m_Triangles = nullptr;
 }
 
 int ActorImage::boneInfluenceMatricesLength()
@@ -96,7 +101,7 @@ int ActorImage::boneInfluenceMatricesLength()
 }
 float* ActorImage::boneInfluenceMatrices()
 {
-	if (m_BoneMatrices == NULL)
+	if (m_BoneMatrices == nullptr)
 	{
 		m_BoneMatrices = new float[boneInfluenceMatricesLength()];
 		// First bone transform is always identity.
@@ -130,6 +135,7 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 {
 	Base::copy(node, resetActor);
 
+	m_IsInstance = true;
 	m_DrawOrder = node->m_DrawOrder;
 	m_BlendMode = node->m_BlendMode;
 	m_TextureIndex = node->m_TextureIndex;
@@ -137,14 +143,14 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 	m_TriangleCount = node->m_TriangleCount;
 	m_Vertices = node->m_Vertices;
 	m_Triangles = node->m_Triangles;
-	if (node->m_AnimationDeformedVertices != NULL)
+	if (node->m_AnimationDeformedVertices != nullptr)
 	{
 		int deformedVertexLength = m_VertexCount * 2;
 		m_AnimationDeformedVertices = new float[deformedVertexLength];
 		std::memmove(m_AnimationDeformedVertices, node->m_AnimationDeformedVertices, deformedVertexLength * sizeof(float));
 	}
 
-	if (node->m_BoneConnections != NULL)
+	if (node->m_BoneConnections != nullptr)
 	{
 		m_NumConnectedBones = node->m_NumConnectedBones;
 		m_BoneConnections = new BoneConnection[node->m_NumConnectedBones];
@@ -162,7 +168,7 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 
 ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node)
 {
-	if (node == NULL)
+	if (node == nullptr)
 	{
 		node = new ActorImage();
 	}
@@ -214,7 +220,7 @@ ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node
 void ActorImage::resolveNodeIndices(ActorNode** nodes)
 {
 	Base::resolveNodeIndices(nodes);
-	if (m_BoneConnections != NULL)
+	if (m_BoneConnections != nullptr)
 	{
 		for (int i = 0; i < m_NumConnectedBones; i++)
 		{

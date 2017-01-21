@@ -42,7 +42,10 @@ void Actor::dispose()
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_Solvers;
-	delete [] m_Animations;	
+	if((m_Flags & IsInstance) != 0)
+	{
+		delete [] m_Animations;	
+	}
 
 	m_NodeCount = 0;
 	m_MaxTextureIndex = 0;
@@ -56,17 +59,22 @@ void Actor::dispose()
 	m_Root = nullptr;
 }
 
-ActorNode* Actor::getNode(unsigned int index) const
+ActorNode* Actor::root() const
+{
+	return m_Root;
+}
+
+ActorNode* Actor::node(unsigned int index) const
 {
 	return m_Nodes[index];
 }
 
-ActorNode* Actor::getNode(unsigned short index) const
+ActorNode* Actor::node(unsigned short index) const
 {
 	return m_Nodes[index];
 }
 
-ActorNode* Actor::getNode(const std::string& name) const
+ActorNode* Actor::node(const std::string& name) const
 {
 	for(int i = 0; i < m_NodeCount; i++)
 	{
@@ -79,7 +87,7 @@ ActorNode* Actor::getNode(const std::string& name) const
 	return nullptr;
 }
 
-ActorAnimation* Actor::getAnimation(const std::string& name) const
+ActorAnimation* Actor::animation(const std::string& name) const
 {
 	for(int i = 0; i < m_AnimationsCount; i++)
 	{
@@ -290,6 +298,7 @@ static bool SolverComparer(Solver* a, Solver* b)
 void Actor::copy(const Actor& actor)
 {
 	m_Flags = actor.m_Flags;
+	m_Flags |= IsInstance;
 	m_Animations = actor.m_Animations;
 	m_AnimationsCount = actor.m_AnimationsCount;
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
@@ -438,7 +447,7 @@ void Actor::advance(float elapsedSeconds)
 		for(int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr && solver->needsSolve())
+			if(solver != nullptr)
 			{
 				solver->suppressMarkDirty(false);
 			}

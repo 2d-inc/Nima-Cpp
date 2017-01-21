@@ -14,6 +14,7 @@ namespace nima
 	{
 		typedef ActorNode Base;
 		private:
+			bool m_IsInstance;
 			int m_DrawOrder;
 			BlendMode m_BlendMode;
 			int m_TextureIndex;

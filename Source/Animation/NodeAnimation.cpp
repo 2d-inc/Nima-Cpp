@@ -23,7 +23,7 @@ int NodeAnimation::nodeIndex() const
 
 void NodeAnimation::apply(float time, Actor* actor, float mix)
 {
-	ActorNode* node = actor->getNode(m_NodeIndex);
+	ActorNode* node = actor->node(m_NodeIndex);
 	for (int i = 0; i < m_PropertiesCount; i++)
 	{
 		m_Properties[i].apply(time, node, mix);
