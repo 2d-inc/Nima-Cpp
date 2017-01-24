@@ -26,7 +26,7 @@ clean:
 dependencies:
 	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ]; then \
 		echo Making Nima-Math-Cpp.; \
-		cd Nima-Math-Cpp && make; \
+		cd Nima-Math-Cpp && make -j4; \
 	fi;
 
 dirs:
