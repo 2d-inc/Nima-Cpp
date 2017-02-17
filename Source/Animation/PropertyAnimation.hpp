@@ -6,7 +6,7 @@
 namespace nima
 {
 	class BlockReader;
-	class ActorNode;
+	class ActorComponent;
 	class KeyFrame;
 	enum class PropertyType
 	{
@@ -35,8 +35,8 @@ namespace nima
 
 			PropertyAnimation();
 			~PropertyAnimation();
-			void read(BlockReader* reader, ActorNode* node);
-			void apply(float time, ActorNode* node, float mix);
+			void read(BlockReader* reader, ActorComponent* component);
+			void apply(float time, ActorComponent* component, float mix);
 
 	};
 }

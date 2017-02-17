@@ -5,12 +5,12 @@
 
 namespace nima
 {
-	class ActorNode;
+	class ActorComponent;
 
 	class KeyFrameScaleY : public KeyFrameNumeric
 	{
 		protected:
-			void setValue(ActorNode* node, float value, float mix) override;
+			void setValue(ActorComponent* component, float value, float mix) override;
 	};
 }
 

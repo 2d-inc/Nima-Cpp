@@ -3,7 +3,7 @@
 
 using namespace nima;
 
-ActorBone::ActorBone() : ActorNode(NodeType::ActorBone), m_Length(0.0f), m_IsConnectedToImage(false)
+ActorBone::ActorBone() : ActorNode(ComponentType::ActorBone), m_Length(0.0f), m_IsConnectedToImage(false)
 {
 }
 
@@ -21,7 +21,7 @@ void ActorBone::length(float l)
 	m_Length = l;
 	for(ActorNode* node : m_Children)
 	{
-		if(node->type() == NodeType::ActorBone)
+		if(node->type() == ComponentType::ActorBone)
 		{
 			ActorBone* bone = reinterpret_cast<ActorBone*>(node);
 			bone->x(l);
@@ -77,12 +77,7 @@ ActorBone* ActorBone::read(Actor* actor, BlockReader* reader, ActorBone* node)
 	return node;
 }
 
-void ActorBone::resolveNodeIndices(ActorNode** nodes)
-{
-	Base::resolveNodeIndices(nodes);
-}
-
-ActorNode* ActorBone::makeInstance(Actor* resetActor)
+ActorComponent* ActorBone::makeInstance(Actor* resetActor)
 {
 	ActorBone* instanceNode = new ActorBone();
 	instanceNode->copy(this, resetActor);

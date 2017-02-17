@@ -16,14 +16,14 @@ KeyFrameVertexDeform::~KeyFrameVertexDeform()
 	delete [] m_Vertices;
 }
 
-bool KeyFrameVertexDeform::read(BlockReader* reader, ActorNode* node)
+bool KeyFrameVertexDeform::read(BlockReader* reader, ActorComponent* component)
 {
-	if(!Base::read(reader, node))
+	if(!Base::read(reader, component))
 	{
 		return false;
 	}
 
-	ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
+	ActorImage* imageNode = reinterpret_cast<ActorImage*>(component);
 	if(imageNode == nullptr)
 	{
 		return false;
@@ -36,9 +36,9 @@ bool KeyFrameVertexDeform::read(BlockReader* reader, ActorNode* node)
 	return true;
 }
 
-void KeyFrameVertexDeform::apply(ActorNode* node, float mix)
+void KeyFrameVertexDeform::apply(ActorComponent* component, float mix)
 {
-	ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
+	ActorImage* imageNode = reinterpret_cast<ActorImage*>(component);
 	if(imageNode == nullptr)
 	{
 		return;
@@ -64,9 +64,9 @@ void KeyFrameVertexDeform::apply(ActorNode* node, float mix)
 	imageNode->isVertexDeformDirty(true);
 }
 
-void KeyFrameVertexDeform::applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix)
+void KeyFrameVertexDeform::applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix)
 {
-	ActorImage* imageNode = reinterpret_cast<ActorImage*>(node);
+	ActorImage* imageNode = reinterpret_cast<ActorImage*>(component);
 	if(imageNode == nullptr)
 	{
 		return;

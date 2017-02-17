@@ -7,7 +7,7 @@
 using namespace nima;
 
 ActorImage::ActorImage() :
-	ActorNode(NodeType::ActorImage),
+	ActorNode(ComponentType::ActorImage),
 
 	m_IsInstance(false),
 	m_DrawOrder(0),
@@ -42,7 +42,7 @@ ActorImage::~ActorImage()
 	delete [] m_BoneMatrices;
 }
 
-ActorNode* ActorImage::makeInstance(Actor* resetActor)
+ActorComponent* ActorImage::makeInstance(Actor* resetActor)
 {
 	ActorImage* instanceNode = new ActorImage();
 	instanceNode->copy(this, resetActor);
@@ -228,17 +228,21 @@ ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node
 	return node;
 }
 
-void ActorImage::resolveNodeIndices(ActorNode** nodes)
+void ActorImage::resolveComponentIndices(ActorComponent** components)
 {
-	Base::resolveNodeIndices(nodes);
+	Base::resolveComponentIndices(components);
 	if (m_BoneConnections != nullptr)
 	{
 		for (int i = 0; i < m_NumConnectedBones; i++)
 		{
 			BoneConnection& bc = m_BoneConnections[i];
-			bc.node = nodes[bc.boneIndex];
-			ActorBone* bone = reinterpret_cast<ActorBone*>(bc.node);
-			bone->isConnectedToImage(true);
+
+			ActorBone* bone = dynamic_cast<ActorBone*>(components[bc.boneIndex]);
+			if(bone != nullptr)
+			{
+				bc.node = bone;
+				bone->isConnectedToImage(true);
+			}
 		}
 	}
 }

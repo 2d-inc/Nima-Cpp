@@ -5,30 +5,17 @@
 #include <vector>
 #include <nima/Mat2D.hpp>
 #include <nima/Vec2D.hpp>
+#include "ActorComponent.hpp"
 
 namespace nima
 {
 	class Actor;
 	class BlockReader;
 
-	enum class NodeType
+	class ActorNode : public ActorComponent
 	{
-		ActorNode = 2,
-		ActorBone = 3,
-		ActorRootBone = 4,
-		ActorImage = 5,
-		ActorIKTarget = 11
-	};
-
-	class ActorNode
-	{
-		public:
-
+		typedef ActorComponent Base;
 		protected:
-			NodeType m_Type;
-			std::string m_Name;
-			ActorNode* m_Parent;
-			Actor* m_Actor;
 			std::vector<ActorNode*> m_Children;
 			std::vector<ActorNode*> m_Dependents;
 			Mat2D m_Transform;
@@ -40,8 +27,6 @@ namespace nima
 			float m_RenderOpacity;
 
 		private:
-			unsigned short m_ParentIdx;
-			unsigned short m_Idx;
 			bool m_IsDirty;
 			bool m_IsWorldDirty;
 			bool m_SuppressMarkDirty;
@@ -50,9 +35,9 @@ namespace nima
 			float m_OverrideRotationValue;
 
 		protected:
-			ActorNode(NodeType type);
+			ActorNode(ComponentType type);
 		private:
-			ActorNode(Actor* actor, NodeType type);
+			ActorNode(Actor* actor, ComponentType type);
 		public:
 			ActorNode(Actor* actor);
 			ActorNode();
@@ -61,13 +46,10 @@ namespace nima
 			void suppressMarkDirty(bool suppress); 
 			bool isWorldDirty() const;
 			bool isDirty() const;
-			Actor* actor() const;
-			const std::string& name() const;
 			const Mat2D& transform();
 			const Mat2D& worldTransform();
 			void overrideWorldTransform(const Mat2D& transform);
 			void clearWorldTransformOverride();
-			NodeType type() const;
 
 			float x() const;
 			void x(float v);
@@ -82,9 +64,6 @@ namespace nima
 			float opacity() const;
 			void opacity(float v);
 			float renderOpacity() const;
-			ActorNode* parent() const;
-			unsigned short parentIdx() const;
-			unsigned short idx() const;
 			void markDirty();
 			void markWorldDirty();
 			void addDependent(ActorNode* node);
@@ -99,9 +78,10 @@ namespace nima
 			void updateWorldTransform();
 			void addChild(ActorNode* node);
 			void removeChild(ActorNode* node);
-			virtual void resolveNodeIndices(ActorNode** nodes);
-			virtual ActorNode* makeInstance(Actor* resetActor);
+			void resolveComponentIndices(ActorComponent** components) override;
+			ActorComponent* makeInstance(Actor* resetActor) override;
 			void copy(ActorNode* node, Actor* resetActor);
+			bool isNode() override { return true; }
 
 			static ActorNode* read(Actor* actor, BlockReader* reader, ActorNode* node = NULL);
 	};

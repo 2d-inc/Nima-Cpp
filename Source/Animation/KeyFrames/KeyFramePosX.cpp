@@ -3,7 +3,8 @@
 
 using namespace nima;
 
-void KeyFramePosX::setValue(ActorNode* node, float value, float mix)
+void KeyFramePosX::setValue(ActorComponent* component, float value, float mix)
 {
+	ActorNode* node = reinterpret_cast<ActorNode*>(component);
 	node->x(node->x() * (1.0f - mix) + value * mix);
 }

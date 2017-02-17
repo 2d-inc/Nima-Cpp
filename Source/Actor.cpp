@@ -14,7 +14,9 @@ using namespace nima;
 
 Actor::Actor() :
 	m_Flags(IsImageDrawOrderDirty|IsVertexDeformDirty),
+	m_ComponentCount(0),
 	m_NodeCount(0),
+	m_Components(nullptr),
 	m_Nodes(nullptr),
 	m_Root(nullptr),
 	m_MaxTextureIndex(0),
@@ -35,10 +37,11 @@ Actor::~Actor()
 
 void Actor::dispose()
 {
-	for (int i = 0; i < m_NodeCount; i++)
+	for (int i = 0; i < m_ComponentCount; i++)
 	{
-		delete m_Nodes[i];
+		delete m_Components[i];
 	}
+	delete [] m_Components;
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_Solvers;
@@ -47,11 +50,13 @@ void Actor::dispose()
 		delete [] m_Animations;	
 	}
 
+	m_ComponentCount = 0;
 	m_NodeCount = 0;
 	m_MaxTextureIndex = 0;
 	m_ImageNodeCount = 0;
 	m_SolverNodeCount = 0;
 	m_AnimationsCount = 0;
+	m_Components = nullptr;
 	m_Nodes = nullptr;
 	m_ImageNodes = nullptr;
 	m_Solvers = nullptr;
@@ -64,21 +69,21 @@ ActorNode* Actor::root() const
 	return m_Root;
 }
 
-ActorNode* Actor::node(unsigned int index) const
+ActorComponent* Actor::component(unsigned int index) const
 {
-	return m_Nodes[index];
+	return m_Components[index];
 }
 
-ActorNode* Actor::node(unsigned short index) const
+ActorComponent* Actor::component(unsigned short index) const
 {
-	return m_Nodes[index];
+	return m_Components[index];
 }
 
-ActorNode* Actor::node(const std::string& name) const
+ActorComponent* Actor::component(const std::string& name) const
 {
-	for(int i = 0; i < m_NodeCount; i++)
+	for(int i = 0; i < m_ComponentCount; i++)
 	{
-		ActorNode* a = m_Nodes[i];
+		ActorComponent* a = m_Components[i];
 		if(a->name() == name)
 		{
 			return a;
@@ -129,8 +134,8 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 	{
 		switch (block->blockType<BlockType>())
 		{
-			case BlockType::Nodes:
-				readNodesBlock(block);
+			case BlockType::Components:
+				readComponentsBlock(block);
 				break;
 			case BlockType::Animations:
 				readAnimationsBlock(block);
@@ -195,7 +200,7 @@ void Actor::readAnimationsBlock(BlockReader* block)
 				// Sanity check.
 				if (animationIndex < m_AnimationsCount)
 				{
-					m_Animations[animationIndex++].read(animationBlock, m_Nodes);
+					m_Animations[animationIndex++].read(animationBlock, m_Components);
 				}
 				break;
 			default:
@@ -211,32 +216,34 @@ ActorImage* Actor::makeImageNode()
 	return new ActorImage();
 }
 
-void Actor::readNodesBlock(BlockReader* block)
+void Actor::readComponentsBlock(BlockReader* block)
 {
-	m_NodeCount = block->readUnsignedShort() + 1;
-	m_Nodes = new ActorNode*[m_NodeCount];
-	m_Nodes[0] = m_Root;
-	BlockReader* nodeBlock = nullptr;
-	int nodeIndex = 1;
-	while ((nodeBlock = block->readNextBlock()) != nullptr)
+	m_ComponentCount = block->readUnsignedShort() + 1;
+	m_Components = new ActorComponent*[m_ComponentCount];
+	m_Components[0] = m_Root;
+	
+	BlockReader* componentBlock = nullptr;
+	int componentIndex = 1;
+	m_NodeCount = 1;
+	while ((componentBlock = block->readNextBlock()) != nullptr)
 	{
-		ActorNode* node = nullptr;
-		switch (nodeBlock->blockType<BlockType>())
+		ActorComponent* component = nullptr;
+		switch (componentBlock->blockType<BlockType>())
 		{
 			case BlockType::ActorNode:
-				node = ActorNode::read(this, nodeBlock);
+				component = ActorNode::read(this, componentBlock);
 				break;
 			case BlockType::ActorBone:
-				node = ActorBone::read(this, nodeBlock);
+				component = ActorBone::read(this, componentBlock);
 				break;
 			case BlockType::ActorRootBone:
-				node = ActorRootBone::read(this, nodeBlock);
+				component = ActorRootBone::read(this, componentBlock);
 				break;
 			case BlockType::ActorImage:
 			{
 				m_ImageNodeCount++;
-				node = ActorImage::read(this, nodeBlock, makeImageNode());
-				ActorImage* imageNode = static_cast<ActorImage*>(node);
+				component = ActorImage::read(this, componentBlock, makeImageNode());
+				ActorImage* imageNode = static_cast<ActorImage*>(component);
 				if (imageNode->textureIndex() > m_MaxTextureIndex)
 				{
 					m_MaxTextureIndex = imageNode->textureIndex();
@@ -245,41 +252,53 @@ void Actor::readNodesBlock(BlockReader* block)
 			}
 			case BlockType::ActorIKTarget:
 				m_SolverNodeCount++;
-				node = ActorIKTarget::read(this, nodeBlock);
+				component = ActorIKTarget::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.
 				break;
 		}
-		m_Nodes[nodeIndex] = node;
-		nodeIndex++;
+		if(component != nullptr && component->isNode())
+		{
+			m_NodeCount++;
+		}
+		m_Components[componentIndex] = component;
+		componentIndex++;
 
-		nodeBlock->close();
+		componentBlock->close();
 	}
 
+	m_Nodes = new ActorNode*[m_NodeCount];
 	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
 	m_Solvers = new Solver*[m_SolverNodeCount];
+	m_Nodes[0] = m_Root;
 
 	// Resolve nodes.
 	int imdIdx = 0;
 	int slvIdx = 0;
-	for (int i = 1; i < m_NodeCount; i++)
+	int ndeIdx = 1;
+	for (int i = 1; i < m_ComponentCount; i++)
 	{
-		ActorNode* n = m_Nodes[i];
-		if (n != nullptr)
+		ActorComponent* component = m_Components[i];
+		if (component != nullptr)
 		{
-			n->resolveNodeIndices(m_Nodes);
+			component->resolveComponentIndices(m_Components);
 
-			switch (n->type())
+			switch (component->type())
 			{
-				case NodeType::ActorImage:
-					m_ImageNodes[imdIdx++] = static_cast<ActorImage*>(n);
+				case ComponentType::ActorImage:
+					m_ImageNodes[imdIdx++] = static_cast<ActorImage*>(component);
 					break;
-				case NodeType::ActorIKTarget:
-					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(n);
+				case ComponentType::ActorIKTarget:
+					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(component);
 					break;
 				default:
 					break;
+			}
+
+			if(component->isNode())
+			{
+				m_Nodes[ndeIdx++] = static_cast<ActorNode*>(component);
 			}
 		}
 	}
@@ -304,9 +323,14 @@ void Actor::copy(const Actor& actor)
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
 	m_ImageNodeCount = actor.m_ImageNodeCount;
 	m_SolverNodeCount = actor.m_SolverNodeCount;
+	m_ComponentCount = actor.m_ComponentCount;
 	m_NodeCount = actor.m_NodeCount;
 	m_BaseFilename = actor.m_BaseFilename;
 
+	if (m_ComponentCount != 0)
+	{
+		m_Components = new ActorComponent*[m_ComponentCount];
+	}
 	if (m_NodeCount != 0)
 	{
 		m_Nodes = new ActorNode*[m_NodeCount];
@@ -320,45 +344,51 @@ void Actor::copy(const Actor& actor)
 		m_Solvers = new Solver*[m_SolverNodeCount];
 	}
 
-	if (m_NodeCount > 0)
+	if (m_ComponentCount > 0)
 	{
 		int idx = 0;
 		int imgIdx = 0;
 		int slvIdx = 0;
+		int ndeIdx = 0;
 
-		for (int i = 0; i < m_NodeCount; i++)
+		for (int i = 0; i < m_ComponentCount; i++)
 		{
-			ActorNode* node = actor.m_Nodes[i];
-			if (node == nullptr)
+			ActorComponent* component = actor.m_Components[i];
+			if (component == nullptr)
 			{
-				m_Nodes[idx++] = nullptr;
+				m_Components[idx++] = nullptr;
 				continue;
 			}
-			ActorNode* instanceNode = node->makeInstance(this);
-			m_Nodes[idx++] = instanceNode;
-			switch (instanceNode->type())
+			ActorComponent* instanceComponent = component->makeInstance(this);
+			m_Components[idx++] = instanceComponent;
+			switch (instanceComponent->type())
 			{
-				case NodeType::ActorImage:
-					m_ImageNodes[imgIdx++] = static_cast<ActorImage*>(instanceNode);
+				case ComponentType::ActorImage:
+					m_ImageNodes[imgIdx++] = static_cast<ActorImage*>(instanceComponent);
 					break;
-				case NodeType::ActorIKTarget:
-					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(instanceNode);
+				case ComponentType::ActorIKTarget:
+					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(instanceComponent);
 					break;
 				default:
 					break;
+			}
+
+			if(instanceComponent->isNode())
+			{
+				m_Nodes[ndeIdx++] = static_cast<ActorNode*>(instanceComponent);
 			}
 		}
 
 		// Resolve indices.
 		m_Root = m_Nodes[0];
-		for (int i = 0; i < m_NodeCount; i++)
+		for (int i = 1; i < m_ComponentCount; i++)
 		{
-			ActorNode* node = m_Nodes[i];
-			if (m_Root == node || node == nullptr)
+			ActorComponent* component = m_Components[i];
+			if (component == nullptr)
 			{
 				continue;
 			}
-			node->resolveNodeIndices(m_Nodes);
+			component->resolveComponentIndices(m_Components);
 		}
 
 		if (m_Solvers != nullptr)

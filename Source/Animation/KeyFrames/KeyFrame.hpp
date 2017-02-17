@@ -4,7 +4,7 @@
 namespace nima
 {
 	class BlockReader;
-	class ActorNode;
+	class ActorComponent;
 
 	enum class InterpolationType
 	{
@@ -30,10 +30,10 @@ namespace nima
 			
 			float time() const;
 
-			virtual bool read(BlockReader* reader, ActorNode* node);
+			virtual bool read(BlockReader* reader, ActorComponent* component);
 			virtual void setNext(KeyFrame* frame) = 0;
-			virtual void apply(ActorNode* node, float mix) = 0;
-			virtual void applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix) = 0;
+			virtual void apply(ActorComponent* component, float mix) = 0;
+			virtual void applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix) = 0;
 	};
 }
 

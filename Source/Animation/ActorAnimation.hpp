@@ -2,7 +2,7 @@
 #define _NIMA_ACTORANIMATION_HPP_
 
 #include <string>
-#include "NodeAnimation.hpp"
+#include "ComponentAnimation.hpp"
 
 namespace nima
 {
@@ -16,8 +16,8 @@ namespace nima
 			int m_FPS;
 			float m_Duration;
 			bool m_IsLooping;
-			NodeAnimation* m_AnimatedNodes;
-			int m_AnimatedNodesCount;
+			ComponentAnimation* m_AnimatedComponents;
+			int m_AnimatedComponentsCount;
 
 		public:
 			ActorAnimation();
@@ -26,7 +26,7 @@ namespace nima
 			float duration() const;
 			bool isLooping() const;
 
-			void read(BlockReader* reader, ActorNode** nodes);
+			void read(BlockReader* reader, ActorComponent** components);
 
 			void apply(float time, Actor* actor, float mix);
 

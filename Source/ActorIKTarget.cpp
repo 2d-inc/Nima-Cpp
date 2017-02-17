@@ -10,7 +10,7 @@ ActorIKTarget::InfluencedBone::InfluencedBone() : boneIndex(0), bone(nullptr)
 }
 
 ActorIKTarget::ActorIKTarget() :
-	ActorNode(NodeType::ActorIKTarget),
+	ActorNode(ComponentType::ActorIKTarget),
 
 	m_NumInfluencedBones(0),
 	m_InfluencedBones(nullptr),
@@ -82,15 +82,15 @@ ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTar
 	return node;
 }
 
-void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
+void ActorIKTarget::resolveComponentIndices(ActorComponent** components)
 {
-	Base::resolveNodeIndices(nodes);
+	Base::resolveComponentIndices(components);
 	if (m_InfluencedBones != nullptr)
 	{
 		for (int i = 0; i < m_NumInfluencedBones; i++)
 		{
 			InfluencedBone& ib = m_InfluencedBones[i];
-			ib.bone = reinterpret_cast<ActorBone*>(nodes[ib.boneIndex]);
+			ib.bone = static_cast<ActorBone*>(components[ib.boneIndex]);
 			ib.bone->addDependent(this);
 		}
 
@@ -104,7 +104,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 			while (b1c != nullptr && b1c->parent() != b1)
 			{
 				ActorNode* n = b1c->parent();
-				if (n != nullptr && n->type() == NodeType::ActorBone)
+				if (n != nullptr && n->type() == ComponentType::ActorBone)
 				{
 					b1c = dynamic_cast<ActorBone*>(n);
 				}
@@ -123,7 +123,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 			m_ChainLength++;
 
 			ActorNode* n = end->parent();
-			if (n != nullptr && n->type() == NodeType::ActorBone)
+			if (n != nullptr && n->type() == ComponentType::ActorBone)
 			{
 				end = n;
 			}
@@ -142,7 +142,7 @@ void ActorIKTarget::resolveNodeIndices(ActorNode** nodes)
 			bc.bone = reinterpret_cast<ActorBone*>(end);
 			bc.angle = 0.0f;
 			ActorNode* n = end->parent();
-			if (n != nullptr && n->type() == NodeType::ActorBone)
+			if (n != nullptr && n->type() == ComponentType::ActorBone)
 			{
 				end = n;
 			}
@@ -249,7 +249,7 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 	while (b1c != nullptr && b1c->parent() != b1)
 	{
 		ActorNode* n = b1c->parent();
-		if (n != nullptr && n->type() == NodeType::ActorBone)
+		if (n != nullptr && n->type() == ComponentType::ActorBone)
 		{
 			b1c = reinterpret_cast<ActorBone*>(n);
 		}
@@ -261,7 +261,7 @@ void ActorIKTarget::solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTrans
 
 	ActorNode* b1pn = b1->parent();
 	// Get the world transform to the bone tip position.
-	if (b1pn->type() == NodeType::ActorBone)
+	if (b1pn->type() == ComponentType::ActorBone)
 	{
 		Mat2D t;
 		t[4] = reinterpret_cast<ActorBone*>(b1pn)->length();

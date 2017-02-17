@@ -2,7 +2,7 @@
 
 using namespace nima;
 
-ActorRootBone::ActorRootBone() : ActorNode(NodeType::ActorRootBone)
+ActorRootBone::ActorRootBone() : ActorNode(ComponentType::ActorRootBone)
 {
 }
 

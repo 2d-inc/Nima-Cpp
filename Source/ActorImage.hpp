@@ -42,9 +42,9 @@ namespace nima
 		public:
 			ActorImage();
 			~ActorImage();
-			ActorNode* makeInstance(Actor* resetActor);
+			ActorComponent* makeInstance(Actor* resetActor) override;
 			void copy(ActorImage* node, Actor* resetActor);
-			void resolveNodeIndices(ActorNode** nodes);
+			void resolveComponentIndices(ActorComponent** nodes) override;
 			bool doesAnimationVertexDeform() const;
 			void doesAnimationVertexDeform(bool doesIt);
 			float* animationDeformedVertices();

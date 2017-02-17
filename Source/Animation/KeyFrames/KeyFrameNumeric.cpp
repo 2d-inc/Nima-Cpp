@@ -15,9 +15,9 @@ float KeyFrameNumeric::value() const
 	return m_Value;
 }
 
-bool KeyFrameNumeric::read(BlockReader* reader, ActorNode* node)
+bool KeyFrameNumeric::read(BlockReader* reader, ActorComponent* component)
 {
-	if(!Base::read(reader, node))
+	if(!Base::read(reader, component))
 	{
 		return false;
 	}
@@ -27,12 +27,12 @@ bool KeyFrameNumeric::read(BlockReader* reader, ActorNode* node)
 	return true;
 }
 
-void KeyFrameNumeric::apply(ActorNode* node, float mix)
+void KeyFrameNumeric::apply(ActorComponent* component, float mix)
 {
-	this->setValue(node, m_Value, mix);
+	this->setValue(component, m_Value, mix);
 }
 
-void KeyFrameNumeric::applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix)
+void KeyFrameNumeric::applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix)
 {
 	switch(m_InterpolationType)
 	{
@@ -44,14 +44,14 @@ void KeyFrameNumeric::applyInterpolation(ActorNode* node, float time, KeyFrame* 
 			if(interpolator != nullptr)
 			{
 				float v = (float)interpolator->get((double)time);
-				setValue(node, v, mix);
+				setValue(component, v, mix);
 			}
 			break;
 		}
 
 		case InterpolationType::Hold:
 		{
-			setValue(node, m_Value, mix);
+			setValue(component, m_Value, mix);
 			break;
 		}
 
@@ -60,7 +60,7 @@ void KeyFrameNumeric::applyInterpolation(ActorNode* node, float time, KeyFrame* 
 			KeyFrameNumeric* to = reinterpret_cast<KeyFrameNumeric*>(toFrame);
 
 			float f = (time - m_Time)/(to->m_Time-m_Time);
-			setValue(node, m_Value * (1.0f-f) + to->m_Value * f, mix);
+			setValue(component, m_Value * (1.0f-f) + to->m_Value * f, mix);
 			break;
 		}
 

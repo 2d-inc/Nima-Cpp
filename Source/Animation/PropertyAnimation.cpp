@@ -32,7 +32,7 @@ PropertyAnimation::~PropertyAnimation()
 	delete [] m_KeyFrames;
 }
 
-void PropertyAnimation::read(BlockReader* reader, ActorNode* node)
+void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
 {
 	BlockReader* block = reader->readNextBlock();
 	if(block == nullptr)
@@ -91,7 +91,7 @@ void PropertyAnimation::read(BlockReader* reader, ActorNode* node)
 				break;
 		}
 
-		if(frame->read(block, node))
+		if(frame->read(block, component))
 		{
 			m_KeyFrames[currentIndex++] = frame;
 			if(lastKeyFrame != nullptr)
@@ -110,7 +110,7 @@ void PropertyAnimation::read(BlockReader* reader, ActorNode* node)
 	block->close();
 }
 
-void PropertyAnimation::apply(float time, ActorNode* node, float mix)
+void PropertyAnimation::apply(float time, ActorComponent* component, float mix)
 {
 	if(m_KeyFramesCount == 0)
 	{
@@ -149,7 +149,7 @@ void PropertyAnimation::apply(float time, ActorNode* node, float mix)
 
 	if(idx == 0)
 	{
-		m_KeyFrames[0]->apply(node, mix);
+		m_KeyFrames[0]->apply(component, mix);
 	}
 	else
 	{
@@ -159,16 +159,16 @@ void PropertyAnimation::apply(float time, ActorNode* node, float mix)
 			KeyFrame* toFrame = m_KeyFrames[idx];
 			if(time == toFrame->time())
 			{
-				toFrame->apply(node, mix);
+				toFrame->apply(component, mix);
 			}
 			else
 			{
-				fromFrame->applyInterpolation(node, time, toFrame, mix);
+				fromFrame->applyInterpolation(component, time, toFrame, mix);
 			}
 		}
 		else
 		{
-			m_KeyFrames[idx-1]->apply(node, mix);
+			m_KeyFrames[idx-1]->apply(component, mix);
 		}
 	}
 }

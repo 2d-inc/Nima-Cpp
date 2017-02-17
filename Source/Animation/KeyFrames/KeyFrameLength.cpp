@@ -3,9 +3,9 @@
 
 using namespace nima;
 
-void KeyFrameLength::setValue(ActorNode* node, float value, float mix)
+void KeyFrameLength::setValue(ActorComponent* component, float value, float mix)
 {
 	// Hard assumption this is a bone.
-	ActorBone* bone = reinterpret_cast<ActorBone*>(node);
+	ActorBone* bone = reinterpret_cast<ActorBone*>(component);
 	bone->length(bone->length() * (1.0f - mix) + value * mix);
 }

@@ -27,8 +27,7 @@ namespace nima
 			void tipWorldTranslation(Vec2D& result);
 			Vec2D tipWorldTranslation();
 
-			void resolveNodeIndices(ActorNode** nodes);
-			ActorNode* makeInstance(Actor* resetActor);
+			ActorComponent* makeInstance(Actor* resetActor) override;
 			void copy(ActorBone* node, Actor* resetActor);
 
 			static ActorBone* read(Actor* actor, BlockReader* reader, ActorBone* node = NULL);

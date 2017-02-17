@@ -5,7 +5,7 @@
 
 namespace nima
 {
-	class ActorNode;
+	class ActorComponent;
 
 	class KeyFrameDrawOrder : public KeyFrame
 	{
@@ -23,10 +23,10 @@ namespace nima
 			KeyFrameDrawOrder();
 			virtual ~KeyFrameDrawOrder();
 
-			bool read(BlockReader* reader, ActorNode* node) override;
+			bool read(BlockReader* reader, ActorComponent* component) override;
 			void setNext(KeyFrame* frame) override;
-			void apply(ActorNode* node, float mix) override;
-			void applyInterpolation(ActorNode* node, float time, KeyFrame* toFrame, float mix) override;
+			void apply(ActorComponent* component, float mix) override;
+			void applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix) override;
 	};
 }
 

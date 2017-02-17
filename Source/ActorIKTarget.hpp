@@ -60,7 +60,7 @@ namespace nima
 			void solve() override;
 			float strength() const;
 			void strength(float s);
-			void resolveNodeIndices(ActorNode** nodes) override;
+			void resolveComponentIndices(ActorComponent** nodes) override;
 
 			static ActorIKTarget* read(Actor* actor, BlockReader* reader, ActorIKTarget* node = NULL);
 	};

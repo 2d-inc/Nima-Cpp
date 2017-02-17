@@ -4,39 +4,35 @@
 #include <cassert>
 using namespace nima;
 
-ActorNode::ActorNode(Actor* actor) : ActorNode(actor, NodeType::ActorNode)
+ActorNode::ActorNode(Actor* actor) : ActorNode(actor, ComponentType::ActorNode)
 {
 
 			
 }
 
-ActorNode::ActorNode(NodeType type) : ActorNode(nullptr, type)
+ActorNode::ActorNode(ComponentType type) : ActorNode(nullptr, type)
 {
 
 			
 }
 
-ActorNode::ActorNode(Actor* actor, NodeType type) : 
-			m_Type(type),
-			m_Parent(nullptr),
-			m_Actor(actor),
-			m_Rotation(0.0f),
-			m_Scale(1.0f, 1.0f),
-			m_Opacity(1.0f),
-			m_RenderOpacity(1.0f),
-			m_ParentIdx(0),
-			m_Idx(0),
-			m_IsDirty(true),
-			m_IsWorldDirty(true),
-			m_SuppressMarkDirty(false),
-			m_OverrideWorldTransform(false),
-			m_OverrideRotation(false),
-			m_OverrideRotationValue(0.0f)
+ActorNode::ActorNode(Actor* actor, ComponentType type) : 
+		ActorComponent(actor, type),
+		m_Rotation(0.0f),
+		m_Scale(1.0f, 1.0f),
+		m_Opacity(1.0f),
+		m_RenderOpacity(1.0f),
+		m_IsDirty(true),
+		m_IsWorldDirty(true),
+		m_SuppressMarkDirty(false),
+		m_OverrideWorldTransform(false),
+		m_OverrideRotation(false),
+		m_OverrideRotationValue(0.0f)
 {
 
 }
 
-ActorNode::ActorNode() : ActorNode(nullptr, NodeType::ActorNode)
+ActorNode::ActorNode() : ActorNode(nullptr, ComponentType::ActorNode)
 {
 
 }
@@ -64,16 +60,6 @@ bool ActorNode::isWorldDirty() const
 bool ActorNode::isDirty() const
 {
 	return m_IsDirty;
-}
-
-Actor* ActorNode::actor() const
-{
-	return m_Actor;
-}
-
-const std::string& ActorNode::name() const
-{
-	return m_Name;
 }
 
 const Mat2D& ActorNode::transform()
@@ -109,11 +95,6 @@ void ActorNode::clearWorldTransformOverride()
 	}
 	m_OverrideWorldTransform = false;
 	markWorldDirty();
-}
-
-NodeType ActorNode::type() const
-{
-	return m_Type;
 }
 
 float ActorNode::x() const
@@ -214,21 +195,6 @@ void ActorNode::opacity(float v)
 float ActorNode::renderOpacity() const
 {
 	return m_RenderOpacity;
-}
-
-ActorNode* ActorNode::parent() const
-{
-	return m_Parent;	
-}
-
-unsigned short ActorNode::parentIdx() const
-{
-	return m_ParentIdx;
-}
-
-unsigned short ActorNode::idx() const
-{
-		return m_Idx;
 }
 
 void ActorNode::markDirty()
@@ -394,12 +360,12 @@ void ActorNode::removeChild(ActorNode* node)
 
 }
 
-void ActorNode::resolveNodeIndices(ActorNode** nodes)
+void ActorNode::resolveComponentIndices(ActorComponent** components)
 {
-	nodes[m_ParentIdx]->addChild(this);
+	Base::resolveComponentIndices(components);
 }
 
-ActorNode* ActorNode::makeInstance(Actor* resetActor)
+ActorComponent* ActorNode::makeInstance(Actor* resetActor)
 {
 	ActorNode* instanceNode = new ActorNode();
 	instanceNode->copy(this, resetActor);
@@ -408,8 +374,7 @@ ActorNode* ActorNode::makeInstance(Actor* resetActor)
 
 void ActorNode::copy(ActorNode* node, Actor* resetActor)
 {
-	m_Name = node->m_Name;
-	m_Actor = resetActor;
+	Base::copy(node, resetActor);
 	m_IsDirty = true;
 	m_IsWorldDirty = true;
 	Mat2D::copy(m_Transform, node->m_Transform);
@@ -419,8 +384,6 @@ void ActorNode::copy(ActorNode* node, Actor* resetActor)
 	m_Rotation = node->m_Rotation;
 	m_Opacity = node->m_Opacity;
 	m_RenderOpacity = node->m_RenderOpacity;
-	m_ParentIdx = node->m_ParentIdx;
-	m_Idx = node->m_Idx;
 	m_OverrideWorldTransform = node->m_OverrideWorldTransform;
 	m_OverrideRotation = node->m_OverrideRotation;
 	m_OverrideRotationValue = node->m_OverrideRotationValue;
@@ -433,9 +396,8 @@ ActorNode* ActorNode::read(Actor* actor, BlockReader* reader, ActorNode* node)
 		node = new ActorNode();
 	}
 
-	node->m_Actor = actor;
-	node->m_Name = reader->readString();
-	node->m_ParentIdx = reader->readUnsignedShort();
+	Base::read(actor, reader, node);
+
 	reader->read(node->m_Translation);
 	node->m_Rotation = reader->readFloat();
 	reader->read(node->m_Scale);

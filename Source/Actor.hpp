@@ -12,7 +12,7 @@ namespace nima
 	enum class BlockType
 	{
 		Unknown = 0,
-		Nodes = 1,
+		Components = 1,
 		ActorNode = 2,
 		ActorBone = 3,
 		ActorRootBone = 4,
@@ -39,10 +39,12 @@ namespace nima
 			};
 		private:
 			unsigned short m_Flags;
+			int m_ComponentCount;
 			int m_NodeCount;
+			ActorComponent** m_Components;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
-			void readNodesBlock(BlockReader* block);
+			void readComponentsBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
 			
 		protected:
@@ -64,9 +66,16 @@ namespace nima
 			void load(unsigned char* bytes, unsigned int length);
 			void load(const std::string& filename);
 
-			ActorNode* node(unsigned int index) const;
-			ActorNode* node(unsigned short index) const;
-			ActorNode* node(const std::string& name) const;
+			ActorComponent* component(unsigned int index) const;
+			ActorComponent* component(unsigned short index) const;
+			ActorComponent* component(const std::string& name) const;
+			
+			template<typename T>
+			T component(const std::string& name) const
+			{
+				return dynamic_cast<T>(component(name));
+			}
+
 			ActorNode* root() const;
 			ActorAnimation* animation(const std::string& name) const;
 
