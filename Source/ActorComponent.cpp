@@ -5,6 +5,11 @@
 #include <cassert>
 using namespace nima;
 
+ActorComponent::ActorComponent(ComponentType type) : ActorComponent(nullptr, type)
+{
+
+}
+
 ActorComponent::ActorComponent(Actor* actor, ComponentType type) : 
 			m_Type(type),
 			m_Parent(nullptr),

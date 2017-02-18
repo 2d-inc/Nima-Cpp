@@ -21,6 +21,7 @@ namespace nima
 		Length = 8,
 		VertexDeform = 9,
 		IKStrength = 10,
+		Trigger = 11,
 		Max
 	};
 
@@ -35,6 +36,14 @@ namespace nima
 
 			PropertyAnimation();
 			~PropertyAnimation();
+
+			int keyFramesCount() const;
+			inline const KeyFrame* keyFrame(int idx) const
+			{
+				return m_KeyFrames[idx];
+			}
+
+			PropertyType type() const;
 			void read(BlockReader* reader, ActorComponent* component);
 			void apply(float time, ActorComponent* component, float mix);
 

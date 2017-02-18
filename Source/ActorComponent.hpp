@@ -18,7 +18,8 @@ namespace nima
 		ActorBone = 3,
 		ActorRootBone = 4,
 		ActorImage = 5,
-		ActorIKTarget = 11
+		ActorIKTarget = 11,
+		ActorEvent = 12
 	};
 
 
@@ -35,6 +36,7 @@ namespace nima
 			unsigned short m_Idx;
 			
 		protected:
+			ActorComponent(ComponentType type);
 			ActorComponent(Actor* actor, ComponentType type);
 
 		public:

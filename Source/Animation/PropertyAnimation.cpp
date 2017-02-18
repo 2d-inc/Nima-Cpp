@@ -11,6 +11,7 @@
 #include "KeyFrames/KeyFrameLength.hpp"
 #include "KeyFrames/KeyFrameVertexDeform.hpp"
 #include "KeyFrames/KeyFrameIKStrength.hpp"
+#include "KeyFrames/KeyFrameTrigger.hpp"
 #include <cassert> 
 
 using namespace nima;
@@ -30,6 +31,16 @@ PropertyAnimation::~PropertyAnimation()
 		delete m_KeyFrames[i];
 	}
 	delete [] m_KeyFrames;
+}
+
+int PropertyAnimation::keyFramesCount() const
+{
+	return m_KeyFramesCount;
+}
+
+PropertyType PropertyAnimation::type() const
+{
+	return m_Type;
 }
 
 void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
@@ -83,6 +94,9 @@ void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
 				break;
 			case PropertyType::IKStrength:
 				frame = new KeyFrameIKStrength();
+				break;
+			case PropertyType::Trigger:
+				frame = new KeyFrameTrigger();
 				break;
 			default:
 				// This will only happen if the code isn't handling a property type it should handle.

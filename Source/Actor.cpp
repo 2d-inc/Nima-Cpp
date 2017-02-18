@@ -2,6 +2,7 @@
 #include "ActorBone.hpp"
 #include "ActorRootBone.hpp"
 #include "ActorIKTarget.hpp"
+#include "ActorEvent.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
@@ -253,6 +254,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 			case BlockType::ActorIKTarget:
 				m_SolverNodeCount++;
 				component = ActorIKTarget::read(this, componentBlock);
+				break;
+			case BlockType::ActorEvent:
+				component = ActorEvent::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.

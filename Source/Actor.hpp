@@ -22,7 +22,8 @@ namespace nima
 		Animations = 8,
 		Atlases = 9,
 		Atlas = 10,
-		ActorIKTarget = 11
+		ActorIKTarget = 11,
+		ActorEvent = 12
 	};
 
 	class Actor

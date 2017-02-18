@@ -1,4 +1,5 @@
 #include "ActorAnimation.hpp"
+#include "../ActorComponent.hpp"
 #include "../BlockReader.hpp"
 
 using namespace nima;
@@ -41,6 +42,14 @@ void ActorAnimation::apply(float time, Actor* actor, float mix)
 	}
 }
 
+void ActorAnimation::triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events)
+{
+	for(auto keyedComponent : m_TriggerComponents)
+	{
+		keyedComponent->triggerEvents(components, fromTime, toTime, events);
+	}
+}
+
 void ActorAnimation::read(BlockReader* reader, ActorComponent** components)
 {
 	m_Name = reader->readString();
@@ -53,6 +62,14 @@ void ActorAnimation::read(BlockReader* reader, ActorComponent** components)
 
 	for(int i = 0; i < m_AnimatedComponentsCount; i++)
 	{
-		m_AnimatedComponents[i].read(reader, components);
+		ComponentAnimation& animatedComponent = m_AnimatedComponents[i];
+		animatedComponent.read(reader, components);
+
+		// Put actor events in a separate list...
+		ActorComponent* component = components[animatedComponent.componentIndex()];
+		if(component != nullptr && component->type() == ComponentType::ActorEvent)
+		{
+			m_TriggerComponents.push_back(&animatedComponent);
+		}
 	}
 }

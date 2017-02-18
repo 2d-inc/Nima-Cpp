@@ -1,7 +1,6 @@
 #ifndef _NIMA_ACTORNODE_HPP_
 #define _NIMA_ACTORNODE_HPP_
 
-#include <string>
 #include <vector>
 #include <nima/Mat2D.hpp>
 #include <nima/Vec2D.hpp>

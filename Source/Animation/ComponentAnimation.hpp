@@ -2,6 +2,7 @@
 #define _NIMA_COMPONENTANIMATION_HPP_
 
 #include <string>
+#include <vector>
 #include "PropertyAnimation.hpp"
 
 namespace nima
@@ -9,7 +10,8 @@ namespace nima
 	class BlockReader;
 	class ActorComponent;
 	class Actor;
-	
+	struct ActorAnimationEvent;
+
 	class ComponentAnimation
 	{
 		private:
@@ -24,6 +26,7 @@ namespace nima
 
 			void read(BlockReader* reader, ActorComponent** components);
 			void apply(float time, Actor* actor, float mix);
+			void triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
 
 	};
 }
