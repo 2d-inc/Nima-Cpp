@@ -26,7 +26,7 @@ namespace nima
 
 			void read(BlockReader* reader, ActorComponent** components);
 			void apply(float time, Actor* actor, float mix);
-			void triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
+			void triggerEvents(Actor* actor, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
 
 	};
 }

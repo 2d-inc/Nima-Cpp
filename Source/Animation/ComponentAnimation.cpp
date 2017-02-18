@@ -33,7 +33,7 @@ void ComponentAnimation::apply(float time, Actor* actor, float mix)
 	}
 }
 
-void ComponentAnimation::triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events)
+void ComponentAnimation::triggerEvents(Actor* actor, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events)
 {
 	for(int i = 0; i < m_PropertiesCount; i++)
 	{
@@ -81,7 +81,7 @@ void ComponentAnimation::triggerEvents(ActorComponent** components, float fromTi
 				{
 					if(property.keyFrame(0)->time() == toTime)
 					{
-						ActorEvent* actorEvent = reinterpret_cast<ActorEvent*>(components[m_ComponentIndex]);
+						ActorEvent* actorEvent = reinterpret_cast<ActorEvent*>(actor->component(m_ComponentIndex));
 						events.emplace_back(ActorAnimationEvent(actorEvent, toTime, 0.0f));
 						//ActorComponent component = components[keyedComponent.ComponentIndex];
 						//triggerEvents.Add(new AnimationEventArgs(component.Name, component, property.PropertyType, toTime, 0.0f));
@@ -95,7 +95,7 @@ void ComponentAnimation::triggerEvents(ActorComponent** components, float fromTi
 
 						if(frameTime > fromTime)
 						{
-							ActorEvent* actorEvent = reinterpret_cast<ActorEvent*>(components[m_ComponentIndex]);
+							ActorEvent* actorEvent = reinterpret_cast<ActorEvent*>(actor->component(m_ComponentIndex));
 							events.emplace_back(ActorAnimationEvent(actorEvent, frameTime, toTime-frameTime));
 
 							//ActorComponent component = components[keyedComponent.ComponentIndex];

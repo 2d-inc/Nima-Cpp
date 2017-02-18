@@ -42,11 +42,11 @@ void ActorAnimation::apply(float time, Actor* actor, float mix)
 	}
 }
 
-void ActorAnimation::triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events)
+void ActorAnimation::triggerEvents(Actor* actor, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events)
 {
 	for(auto keyedComponent : m_TriggerComponents)
 	{
-		keyedComponent->triggerEvents(components, fromTime, toTime, events);
+		keyedComponent->triggerEvents(actor, fromTime, toTime, events);
 	}
 }
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 #include "ComponentAnimation.hpp"
 
 namespace nima
@@ -13,6 +14,7 @@ namespace nima
 
 	struct ActorAnimationEvent
 	{
+		typedef std::function<void(const ActorAnimationEvent&, void*)> Callback;
 		ActorEvent* actorEvent;
 		float keyFrameTime;
 		float elapsedTime;
@@ -50,7 +52,7 @@ namespace nima
 
 			void apply(float time, Actor* actor, float mix);
 
-			void triggerEvents(ActorComponent** components, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
+			void triggerEvents(Actor* actor, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
 
 	};
 }

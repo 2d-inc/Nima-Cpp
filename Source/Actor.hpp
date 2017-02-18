@@ -6,6 +6,7 @@
 #include "BlockReader.hpp"
 #include "Solver.hpp"
 #include "Animation/ActorAnimation.hpp"
+#include "Animation/ActorAnimationInstance.hpp"
 
 namespace nima
 {
@@ -25,9 +26,10 @@ namespace nima
 		ActorIKTarget = 11,
 		ActorEvent = 12
 	};
-
+	
 	class Actor
 	{
+		friend class ActorAnimationInstance;
 		public:
 			Actor();
 			virtual ~Actor();
@@ -45,6 +47,8 @@ namespace nima
 			ActorComponent** m_Components;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
+			void* m_EventCallbackUserData;
+			ActorAnimationEvent::Callback m_EventCallback;
 			void readComponentsBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
 			
@@ -70,6 +74,8 @@ namespace nima
 			ActorComponent* component(unsigned int index) const;
 			ActorComponent* component(unsigned short index) const;
 			ActorComponent* component(const std::string& name) const;
+
+			void eventCallback(ActorAnimationEvent::Callback callback, void* userdata = nullptr);
 			
 			template<typename T>
 			T component(const std::string& name) const
@@ -79,6 +85,7 @@ namespace nima
 
 			ActorNode* root() const;
 			ActorAnimation* animation(const std::string& name) const;
+			ActorAnimationInstance* animationInstance(const std::string& name);
 
 			void copy(const Actor& actor);
 			const int textureCount() const;

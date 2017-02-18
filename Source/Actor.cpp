@@ -20,6 +20,8 @@ Actor::Actor() :
 	m_Components(nullptr),
 	m_Nodes(nullptr),
 	m_Root(nullptr),
+	m_EventCallbackUserData(nullptr),
+	m_EventCallback(nullptr),
 	m_MaxTextureIndex(0),
 	m_ImageNodeCount(0),
 	m_SolverNodeCount(0),
@@ -27,6 +29,7 @@ Actor::Actor() :
 	m_ImageNodes(nullptr),
 	m_Solvers(nullptr),
 	m_Animations(nullptr)
+
 {
 
 }
@@ -93,6 +96,12 @@ ActorComponent* Actor::component(const std::string& name) const
 	return nullptr;
 }
 
+void Actor::eventCallback(ActorAnimationEvent::Callback callback, void* userdata)
+{
+	m_EventCallbackUserData = userdata;
+	m_EventCallback = callback;
+}
+
 ActorAnimation* Actor::animation(const std::string& name) const
 {
 	for(int i = 0; i < m_AnimationsCount; i++)
@@ -104,6 +113,16 @@ ActorAnimation* Actor::animation(const std::string& name) const
 		}
 	}
 	return nullptr;
+}
+
+ActorAnimationInstance* Actor::animationInstance(const std::string& name)
+{
+	ActorAnimation* a = animation(name);
+	if(a == nullptr)
+	{
+		return nullptr;
+	}
+	return new ActorAnimationInstance(this, a);
 }
 
 void Actor::load(unsigned char* bytes, unsigned int length)

@@ -10,7 +10,6 @@ namespace nima
 	class Vec2D;
 
 	class BlockReader;
-	typedef std::shared_ptr<BlockReader> BlockReaderPtr;
 
 	class BlockReader : public BinaryReader
 	{
