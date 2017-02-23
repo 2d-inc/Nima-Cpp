@@ -22,6 +22,9 @@ namespace nima
 		VertexDeform = 9,
 		IKStrength = 10,
 		Trigger = 11,
+		IntProperty = 12,
+		FloatProperty = 13,
+		StringProperty = 14,
 		Max
 	};
 

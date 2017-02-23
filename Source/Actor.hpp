@@ -24,9 +24,12 @@ namespace nima
 		Atlases = 9,
 		Atlas = 10,
 		ActorIKTarget = 11,
-		ActorEvent = 12
+		ActorEvent = 12,
+		CustomIntProperty = 13,
+		CustomFloatProperty = 14,
+		CustomStringProperty = 15
 	};
-	
+
 	class Actor
 	{
 		friend class ActorAnimationInstance;

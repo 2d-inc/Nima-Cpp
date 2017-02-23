@@ -12,6 +12,7 @@
 #include "KeyFrames/KeyFrameVertexDeform.hpp"
 #include "KeyFrames/KeyFrameIKStrength.hpp"
 #include "KeyFrames/KeyFrameTrigger.hpp"
+#include "KeyFrames/KeyFrameCustomProperty.hpp"
 #include <cassert> 
 
 using namespace nima;
@@ -97,6 +98,15 @@ void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
 				break;
 			case PropertyType::Trigger:
 				frame = new KeyFrameTrigger();
+				break;
+			case PropertyType::IntProperty:
+				frame = new KeyFrameIntProperty();
+				break;
+			case PropertyType::FloatProperty:
+				frame = new KeyFrameFloatProperty();
+				break;
+			case PropertyType::StringProperty:
+				frame = new KeyFrameStringProperty();
 				break;
 			default:
 				// This will only happen if the code isn't handling a property type it should handle.

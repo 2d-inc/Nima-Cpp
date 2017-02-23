@@ -1,5 +1,6 @@
 #include "ActorComponent.hpp"
 #include "ActorNode.hpp"
+#include "CustomProperty.hpp"
 #include "BlockReader.hpp"
 #include <algorithm>
 #include <cassert>
@@ -83,4 +84,55 @@ ActorComponent* ActorComponent::read(Actor* actor, BlockReader* reader, ActorCom
 	component->m_ParentIdx = reader->readUnsignedShort();
 
 	return component;
+}
+
+void ActorComponent::addCustomIntProperty(CustomIntProperty* property)
+{
+	m_CustomIntProperties.push_back(property);
+}
+
+void ActorComponent::addCustomFloatProperty(CustomFloatProperty* property)
+{
+	m_CustomFloatProperties.push_back(property);
+}
+
+void ActorComponent::addCustomStringProperty(CustomStringProperty* property)
+{
+	m_CustomStringProperties.push_back(property);
+}
+
+CustomIntProperty* ActorComponent::getCustomIntProperty(const std::string& name)
+{
+	for(CustomIntProperty* prop : m_CustomIntProperties)
+	{
+		if(prop->name() == name)
+		{
+			return prop;
+		}
+	}
+	return nullptr;
+}
+
+CustomFloatProperty* ActorComponent::getCustomFloatProperty(const std::string& name)
+{
+	for(CustomFloatProperty* prop : m_CustomFloatProperties)
+	{
+		if(prop->name() == name)
+		{
+			return prop;
+		}
+	}
+	return nullptr;
+}
+
+CustomStringProperty* ActorComponent::getCustomStringProperty(const std::string& name)
+{
+	for(CustomStringProperty* prop : m_CustomStringProperties)
+	{
+		if(prop->name() == name)
+		{
+			return prop;
+		}
+	}
+	return nullptr;
 }

@@ -11,6 +11,9 @@ namespace nima
 	class Actor;
 	class ActorNode;
 	class BlockReader;
+	class CustomIntProperty;
+	class CustomFloatProperty;
+	class CustomStringProperty;
 
 	enum class ComponentType
 	{
@@ -19,7 +22,10 @@ namespace nima
 		ActorRootBone = 4,
 		ActorImage = 5,
 		ActorIKTarget = 11,
-		ActorEvent = 12
+		ActorEvent = 12,
+		CustomIntProperty = 13,
+		CustomFloatProperty = 14,
+		CustomStringProperty = 15
 	};
 
 
@@ -30,6 +36,9 @@ namespace nima
 			std::string m_Name;
 			ActorNode* m_Parent;
 			Actor* m_Actor;
+			std::vector<CustomIntProperty*> m_CustomIntProperties;
+			std::vector<CustomFloatProperty*> m_CustomFloatProperties;
+			std::vector<CustomStringProperty*> m_CustomStringProperties;
 
 		private:
 			unsigned short m_ParentIdx;
@@ -54,6 +63,14 @@ namespace nima
 			virtual bool isNode() { return false; }
 
 			static ActorComponent* read(Actor* actor, BlockReader* reader, ActorComponent* component = NULL);
+
+			void addCustomIntProperty(CustomIntProperty* property);
+			void addCustomFloatProperty(CustomFloatProperty* property);
+			void addCustomStringProperty(CustomStringProperty* property);
+
+			CustomIntProperty* getCustomIntProperty(const std::string& name);
+			CustomFloatProperty* getCustomFloatProperty(const std::string& name);
+			CustomStringProperty* getCustomStringProperty(const std::string& name);
 	};
 }
 #endif

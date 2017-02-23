@@ -25,6 +25,24 @@ namespace nima
 		protected:
 			virtual void setValue(ActorComponent* component, float value, float mix) = 0;
 	};
+
+	class KeyFrameInt : public KeyFrameWithInterpolation
+	{
+		typedef KeyFrameWithInterpolation Base;
+		private:
+			int m_Value;
+
+		public:
+			KeyFrameInt();
+			int value() const;
+
+			bool read(BlockReader* reader, ActorComponent* component) override;
+			void apply(ActorComponent* component, float mix) override;
+			void applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix) override;
+			
+		protected:
+			virtual void setValue(ActorComponent* component, float value, float mix) = 0;
+	};
 }
 
 #endif

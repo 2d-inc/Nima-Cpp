@@ -3,6 +3,7 @@
 #include "ActorRootBone.hpp"
 #include "ActorIKTarget.hpp"
 #include "ActorEvent.hpp"
+#include "CustomProperty.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
@@ -276,6 +277,15 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ActorEvent:
 				component = ActorEvent::read(this, componentBlock);
+				break;
+			case BlockType::CustomIntProperty:
+				component = CustomIntProperty::read(this, componentBlock);
+				break;
+			case BlockType::CustomFloatProperty:
+				component = CustomFloatProperty::read(this, componentBlock);
+				break;
+			case BlockType::CustomStringProperty:
+				component = CustomStringProperty::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.
