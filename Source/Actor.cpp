@@ -168,7 +168,7 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 	}
 }
 
-void Actor::load(const std::string& filename)
+void Actor::setFilename(const std::string& filename)
 {
 	size_t index = filename.rfind('.');
 	if (index == std::string::npos)
@@ -179,6 +179,11 @@ void Actor::load(const std::string& filename)
 	{
 		m_BaseFilename = std::string(filename, 0, index);
 	}
+}
+
+void Actor::load(const std::string& filename)
+{
+	setFilename(filename);
 
 	FILE* fp = fopen(filename.c_str(), "rb");
 	if(fp == nullptr)

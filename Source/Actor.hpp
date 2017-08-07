@@ -73,6 +73,7 @@ namespace nima
 		public:
 			void load(unsigned char* bytes, unsigned int length);
 			void load(const std::string& filename);
+			void setFilename(const std::string& filename);
 
 			ActorComponent* component(unsigned int index) const;
 			ActorComponent* component(unsigned short index) const;
