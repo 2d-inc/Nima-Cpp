@@ -1,6 +1,6 @@
 # Specify extensions of files to delete when cleaning
 CPP_COMPILER	= clang++
-CPP_FLAGS		= -Wall -Werror -g -std=c++11 -I./ -INima-Math-Cpp/Build/include
+CPP_FLAGS		= -Wall -Werror -g -std=c++11 -I./ -INima-Math-Cpp/Build/include $(CFLAGS)
 DEFINES			=
 # Wildcard selector.
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
