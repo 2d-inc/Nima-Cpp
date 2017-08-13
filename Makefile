@@ -1,6 +1,6 @@
  # Specify extensions of files to delete when cleaning
 CPP_COMPILER	= clang++
-CPP_FLAGS		= -Wall -Werror -g -std=c++11 -I./ -INima-Math-Cpp/Build/include $(CFLAGS)
+CPP_FLAGS		= -Wall -Werror -g -std=c++11 -I./ -INima-Math-Cpp/$(BUILD_DIR)/include $(CFLAGS)
 DEFINES			=
 # Wildcard selector.
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
@@ -15,7 +15,10 @@ CPP_OBJECTS		= $(CPP_SOURCES:%.cpp=$(OBJ_DIR)/%.o)
 CPP_FOLDERS		= $(sort $(dir $(CPP_OBJECTS)))
 HEADERS			= $(call rwildcard,Source/,*.hpp)
 
-all: math dirs $(OUTPUTFILE)
+all: math dirs $(OUTPUTFILE) headers
+#
+
+headers:
 # Copy header files to include dir.
 	$(foreach header,$(HEADERS),$(shell mkdir -p $(INCLUDE_DIR)/$(dir $(subst Source/,,$(header))) && cp $(header) $(INCLUDE_DIR)/$(subst Source/,,$(header))))
 
@@ -24,9 +27,14 @@ clean:
 	@cd Nima-Math-Cpp && make clean
 
 math:
-	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ] && [ "$SKIP_SUBMAKE" -ne "1" ]; then \
-		echo Making Nima-Math-Cpp.; \
-		cd Nima-Math-Cpp && make -j4; \
+	@if [ ! -f Nima-Math-Cpp/$(BUILD_DIR)/include/nima/Mat2D.hpp ]; then \
+		if [ "$(SKIP_SUBMAKE)" == "1" ]; then \
+			echo Making Nima-Math-Cpp Headers.; \
+			cd Nima-Math-Cpp && make headers; \
+		else \
+			echo Making Nima-Math-Cpp.; \
+			cd Nima-Math-Cpp && make -j4; \
+		fi \
 	fi;
 
 dirs:
@@ -36,8 +44,8 @@ dirs:
 	$(foreach folder,$(CPP_FOLDERS),$(shell mkdir -p $(folder)))
 	
 install:
-	cp -r Build/include/ /usr/local/include
-	cp -r Build/lib/ /usr/local/lib
+	cp -r $(BUILD_DIR)/include/ /usr/local/include
+	cp -r $(BUILD_DIR)/lib/ /usr/local/lib
 
 # Build sources
 $(OUTPUTFILE): $(CPP_OBJECTS)
