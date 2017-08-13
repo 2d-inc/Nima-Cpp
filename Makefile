@@ -1,4 +1,4 @@
-# Specify extensions of files to delete when cleaning
+ # Specify extensions of files to delete when cleaning
 CPP_COMPILER	= clang++
 CPP_FLAGS		= -Wall -Werror -g -std=c++11 -I./ -INima-Math-Cpp/Build/include $(CFLAGS)
 DEFINES			=
@@ -24,7 +24,7 @@ clean:
 	@cd Nima-Math-Cpp && make clean
 
 math:
-	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ] && [ $SKIP_SUBMAKE != 1 ]; then \
+	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ] && [ "$SKIP_SUBMAKE" -ne "1" ]; then \
 		echo Making Nima-Math-Cpp.; \
 		cd Nima-Math-Cpp && make -j4; \
 	fi;
