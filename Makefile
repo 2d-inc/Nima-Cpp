@@ -24,7 +24,7 @@ clean:
 	@cd Nima-Math-Cpp && make clean
 
 math:
-	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ]; then \
+	@if [ ! -f Nima-Math-Cpp/Build/include/nima/Mat2D.hpp ] && [ $SKIP_SUBMAKE != 1 ]; then \
 		echo Making Nima-Math-Cpp.; \
 		cd Nima-Math-Cpp && make -j4; \
 	fi;
