@@ -15,7 +15,7 @@
 using namespace nima;
 
 Actor::Actor() :
-	m_Flags(IsImageDrawOrderDirty|IsVertexDeformDirty),
+	m_Flags(IsDrawOrderDirty|IsVertexDeformDirty),
 	m_ComponentCount(0),
 	m_NodeCount(0),
 	m_Components(nullptr),
@@ -25,9 +25,11 @@ Actor::Actor() :
 	m_EventCallback(nullptr),
 	m_MaxTextureIndex(0),
 	m_ImageNodeCount(0),
+	m_RenderNodeCount(0),
 	m_SolverNodeCount(0),
 	m_AnimationsCount(0),
 	m_ImageNodes(nullptr),
+	m_RenderNodes(nullptr),
 	m_Solvers(nullptr),
 	m_Animations(nullptr)
 
@@ -59,11 +61,13 @@ void Actor::dispose()
 	m_NodeCount = 0;
 	m_MaxTextureIndex = 0;
 	m_ImageNodeCount = 0;
+	m_RenderNodeCount = 0;
 	m_SolverNodeCount = 0;
 	m_AnimationsCount = 0;
 	m_Components = nullptr;
 	m_Nodes = nullptr;
 	m_ImageNodes = nullptr;
+	m_RenderNodes = nullptr;
 	m_Solvers = nullptr;
 	m_Animations = nullptr;
 	m_Root = nullptr;
@@ -242,6 +246,11 @@ ActorImage* Actor::makeImageNode()
 	return new ActorImage();
 }
 
+ActorStaticMesh* Actor::makeStaticMeshNode()
+{
+	return new ActorStaticMesh();
+}
+
 void Actor::readComponentsBlock(BlockReader* block)
 {
 	m_ComponentCount = block->readUnsignedShort() + 1;
@@ -267,12 +276,29 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ActorImage:
 			{
+				m_RenderNodeCount++;
 				m_ImageNodeCount++;
 				component = ActorImage::read(this, componentBlock, makeImageNode());
 				ActorImage* imageNode = static_cast<ActorImage*>(component);
 				if (imageNode->textureIndex() > m_MaxTextureIndex)
 				{
 					m_MaxTextureIndex = imageNode->textureIndex();
+				}
+				break;
+			}
+			case BlockType::ActorStaticMesh:
+			{
+				m_RenderNodeCount++;
+				component = ActorStaticMesh::read(this, componentBlock, makeStaticMeshNode());
+
+				ActorStaticMesh* staticMeshNode = static_cast<ActorStaticMesh*>(component);
+				for(int i = 0; i < staticMeshNode->numSurfaces(); i++)
+				{
+					ActorStaticMesh::Surface* surface = staticMeshNode->surface(i);
+					if(surface->textureIndex > m_MaxTextureIndex)
+					{
+						m_MaxTextureIndex = surface->textureIndex;
+					}
 				}
 				break;
 			}
@@ -308,11 +334,13 @@ void Actor::readComponentsBlock(BlockReader* block)
 
 	m_Nodes = new ActorNode*[m_NodeCount];
 	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
+	m_RenderNodes = new ActorRenderNode*[m_RenderNodeCount];
 	m_Solvers = new Solver*[m_SolverNodeCount];
 	m_Nodes[0] = m_Root;
 
 	// Resolve nodes.
 	int imdIdx = 0;
+	int rndIdx = 0;
 	int slvIdx = 0;
 	int ndeIdx = 1;
 	for (int i = 1; i < m_ComponentCount; i++)
@@ -324,7 +352,11 @@ void Actor::readComponentsBlock(BlockReader* block)
 
 			switch (component->type())
 			{
+				case ComponentType::ActorStaticMesh:
+					m_RenderNodes[rndIdx++] = static_cast<ActorStaticMesh*>(component);
+					break;
 				case ComponentType::ActorImage:
+					m_RenderNodes[rndIdx++] = static_cast<ActorImage*>(component);
 					m_ImageNodes[imdIdx++] = static_cast<ActorImage*>(component);
 					break;
 				case ComponentType::ActorIKTarget:
@@ -342,7 +374,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 	}
 }
 
-static bool ImageDrawOrderComparer(ActorImage* a, ActorImage* b)
+static bool DrawOrderComparer(ActorRenderNode* a, ActorRenderNode* b)
 {
 	return a->drawOrder() < b->drawOrder();
 }
@@ -360,6 +392,7 @@ void Actor::copy(const Actor& actor)
 	m_AnimationsCount = actor.m_AnimationsCount;
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
 	m_ImageNodeCount = actor.m_ImageNodeCount;
+	m_RenderNodeCount = actor.m_RenderNodeCount;
 	m_SolverNodeCount = actor.m_SolverNodeCount;
 	m_ComponentCount = actor.m_ComponentCount;
 	m_NodeCount = actor.m_NodeCount;
@@ -373,6 +406,10 @@ void Actor::copy(const Actor& actor)
 	{
 		m_Nodes = new ActorNode*[m_NodeCount];
 	}
+	if (m_RenderNodeCount != 0)
+	{
+		m_RenderNodes = new ActorRenderNode*[m_RenderNodeCount];
+	}
 	if (m_ImageNodeCount != 0)
 	{
 		m_ImageNodes = new ActorImage*[m_ImageNodeCount];
@@ -385,6 +422,7 @@ void Actor::copy(const Actor& actor)
 	if (m_ComponentCount > 0)
 	{
 		int idx = 0;
+		int rndIdx = 0;
 		int imgIdx = 0;
 		int slvIdx = 0;
 		int ndeIdx = 0;
@@ -401,7 +439,11 @@ void Actor::copy(const Actor& actor)
 			m_Components[idx++] = instanceComponent;
 			switch (instanceComponent->type())
 			{
+				case ComponentType::ActorStaticMesh:
+					m_RenderNodes[rndIdx++] = static_cast<ActorStaticMesh*>(instanceComponent);
+					break;
 				case ComponentType::ActorImage:
+					m_RenderNodes[rndIdx++] = static_cast<ActorImage*>(instanceComponent);
 					m_ImageNodes[imgIdx++] = static_cast<ActorImage*>(instanceComponent);
 					break;
 				case ComponentType::ActorIKTarget:
@@ -446,9 +488,9 @@ const std::string& Actor::baseFilename() const
 	return m_BaseFilename;
 }
 
-void Actor::markImageDrawOrderDirty()
+void Actor::markDrawOrderDirty()
 {
-	m_Flags |= IsImageDrawOrderDirty;
+	m_Flags |= IsDrawOrderDirty;
 }
 
 void Actor::advance(float elapsedSeconds)
@@ -522,13 +564,13 @@ void Actor::advance(float elapsedSeconds)
 		}
 	}
 
-	if((m_Flags & IsImageDrawOrderDirty) != 0)
+	if((m_Flags & IsDrawOrderDirty) != 0)
 	{
-		m_Flags &= ~IsImageDrawOrderDirty;
+		m_Flags &= ~IsDrawOrderDirty;
 
-		if (m_ImageNodes != nullptr)
+		if (m_RenderNodes != nullptr)
 		{
-			std::sort(m_ImageNodes, m_ImageNodes + m_ImageNodeCount, ImageDrawOrderComparer);
+			std::sort(m_RenderNodes, m_RenderNodes + m_RenderNodeCount, DrawOrderComparer);
 		}
 	}
 	if((m_Flags & IsVertexDeformDirty) != 0)

@@ -25,7 +25,8 @@ namespace nima
 		ActorEvent = 12,
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
-		CustomStringProperty = 15
+		CustomStringProperty = 15,
+		ActorStaticMesh = 22
 	};
 
 

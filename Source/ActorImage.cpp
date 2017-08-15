@@ -7,10 +7,9 @@
 using namespace nima;
 
 ActorImage::ActorImage() :
-	ActorNode(ComponentType::ActorImage),
+	ActorRenderNode(ComponentType::ActorImage),
 
 	m_IsInstance(false),
-	m_DrawOrder(0),
 	m_BlendMode(BlendMode::Normal),
 	m_TextureIndex(-1),
 	m_Vertices(nullptr),
@@ -40,6 +39,7 @@ ActorImage::~ActorImage()
 	}
 	delete [] m_AnimationDeformedVertices;
 	delete [] m_BoneMatrices;
+	delete [] m_BoneConnections;
 }
 
 ActorComponent* ActorImage::makeInstance(Actor* resetActor)
@@ -147,7 +147,6 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 	Base::copy(node, resetActor);
 
 	m_IsInstance = true;
-	m_DrawOrder = node->m_DrawOrder;
 	m_BlendMode = node->m_BlendMode;
 	m_TextureIndex = node->m_TextureIndex;
 	m_VertexCount = node->m_VertexCount;
@@ -250,23 +249,6 @@ void ActorImage::resolveComponentIndices(ActorComponent** components)
 int ActorImage::textureIndex() const
 {
 	return m_TextureIndex;
-}
-
-int ActorImage::drawOrder() const
-{
-	return m_DrawOrder;
-}
-
-void ActorImage::drawOrder(int order)
-{
-	if (m_DrawOrder != order)
-	{
-		m_DrawOrder = order;
-		if(m_Actor != nullptr)
-		{
-			m_Actor->markImageDrawOrderDirty();
-		}
-	}
 }
 
 int ActorImage::vertexCount() const

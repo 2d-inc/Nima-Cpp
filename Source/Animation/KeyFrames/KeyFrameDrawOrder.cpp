@@ -1,6 +1,6 @@
 #include "KeyFrameDrawOrder.hpp"
 #include "../../Actor.hpp"
-#include "../../ActorImage.hpp"
+#include "../../ActorRenderNode.hpp"
 #include "../../BlockReader.hpp"
 
 using namespace nima;
@@ -50,10 +50,10 @@ void KeyFrameDrawOrder::apply(ActorComponent* component, float mix)
 		DrawOrderIndex& doi = m_OrderedNodes[i];
 		// Some pretty hard assumptions being made here. We're assuming we had good data to begin with.
 		// Could validate it at load time by passing the actor into the read methods.
-		ActorImage* actorImage = dynamic_cast<ActorImage*>(actor->component(doi.nodeIdx));
-		if(actorImage != nullptr)
+		ActorRenderNode* renderNode = dynamic_cast<ActorRenderNode*>(actor->component(doi.nodeIdx));
+		if(renderNode != nullptr)
 		{
-			actorImage->drawOrder(doi.order);
+			renderNode->drawOrder(doi.order);
 		}
 	}
 }

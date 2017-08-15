@@ -3,6 +3,7 @@
 
 #include "ActorNode.hpp"
 #include "ActorImage.hpp"
+#include "ActorStaticMesh.hpp"
 #include "BlockReader.hpp"
 #include "Solver.hpp"
 #include "Animation/ActorAnimation.hpp"
@@ -27,7 +28,8 @@ namespace nima
 		ActorEvent = 12,
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
-		CustomStringProperty = 15
+		CustomStringProperty = 15,
+		ActorStaticMesh = 22
 	};
 
 	class Actor
@@ -39,7 +41,7 @@ namespace nima
 
 			enum Flags
 			{
-				IsImageDrawOrderDirty = 1<<0,
+				IsDrawOrderDirty = 1<<0,
 				IsVertexDeformDirty = 1<<1,
 				IsInstance = 1<<2
 			};
@@ -58,15 +60,18 @@ namespace nima
 		protected:
 			int m_MaxTextureIndex;
 			int m_ImageNodeCount;
+			int m_RenderNodeCount;
 			int m_SolverNodeCount;
 			int m_AnimationsCount;
 			std::string m_BaseFilename;
 
 			ActorImage** m_ImageNodes;
+			ActorRenderNode** m_RenderNodes;
 			Solver** m_Solvers;
 			ActorAnimation* m_Animations;
 
 			virtual ActorImage* makeImageNode();
+			virtual ActorStaticMesh* makeStaticMeshNode();
 			virtual void dispose();
 			virtual void updateVertexDeform(ActorImage* image) {};
 
@@ -95,7 +100,7 @@ namespace nima
 			const int textureCount() const;
 			const std::string& baseFilename() const;
 			virtual void advance(float elapsedSeconds);
-			void markImageDrawOrderDirty();
+			void markDrawOrderDirty();
 	};
 }
 #endif

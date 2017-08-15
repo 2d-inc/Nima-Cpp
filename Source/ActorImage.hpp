@@ -1,7 +1,7 @@
 #ifndef _NIMA_ACTORIMAGE_HPP_
 #define _NIMA_ACTORIMAGE_HPP_
 
-#include "ActorNode.hpp"
+#include "ActorRenderNode.hpp"
 #include "BlendMode.hpp"
 
 namespace nima
@@ -10,12 +10,11 @@ namespace nima
 	class BlockReader;
 	class ActorNode;
 
-	class ActorImage : public ActorNode
+	class ActorImage : public ActorRenderNode
 	{
-		typedef ActorNode Base;
+		typedef ActorRenderNode Base;
 		private:
 			bool m_IsInstance;
-			int m_DrawOrder;
 			BlendMode m_BlendMode;
 			int m_TextureIndex;
 			float* m_Vertices;
@@ -51,8 +50,6 @@ namespace nima
 			bool isVertexDeformDirty() const;
 			void isVertexDeformDirty(bool isIt);
 			int textureIndex() const;
-			int drawOrder() const;
-			void drawOrder(int order);
 			void disposeGeometry();
 			int vertexCount() const;
 			int triangleCount() const;
