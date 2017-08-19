@@ -41,6 +41,8 @@ namespace nima
 	{
 		friend class ActorAnimationInstance;
 		friend class NestedActorNode;
+		friend class ActorImage;
+		friend class ActorStaticMesh;
 
 		public:
 			Actor();
@@ -72,6 +74,7 @@ namespace nima
 			int m_SolverNodeCount;
 			int m_AnimationsCount;
 			int m_NestedActorAssetCount;
+			int m_NestedActorNodeCount;
 			std::string m_BaseFilename;
 
 			ActorImage** m_ImageNodes;
@@ -79,6 +82,7 @@ namespace nima
 			Solver** m_Solvers;
 			ActorAnimation* m_Animations;
 			NestedActorAsset** m_NestedActorAssets;
+			NestedActorNode** m_NestedActorNodes;
 
 			virtual ActorImage* makeImageNode();
 			virtual ActorStaticMesh* makeStaticMeshNode();
@@ -116,6 +120,14 @@ namespace nima
 			const std::string& baseFilename() const;
 			virtual void advance(float elapsedSeconds);
 			void markDrawOrderDirty();
+
+			virtual Actor* makeInstance() const;
+
+			template<typename T>
+			T* instance() const
+			{
+				return dynamic_cast<T*>(makeInstance());
+			}
 	};
 }
 #endif

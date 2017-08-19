@@ -11,11 +11,12 @@
 #include "Exceptions/MissingFileException.hpp"
 #include <stdio.h>
 #include <algorithm>
+#include <assert.h>
 
 using namespace nima;
 
 Actor::Actor() :
-	m_Flags(IsDrawOrderDirty|IsVertexDeformDirty),
+	m_Flags(IsDrawOrderDirty | IsVertexDeformDirty),
 	m_ComponentCount(0),
 	m_NodeCount(0),
 	m_Components(nullptr),
@@ -29,11 +30,13 @@ Actor::Actor() :
 	m_SolverNodeCount(0),
 	m_AnimationsCount(0),
 	m_NestedActorAssetCount(0),
+	m_NestedActorNodeCount(0),
 	m_ImageNodes(nullptr),
 	m_RenderNodes(nullptr),
 	m_Solvers(nullptr),
 	m_Animations(nullptr),
-	m_NestedActorAssets(nullptr)
+	m_NestedActorAssets(nullptr),
+	m_NestedActorNodes(nullptr)
 
 {
 
@@ -53,10 +56,11 @@ void Actor::dispose()
 	delete [] m_Components;
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
+	delete [] m_NestedActorNodes;
 	delete [] m_Solvers;
-	if((m_Flags & IsInstance) == 0x0)
+	if ((m_Flags & IsInstance) == 0x0)
 	{
-		delete [] m_Animations;	
+		delete [] m_Animations;
 
 		for (int i = 0; i < m_NestedActorAssetCount; i++)
 		{
@@ -64,7 +68,7 @@ void Actor::dispose()
 		}
 		delete [] m_NestedActorAssets;
 	}
-	
+
 
 	m_ComponentCount = 0;
 	m_NodeCount = 0;
@@ -82,6 +86,7 @@ void Actor::dispose()
 	m_Animations = nullptr;
 	m_NestedActorAssets = nullptr;
 	m_Root = nullptr;
+	m_NestedActorNodes = nullptr;
 }
 
 ActorNode* Actor::root() const
@@ -101,10 +106,10 @@ ActorComponent* Actor::component(unsigned short index) const
 
 ActorComponent* Actor::component(const std::string& name) const
 {
-	for(int i = 0; i < m_ComponentCount; i++)
+	for (int i = 0; i < m_ComponentCount; i++)
 	{
 		ActorComponent* a = m_Components[i];
-		if(a->name() == name)
+		if (a->name() == name)
 		{
 			return a;
 		}
@@ -114,7 +119,7 @@ ActorComponent* Actor::component(const std::string& name) const
 
 NestedActorAsset* Actor::nestedActorAsset(unsigned int index) const
 {
-	if(index < m_NestedActorAssetCount)
+	if (index < m_NestedActorAssetCount)
 	{
 		return m_NestedActorAssets[index];
 	}
@@ -129,10 +134,10 @@ void Actor::eventCallback(ActorAnimationEvent::Callback callback, void* userdata
 
 ActorAnimation* Actor::animation(const std::string& name) const
 {
-	for(int i = 0; i < m_AnimationsCount; i++)
+	for (int i = 0; i < m_AnimationsCount; i++)
 	{
 		ActorAnimation& a = m_Animations[i];
-		if(a.name() == name)
+		if (a.name() == name)
 		{
 			return &a;
 		}
@@ -143,7 +148,7 @@ ActorAnimation* Actor::animation(const std::string& name) const
 ActorAnimationInstance* Actor::animationInstance(const std::string& name)
 {
 	ActorAnimation* a = animation(name);
-	if(a == nullptr)
+	if (a == nullptr)
 	{
 		return nullptr;
 	}
@@ -213,7 +218,7 @@ void Actor::load(const std::string& filename)
 	setFilename(filename);
 
 	FILE* fp = fopen(filename.c_str(), "rb");
-	if(fp == nullptr)
+	if (fp == nullptr)
 	{
 		throw MissingFileException("nima file is missing", filename);
 	}
@@ -318,7 +323,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 	m_ComponentCount = block->readUnsignedShort() + 1;
 	m_Components = new ActorComponent*[m_ComponentCount];
 	m_Components[0] = m_Root;
-	
+
 	BlockReader* componentBlock = nullptr;
 	int componentIndex = 1;
 	m_NodeCount = 1;
@@ -354,10 +359,10 @@ void Actor::readComponentsBlock(BlockReader* block)
 				component = ActorStaticMesh::read(this, componentBlock, makeStaticMeshNode());
 
 				ActorStaticMesh* staticMeshNode = static_cast<ActorStaticMesh*>(component);
-				for(int i = 0; i < staticMeshNode->numSurfaces(); i++)
+				for (int i = 0; i < staticMeshNode->numSurfaces(); i++)
 				{
 					ActorStaticMesh::Surface* surface = staticMeshNode->surface(i);
-					if(surface->textureIndex > m_MaxTextureIndex)
+					if (surface->textureIndex > m_MaxTextureIndex)
 					{
 						m_MaxTextureIndex = surface->textureIndex;
 					}
@@ -367,6 +372,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 			case BlockType::NestedActorNode:
 			{
 				m_RenderNodeCount++;
+				m_NestedActorNodeCount++;
 				component = NestedActorNode::read(this, componentBlock, makeNestedActorNode());
 				break;
 			}
@@ -390,7 +396,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 				// Not handled/expected block.
 				break;
 		}
-		if(component != nullptr && component->isNode())
+		if (component != nullptr && component->isNode())
 		{
 			m_NodeCount++;
 		}
@@ -404,6 +410,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
 	m_RenderNodes = new ActorRenderNode*[m_RenderNodeCount];
 	m_Solvers = new Solver*[m_SolverNodeCount];
+	m_NestedActorNodes = new NestedActorNode*[m_NestedActorNodeCount];
 	m_Nodes[0] = m_Root;
 
 	// Resolve nodes.
@@ -411,6 +418,8 @@ void Actor::readComponentsBlock(BlockReader* block)
 	int rndIdx = 0;
 	int slvIdx = 0;
 	int ndeIdx = 1;
+	int nanIdx = 0;
+
 	for (int i = 1; i < m_ComponentCount; i++)
 	{
 		ActorComponent* component = m_Components[i];
@@ -421,6 +430,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 			switch (component->type())
 			{
 				case ComponentType::NestedActorNode:
+					m_NestedActorNodes[nanIdx++] = static_cast<NestedActorNode*>(component);
 					m_RenderNodes[rndIdx++] = static_cast<NestedActorNode*>(component);
 					break;
 				case ComponentType::ActorStaticMesh:
@@ -437,7 +447,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 					break;
 			}
 
-			if(component->isNode())
+			if (component->isNode())
 			{
 				m_Nodes[ndeIdx++] = static_cast<ActorNode*>(component);
 			}
@@ -467,7 +477,10 @@ void Actor::copy(const Actor& actor)
 	m_SolverNodeCount = actor.m_SolverNodeCount;
 	m_ComponentCount = actor.m_ComponentCount;
 	m_NodeCount = actor.m_NodeCount;
+	m_NestedActorAssetCount = actor.m_NestedActorAssetCount;
+	m_NestedActorNodeCount = actor.m_NestedActorNodeCount;
 	m_BaseFilename = actor.m_BaseFilename;
+	m_NestedActorAssets = actor.m_NestedActorAssets;
 
 	if (m_ComponentCount != 0)
 	{
@@ -489,6 +502,10 @@ void Actor::copy(const Actor& actor)
 	{
 		m_Solvers = new Solver*[m_SolverNodeCount];
 	}
+	if (m_NestedActorNodeCount != 0)
+	{
+		m_NestedActorNodes = new NestedActorNode*[m_NestedActorNodeCount];
+	}
 
 	if (m_ComponentCount > 0)
 	{
@@ -497,6 +514,7 @@ void Actor::copy(const Actor& actor)
 		int imgIdx = 0;
 		int slvIdx = 0;
 		int ndeIdx = 0;
+		int nanIdx = 0;
 
 		for (int i = 0; i < m_ComponentCount; i++)
 		{
@@ -511,6 +529,7 @@ void Actor::copy(const Actor& actor)
 			switch (instanceComponent->type())
 			{
 				case ComponentType::NestedActorNode:
+					m_NestedActorNodes[nanIdx++] = static_cast<NestedActorNode*>(instanceComponent);
 					m_RenderNodes[rndIdx++] = static_cast<NestedActorNode*>(instanceComponent);
 					break;
 				case ComponentType::ActorStaticMesh:
@@ -527,7 +546,7 @@ void Actor::copy(const Actor& actor)
 					break;
 			}
 
-			if(instanceComponent->isNode())
+			if (instanceComponent->isNode())
 			{
 				m_Nodes[ndeIdx++] = static_cast<ActorNode*>(instanceComponent);
 			}
@@ -575,75 +594,75 @@ void Actor::markDrawOrderDirty()
 void Actor::advance(float elapsedSeconds)
 {
 	bool runSolvers = false;
-	for(int i = 0; i < m_SolverNodeCount; i++)
+	for (int i = 0; i < m_SolverNodeCount; i++)
 	{
 		Solver* solver = m_Solvers[i];
-		if(solver != nullptr && solver->needsSolve())
+		if (solver != nullptr && solver->needsSolve())
 		{
 			runSolvers = true;
 			break;
 		}
 	}
 
-	for(int i = 0; i < m_NodeCount; i++)
+	for (int i = 0; i < m_NodeCount; i++)
 	{
 		ActorNode* node = m_Nodes[i];
-		if(node != nullptr)
+		if (node != nullptr)
 		{
 			node->updateTransforms();
 		}
 	}
 
-	if(runSolvers)
+	if (runSolvers)
 	{
 
-		for(int i = 0; i < m_SolverNodeCount; i++)
+		for (int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr)
+			if (solver != nullptr)
 			{
 				solver->solveStart();
 			}
 		}
 
-		for(int i = 0; i < m_SolverNodeCount; i++)
+		for (int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr)
+			if (solver != nullptr)
 			{
 				solver->solve();
 			}
 		}
 
-		for(int i = 0; i < m_SolverNodeCount; i++)
+		for (int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr)
+			if (solver != nullptr)
 			{
 				solver->suppressMarkDirty(true);
 			}
 		}
 
-		for(int i = 0; i < m_NodeCount; i++)
+		for (int i = 0; i < m_NodeCount; i++)
 		{
 			ActorNode* node = m_Nodes[i];
-			if(node != nullptr)
+			if (node != nullptr)
 			{
 				node->updateTransforms();
 			}
 		}
 
-		for(int i = 0; i < m_SolverNodeCount; i++)
+		for (int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
-			if(solver != nullptr)
+			if (solver != nullptr)
 			{
 				solver->suppressMarkDirty(false);
 			}
 		}
 	}
 
-	if((m_Flags & IsDrawOrderDirty) != 0)
+	if ((m_Flags & IsDrawOrderDirty) != 0)
 	{
 		m_Flags &= ~IsDrawOrderDirty;
 
@@ -652,17 +671,29 @@ void Actor::advance(float elapsedSeconds)
 			std::sort(m_RenderNodes, m_RenderNodes + m_RenderNodeCount, DrawOrderComparer);
 		}
 	}
-	if((m_Flags & IsVertexDeformDirty) != 0)
+	if ((m_Flags & IsVertexDeformDirty) != 0)
 	{
 		m_Flags &= ~IsVertexDeformDirty;
-		for(int i = 0; i < m_ImageNodeCount; i++)
+		for (int i = 0; i < m_ImageNodeCount; i++)
 		{
 			ActorImage* imageNode = m_ImageNodes[i];
-			if(imageNode != nullptr && imageNode->isVertexDeformDirty())
+			if (imageNode != nullptr && imageNode->isVertexDeformDirty())
 			{
 				imageNode->isVertexDeformDirty(false);
 				updateVertexDeform(imageNode);
 			}
 		}
 	}
+
+	// Advance nested.
+	for(int i = 0; i < m_NestedActorNodeCount; i++)
+	{
+		m_NestedActorNodes[i]->advance(elapsedSeconds);
+	}
+}
+
+Actor* Actor::makeInstance() const
+{
+	assert(false);
+	return nullptr;
 }

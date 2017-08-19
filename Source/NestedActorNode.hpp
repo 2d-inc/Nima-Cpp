@@ -12,9 +12,12 @@ namespace nima
 	class NestedActorNode : public ActorRenderNode
 	{
 		typedef ActorRenderNode Base;
-		protected:
+		private:
 			NestedActorAsset* m_Asset;
 			Actor* m_ActorInstance;
+		protected:
+
+			virtual void setActorInstance(Actor* instance);
 
 		public:
 			NestedActorNode();
@@ -23,6 +26,7 @@ namespace nima
 			ActorComponent* makeInstance(Actor* resetActor) override;
 			void updateWorldTransform() override;
 			void copy(NestedActorNode* node, Actor* resetActor);
+			void advance(float elapsedSeconds);
 
 			static NestedActorNode* read(Actor* actor, BlockReader* reader, NestedActorNode* node = NULL);
 	};

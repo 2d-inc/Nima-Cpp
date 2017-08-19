@@ -19,9 +19,14 @@ NestedActorNode::~NestedActorNode()
 
 ActorComponent* NestedActorNode::makeInstance(Actor* resetActor)
 {
-	NestedActorNode* instanceNode = resetActor->makeNestedActorNode();
+	NestedActorNode* instanceNode = new NestedActorNode();
 	instanceNode->copy(this, resetActor);
 	return instanceNode;
+}
+
+void NestedActorNode::setActorInstance(Actor* instance)
+{
+	m_ActorInstance = instance;
 }
 
 void NestedActorNode::copy(NestedActorNode* node, Actor* resetActor)
@@ -30,11 +35,12 @@ void NestedActorNode::copy(NestedActorNode* node, Actor* resetActor)
 
 	m_DrawOrder = node->m_DrawOrder;
 	m_Asset = node->m_Asset;
-	/*Actor* actor = m_Asset->actor();
+	Actor* actor = m_Asset->actor();
 	if(actor != nullptr)
 	{
-		m_ActorInstance = m_Asset->actor()
-	}*/
+		NestedActorNode* self = this;
+		self->setActorInstance(m_Asset->actor()->makeInstance());
+	}
 }
 
 void NestedActorNode::updateWorldTransform()
@@ -63,4 +69,12 @@ NestedActorNode* NestedActorNode::read(Actor* actor, BlockReader* reader, Nested
 		node->m_Asset = actor->nestedActorAsset(assetIndex);
 	}
 	return node;
+}
+
+void NestedActorNode::advance(float elapsedSeconds)
+{
+	if(m_ActorInstance != nullptr)
+	{
+		m_ActorInstance->advance(elapsedSeconds);
+	}
 }
