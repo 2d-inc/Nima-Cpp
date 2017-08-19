@@ -8,6 +8,8 @@
 #include "Solver.hpp"
 #include "Animation/ActorAnimation.hpp"
 #include "Animation/ActorAnimationInstance.hpp"
+#include "NestedActorAsset.hpp"
+#include "NestedActorNode.hpp"
 
 namespace nima
 {
@@ -29,12 +31,17 @@ namespace nima
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
 		CustomStringProperty = 15,
-		ActorStaticMesh = 22
+		ActorStaticMesh = 22,
+		NestedActorNode = 23,
+		NestedActorAssets = 24,
+		NestedActorAsset = 25
 	};
 
 	class Actor
 	{
 		friend class ActorAnimationInstance;
+		friend class NestedActorNode;
+
 		public:
 			Actor();
 			virtual ~Actor();
@@ -56,6 +63,7 @@ namespace nima
 			ActorAnimationEvent::Callback m_EventCallback;
 			void readComponentsBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
+			void readNestedActorAssetsBlock(BlockReader* block);
 			
 		protected:
 			int m_MaxTextureIndex;
@@ -63,17 +71,21 @@ namespace nima
 			int m_RenderNodeCount;
 			int m_SolverNodeCount;
 			int m_AnimationsCount;
+			int m_NestedActorAssetCount;
 			std::string m_BaseFilename;
 
 			ActorImage** m_ImageNodes;
 			ActorRenderNode** m_RenderNodes;
 			Solver** m_Solvers;
 			ActorAnimation* m_Animations;
+			NestedActorAsset** m_NestedActorAssets;
 
 			virtual ActorImage* makeImageNode();
 			virtual ActorStaticMesh* makeStaticMeshNode();
+			virtual NestedActorNode* makeNestedActorNode();
+			virtual NestedActorAsset* makeNestedActorAsset();
 			virtual void dispose();
-			virtual void updateVertexDeform(ActorImage* image) {};
+			virtual void updateVertexDeform(ActorImage* image) {}
 
 		public:
 			void load(unsigned char* bytes, unsigned int length);
@@ -83,6 +95,9 @@ namespace nima
 			ActorComponent* component(unsigned int index) const;
 			ActorComponent* component(unsigned short index) const;
 			ActorComponent* component(const std::string& name) const;
+
+			const int nestedActorCount() const;
+			NestedActorAsset* nestedActorAsset(unsigned int index) const;
 
 			void eventCallback(ActorAnimationEvent::Callback callback, void* userdata = nullptr);
 			

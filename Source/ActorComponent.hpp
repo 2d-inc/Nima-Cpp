@@ -26,7 +26,8 @@ namespace nima
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
 		CustomStringProperty = 15,
-		ActorStaticMesh = 22
+		ActorStaticMesh = 22,
+		NestedActorNode = 23
 	};
 
 

@@ -28,10 +28,12 @@ Actor::Actor() :
 	m_RenderNodeCount(0),
 	m_SolverNodeCount(0),
 	m_AnimationsCount(0),
+	m_NestedActorAssetCount(0),
 	m_ImageNodes(nullptr),
 	m_RenderNodes(nullptr),
 	m_Solvers(nullptr),
-	m_Animations(nullptr)
+	m_Animations(nullptr),
+	m_NestedActorAssets(nullptr)
 
 {
 
@@ -52,10 +54,17 @@ void Actor::dispose()
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_Solvers;
-	if((m_Flags & IsInstance) != 0)
+	if((m_Flags & IsInstance) == 0x0)
 	{
 		delete [] m_Animations;	
+
+		for (int i = 0; i < m_NestedActorAssetCount; i++)
+		{
+			delete m_NestedActorAssets[i];
+		}
+		delete [] m_NestedActorAssets;
 	}
+	
 
 	m_ComponentCount = 0;
 	m_NodeCount = 0;
@@ -64,12 +73,14 @@ void Actor::dispose()
 	m_RenderNodeCount = 0;
 	m_SolverNodeCount = 0;
 	m_AnimationsCount = 0;
+	m_NestedActorAssetCount = 0;
 	m_Components = nullptr;
 	m_Nodes = nullptr;
 	m_ImageNodes = nullptr;
 	m_RenderNodes = nullptr;
 	m_Solvers = nullptr;
 	m_Animations = nullptr;
+	m_NestedActorAssets = nullptr;
 	m_Root = nullptr;
 }
 
@@ -97,6 +108,15 @@ ActorComponent* Actor::component(const std::string& name) const
 		{
 			return a;
 		}
+	}
+	return nullptr;
+}
+
+NestedActorAsset* Actor::nestedActorAsset(unsigned int index) const
+{
+	if(index < m_NestedActorAssetCount)
+	{
+		return m_NestedActorAssets[index];
 	}
 	return nullptr;
 }
@@ -165,6 +185,9 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 			case BlockType::Animations:
 				readAnimationsBlock(block);
 				break;
+			case BlockType::NestedActorAssets:
+				readNestedActorAssetsBlock(block);
+				break;
 			default:
 				break;
 		}
@@ -214,6 +237,35 @@ void Actor::load(const std::string& filename)
 	}
 }
 
+void Actor::readNestedActorAssetsBlock(BlockReader* block)
+{
+	m_NestedActorAssetCount = (int)block->readUnsignedShort();
+	m_NestedActorAssets = new NestedActorAsset*[m_NestedActorAssetCount];
+
+	BlockReader* nestedActorAssetBlock = nullptr;
+	int nestedActorIndex = 0;
+
+	while ((nestedActorAssetBlock = block->readNextBlock()) != nullptr)
+	{
+		switch (nestedActorAssetBlock->blockType<BlockType>())
+		{
+			case BlockType::NestedActorAsset:
+				// Sanity check.
+				if (nestedActorIndex < m_NestedActorAssetCount)
+				{
+					NestedActorAsset* asset = makeNestedActorAsset();
+					asset->read(nestedActorAssetBlock);
+					m_NestedActorAssets[nestedActorIndex++] = asset;
+				}
+				break;
+			default:
+				break;
+		}
+
+		nestedActorAssetBlock->close();
+	};
+}
+
 void Actor::readAnimationsBlock(BlockReader* block)
 {
 	m_AnimationsCount = (int)block->readUnsignedShort();
@@ -249,6 +301,16 @@ ActorImage* Actor::makeImageNode()
 ActorStaticMesh* Actor::makeStaticMeshNode()
 {
 	return new ActorStaticMesh();
+}
+
+NestedActorNode* Actor::makeNestedActorNode()
+{
+	return new NestedActorNode();
+}
+
+NestedActorAsset* Actor::makeNestedActorAsset()
+{
+	return new NestedActorAsset();
 }
 
 void Actor::readComponentsBlock(BlockReader* block)
@@ -302,6 +364,12 @@ void Actor::readComponentsBlock(BlockReader* block)
 				}
 				break;
 			}
+			case BlockType::NestedActorNode:
+			{
+				m_RenderNodeCount++;
+				component = NestedActorNode::read(this, componentBlock, makeNestedActorNode());
+				break;
+			}
 			case BlockType::ActorIKTarget:
 				m_SolverNodeCount++;
 				component = ActorIKTarget::read(this, componentBlock);
@@ -352,6 +420,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 
 			switch (component->type())
 			{
+				case ComponentType::NestedActorNode:
+					m_RenderNodes[rndIdx++] = static_cast<NestedActorNode*>(component);
+					break;
 				case ComponentType::ActorStaticMesh:
 					m_RenderNodes[rndIdx++] = static_cast<ActorStaticMesh*>(component);
 					break;
@@ -439,6 +510,9 @@ void Actor::copy(const Actor& actor)
 			m_Components[idx++] = instanceComponent;
 			switch (instanceComponent->type())
 			{
+				case ComponentType::NestedActorNode:
+					m_RenderNodes[rndIdx++] = static_cast<NestedActorNode*>(instanceComponent);
+					break;
 				case ComponentType::ActorStaticMesh:
 					m_RenderNodes[rndIdx++] = static_cast<ActorStaticMesh*>(instanceComponent);
 					break;
@@ -476,6 +550,11 @@ void Actor::copy(const Actor& actor)
 			std::sort(m_Solvers, m_Solvers + m_SolverNodeCount, SolverComparer);
 		}
 	}
+}
+
+const int Actor::nestedActorCount() const
+{
+	return m_NestedActorAssetCount;
 }
 
 const int Actor::textureCount() const

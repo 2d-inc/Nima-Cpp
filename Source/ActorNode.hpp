@@ -74,7 +74,7 @@ namespace nima
 			float overrideRotationValue() const;
 			void updateTransform();
 			void updateTransforms();
-			void updateWorldTransform();
+			virtual void updateWorldTransform();
 			void addChild(ActorNode* node);
 			void removeChild(ActorNode* node);
 			void resolveComponentIndices(ActorComponent** components) override;
