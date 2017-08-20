@@ -31,10 +31,17 @@ namespace nima
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
 		CustomStringProperty = 15,
-		ActorStaticMesh = 22,
-		NestedActorNode = 23,
-		NestedActorAssets = 24,
-		NestedActorAsset = 25
+		CustomBooleanProperty = 16, // TODO
+		ColliderRectangle = 17, // TODO
+		ColliderTriangle = 18, // TODO
+		ColliderCircle = 19, // TODO
+		ColliderPolygon = 20, // TODO
+		ColliderLine = 21, // TODO
+		ActorImageSequence = 22, // TODO
+		ActorStaticMesh = 23,
+		NestedActorNode = 24,
+		NestedActorAssets = 25,
+		NestedActorAsset = 26
 	};
 
 	class Actor
