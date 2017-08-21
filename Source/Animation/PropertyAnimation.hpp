@@ -26,6 +26,7 @@ namespace nima
 		FloatProperty = 13,
 		StringProperty = 14,
 		BooleanProperty = 15,
+		IsCollisionEnabled = 16,
 		Max
 	};
 

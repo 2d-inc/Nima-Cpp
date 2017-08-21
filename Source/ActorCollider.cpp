@@ -27,6 +27,13 @@ bool ActorCollider::isCollisionEnabled() const
 	return m_IsCollisionEnabled;
 }
 
+void ActorCollider::isCollisionEnabled(bool isIt)
+{
+	if(m_IsCollisionEnabled != isIt)
+	{
+		m_IsCollisionEnabled = isIt;
+	}
+}
 // Rectangle
 
 ActorColliderRectangle::ActorColliderRectangle() : 

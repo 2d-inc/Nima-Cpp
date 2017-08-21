@@ -18,6 +18,7 @@ namespace nima
 			static ActorCollider* read(Actor* actor, BlockReader* reader, ActorCollider* collider);
 
 			bool isCollisionEnabled() const;
+			void isCollisionEnabled(bool isIt);
 	};
 
 	class ActorColliderRectangle : public ActorCollider
