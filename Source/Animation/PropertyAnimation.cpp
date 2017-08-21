@@ -108,6 +108,9 @@ void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
 			case PropertyType::StringProperty:
 				frame = new KeyFrameStringProperty();
 				break;
+			case PropertyType::BooleanProperty:
+				frame = new KeyFrameBooleanProperty();
+				break;
 			default:
 				// This will only happen if the code isn't handling a property type it should handle.
 				// Check the PropertyType enum and make sure Max is in the right place (and that you're not missing a case).

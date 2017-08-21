@@ -55,5 +55,21 @@ namespace nima
 			const std::string& value() const;
 			void value(const std::string& v);
 	};
+	class CustomBooleanProperty : public ActorComponent
+	{
+		typedef ActorComponent Base;
+		private:
+			bool m_Value;
+			
+		public:
+			CustomBooleanProperty();
+			ActorComponent* makeInstance(Actor* resetActor) override;
+			void copy(CustomBooleanProperty* property, Actor* resetActor);
+			static CustomBooleanProperty* read(Actor* actor, BlockReader* reader, CustomBooleanProperty* property = NULL);
+
+			void resolveComponentIndices(ActorComponent** components) override;
+			const bool value() const;
+			void value(const bool v);
+	};
 }
 #endif

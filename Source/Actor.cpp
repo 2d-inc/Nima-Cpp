@@ -392,6 +392,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 			case BlockType::CustomStringProperty:
 				component = CustomStringProperty::read(this, componentBlock);
 				break;
+			case BlockType::CustomBooleanProperty:
+				component = CustomBooleanProperty::read(this, componentBlock);
+				break;
 			default:
 				// Not handled/expected block.
 				break;

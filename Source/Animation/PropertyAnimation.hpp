@@ -25,6 +25,7 @@ namespace nima
 		IntProperty = 12,
 		FloatProperty = 13,
 		StringProperty = 14,
+		BooleanProperty = 15,
 		Max
 	};
 

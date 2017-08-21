@@ -31,7 +31,7 @@ namespace nima
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
 		CustomStringProperty = 15,
-		CustomBooleanProperty = 16, // TODO
+		CustomBooleanProperty = 16,
 		ColliderRectangle = 17, // TODO
 		ColliderTriangle = 18, // TODO
 		ColliderCircle = 19, // TODO

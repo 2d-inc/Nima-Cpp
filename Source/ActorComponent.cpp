@@ -101,6 +101,11 @@ void ActorComponent::addCustomStringProperty(CustomStringProperty* property)
 	m_CustomStringProperties.push_back(property);
 }
 
+void ActorComponent::addCustomBooleanProperty(CustomBooleanProperty* property)
+{
+	m_CustomBooleanProperties.push_back(property);
+}
+
 CustomIntProperty* ActorComponent::getCustomIntProperty(const std::string& name)
 {
 	for(CustomIntProperty* prop : m_CustomIntProperties)
@@ -128,6 +133,18 @@ CustomFloatProperty* ActorComponent::getCustomFloatProperty(const std::string& n
 CustomStringProperty* ActorComponent::getCustomStringProperty(const std::string& name)
 {
 	for(CustomStringProperty* prop : m_CustomStringProperties)
+	{
+		if(prop->name() == name)
+		{
+			return prop;
+		}
+	}
+	return nullptr;
+}
+
+CustomBooleanProperty* ActorComponent::getCustomBooleanProperty(const std::string& name)
+{
+	for(CustomBooleanProperty* prop : m_CustomBooleanProperties)
 	{
 		if(prop->name() == name)
 		{

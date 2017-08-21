@@ -151,3 +151,53 @@ void CustomStringProperty::value(const std::string& v)
 {
 	m_Value = v;
 }
+
+CustomBooleanProperty::CustomBooleanProperty() : ActorComponent(ComponentType::CustomBooleanProperty)
+{
+
+}
+
+ActorComponent* CustomBooleanProperty::makeInstance(Actor* resetActor)
+{
+	CustomBooleanProperty* instanceProp = new CustomBooleanProperty();
+	instanceProp->copy(this, resetActor);
+	return instanceProp;
+}
+
+void CustomBooleanProperty::copy(CustomBooleanProperty* property, Actor* resetActor)
+{
+	Base::copy(property, resetActor);
+	m_Value = property->m_Value;
+}
+
+CustomBooleanProperty* CustomBooleanProperty::read(Actor* actor, BlockReader* reader, CustomBooleanProperty* property)
+{
+	if(property == nullptr)
+	{
+		property = new CustomBooleanProperty();
+	}
+	ActorComponent::read(actor, reader, property);
+	property->m_Value = reader->readByte() == 1;
+	return property;
+}
+
+void CustomBooleanProperty::resolveComponentIndices(ActorComponent** components)
+{
+	Base::resolveComponentIndices(components);
+
+	ActorComponent* parent = components[parentIdx()];
+	if(parent != nullptr)
+	{
+		parent->addCustomBooleanProperty(this);
+	}
+}
+
+const bool CustomBooleanProperty::value() const
+{
+	return m_Value;
+}
+
+void CustomBooleanProperty::value(const bool v)
+{
+	m_Value = v;
+}

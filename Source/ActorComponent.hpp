@@ -14,6 +14,7 @@ namespace nima
 	class CustomIntProperty;
 	class CustomFloatProperty;
 	class CustomStringProperty;
+	class CustomBooleanProperty;
 
 	enum class ComponentType
 	{
@@ -26,8 +27,14 @@ namespace nima
 		CustomIntProperty = 13,
 		CustomFloatProperty = 14,
 		CustomStringProperty = 15,
-		ActorStaticMesh = 22,
-		NestedActorNode = 23
+		CustomBooleanProperty = 16,
+		ColliderRectangle = 17, // TODO
+		ColliderTriangle = 18, // TODO
+		ColliderCircle = 19, // TODO
+		ColliderPolygon = 20, // TODO
+		ColliderLine = 21, // TODO
+		ActorStaticMesh = 23,
+		NestedActorNode = 24
 	};
 
 
@@ -41,6 +48,7 @@ namespace nima
 			std::vector<CustomIntProperty*> m_CustomIntProperties;
 			std::vector<CustomFloatProperty*> m_CustomFloatProperties;
 			std::vector<CustomStringProperty*> m_CustomStringProperties;
+			std::vector<CustomBooleanProperty*> m_CustomBooleanProperties;
 
 		private:
 			unsigned short m_ParentIdx;
@@ -69,10 +77,12 @@ namespace nima
 			void addCustomIntProperty(CustomIntProperty* property);
 			void addCustomFloatProperty(CustomFloatProperty* property);
 			void addCustomStringProperty(CustomStringProperty* property);
+			void addCustomBooleanProperty(CustomBooleanProperty* property);
 
 			CustomIntProperty* getCustomIntProperty(const std::string& name);
 			CustomFloatProperty* getCustomFloatProperty(const std::string& name);
 			CustomStringProperty* getCustomStringProperty(const std::string& name);
+			CustomBooleanProperty* getCustomBooleanProperty(const std::string& name);
 	};
 }
 #endif
