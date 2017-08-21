@@ -4,6 +4,7 @@
 #include "ActorIKTarget.hpp"
 #include "ActorEvent.hpp"
 #include "CustomProperty.hpp"
+#include "ActorCollider.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
@@ -394,6 +395,21 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::CustomBooleanProperty:
 				component = CustomBooleanProperty::read(this, componentBlock);
+				break;
+			case BlockType::ColliderRectangle:
+				component = ActorColliderRectangle::read(this, componentBlock);
+				break;
+			case BlockType::ColliderTriangle:
+				component = ActorColliderTriangle::read(this, componentBlock);
+				break;
+			case BlockType::ColliderCircle:
+				component = ActorColliderCircle::read(this, componentBlock);
+				break;
+			case BlockType::ColliderPolygon:
+				component = ActorColliderPolygon::read(this, componentBlock);
+				break;
+			case BlockType::ColliderLine:
+				component = ActorColliderLine::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.
