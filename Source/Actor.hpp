@@ -63,8 +63,8 @@ namespace nima
 			};
 		private:
 			unsigned short m_Flags;
-			int m_ComponentCount;
-			int m_NodeCount;
+			unsigned int m_ComponentCount;
+			unsigned int m_NodeCount;
 			ActorComponent** m_Components;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
@@ -75,13 +75,13 @@ namespace nima
 			void readNestedActorAssetsBlock(BlockReader* block);
 			
 		protected:
-			int m_MaxTextureIndex;
-			int m_ImageNodeCount;
-			int m_RenderNodeCount;
-			int m_SolverNodeCount;
-			int m_AnimationsCount;
-			int m_NestedActorAssetCount;
-			int m_NestedActorNodeCount;
+			unsigned int m_MaxTextureIndex;
+			unsigned int m_ImageNodeCount;
+			unsigned int m_RenderNodeCount;
+			unsigned int m_SolverNodeCount;
+			unsigned int m_AnimationsCount;
+			unsigned int m_NestedActorAssetCount;
+			unsigned int m_NestedActorNodeCount;
 			std::string m_BaseFilename;
 
 			ActorImage** m_ImageNodes;
@@ -103,6 +103,7 @@ namespace nima
 			void load(const std::string& filename);
 			void setFilename(const std::string& filename);
 
+			unsigned int componentCount() const;
 			ActorComponent* component(unsigned int index) const;
 			ActorComponent* component(unsigned short index) const;
 			ActorComponent* component(const std::string& name) const;

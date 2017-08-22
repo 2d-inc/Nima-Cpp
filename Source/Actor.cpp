@@ -50,7 +50,7 @@ Actor::~Actor()
 
 void Actor::dispose()
 {
-	for (int i = 0; i < m_ComponentCount; i++)
+	for (unsigned int i = 0; i < m_ComponentCount; i++)
 	{
 		delete m_Components[i];
 	}
@@ -107,7 +107,7 @@ ActorComponent* Actor::component(unsigned short index) const
 
 ActorComponent* Actor::component(const std::string& name) const
 {
-	for (int i = 0; i < m_ComponentCount; i++)
+	for (unsigned int i = 0; i < m_ComponentCount; i++)
 	{
 		ActorComponent* a = m_Components[i];
 		if (a->name() == name)
@@ -321,7 +321,7 @@ NestedActorAsset* Actor::makeNestedActorAsset()
 
 void Actor::readComponentsBlock(BlockReader* block)
 {
-	m_ComponentCount = block->readUnsignedShort() + 1;
+	m_ComponentCount = (unsigned int)(block->readUnsignedShort() + 1);
 	m_Components = new ActorComponent*[m_ComponentCount];
 	m_Components[0] = m_Root;
 
@@ -439,7 +439,7 @@ void Actor::readComponentsBlock(BlockReader* block)
 	int ndeIdx = 1;
 	int nanIdx = 0;
 
-	for (int i = 1; i < m_ComponentCount; i++)
+	for (unsigned int i = 1; i < m_ComponentCount; i++)
 	{
 		ActorComponent* component = m_Components[i];
 		if (component != nullptr)
@@ -623,7 +623,7 @@ void Actor::advance(float elapsedSeconds)
 		}
 	}
 
-	for (int i = 0; i < m_NodeCount; i++)
+	for (unsigned int i = 0; i < m_NodeCount; i++)
 	{
 		ActorNode* node = m_Nodes[i];
 		if (node != nullptr)
@@ -635,7 +635,7 @@ void Actor::advance(float elapsedSeconds)
 	if (runSolvers)
 	{
 
-		for (int i = 0; i < m_SolverNodeCount; i++)
+		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
 			if (solver != nullptr)
@@ -644,7 +644,7 @@ void Actor::advance(float elapsedSeconds)
 			}
 		}
 
-		for (int i = 0; i < m_SolverNodeCount; i++)
+		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
 			if (solver != nullptr)
@@ -653,7 +653,7 @@ void Actor::advance(float elapsedSeconds)
 			}
 		}
 
-		for (int i = 0; i < m_SolverNodeCount; i++)
+		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
 			if (solver != nullptr)
@@ -662,7 +662,7 @@ void Actor::advance(float elapsedSeconds)
 			}
 		}
 
-		for (int i = 0; i < m_NodeCount; i++)
+		for (unsigned int i = 0; i < m_NodeCount; i++)
 		{
 			ActorNode* node = m_Nodes[i];
 			if (node != nullptr)
@@ -671,7 +671,7 @@ void Actor::advance(float elapsedSeconds)
 			}
 		}
 
-		for (int i = 0; i < m_SolverNodeCount; i++)
+		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
 		{
 			Solver* solver = m_Solvers[i];
 			if (solver != nullptr)
@@ -693,7 +693,7 @@ void Actor::advance(float elapsedSeconds)
 	if ((m_Flags & IsVertexDeformDirty) != 0)
 	{
 		m_Flags &= ~IsVertexDeformDirty;
-		for (int i = 0; i < m_ImageNodeCount; i++)
+		for (unsigned int i = 0; i < m_ImageNodeCount; i++)
 		{
 			ActorImage* imageNode = m_ImageNodes[i];
 			if (imageNode != nullptr && imageNode->isVertexDeformDirty())
@@ -705,7 +705,7 @@ void Actor::advance(float elapsedSeconds)
 	}
 
 	// Advance nested.
-	for(int i = 0; i < m_NestedActorNodeCount; i++)
+	for (unsigned int i = 0; i < m_NestedActorNodeCount; i++)
 	{
 		m_NestedActorNodes[i]->advance(elapsedSeconds);
 	}
@@ -715,4 +715,9 @@ Actor* Actor::makeInstance() const
 {
 	assert(false);
 	return nullptr;
+}
+
+unsigned int Actor::componentCount() const
+{
+	return m_ComponentCount;
 }
