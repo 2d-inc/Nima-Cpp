@@ -15,8 +15,9 @@ CPP_OBJECTS		= $(CPP_SOURCES:%.cpp=$(OBJ_DIR)/%.o)
 CPP_FOLDERS		= $(sort $(dir $(CPP_OBJECTS)))
 HEADERS			= $(call rwildcard,Source/,*.hpp)
 
-all: math dirs $(OUTPUTFILE) headers
-#
+all: 
+	$(MAKE) math 
+	$(MAKE) dirs $(OUTPUTFILE) headers
 
 headers:
 # Copy header files to include dir.
@@ -24,16 +25,16 @@ headers:
 
 clean:
 	@$(RM) -fR $(BUILD_DIR)
-	@cd Nima-Math-Cpp && make clean
+	@cd Nima-Math-Cpp && $(MAKE) clean
 
 math:
 	@if [ ! -f Nima-Math-Cpp/$(BUILD_DIR)/include/nima/Mat2D.hpp ]; then \
 		if [ "$(SKIP_SUBMAKE)" == "1" ]; then \
 			echo Making Nima-Math-Cpp Headers.; \
-			cd Nima-Math-Cpp && make headers; \
+			cd Nima-Math-Cpp && $(MAKE) headers; \
 		else \
 			echo Making Nima-Math-Cpp.; \
-			cd Nima-Math-Cpp && make -j4; \
+			cd Nima-Math-Cpp && $(MAKE); \
 		fi \
 	fi;
 
