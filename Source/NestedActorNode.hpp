@@ -15,6 +15,8 @@ namespace nima
 		private:
 			NestedActorAsset* m_Asset;
 			Actor* m_ActorInstance;
+			Actor* m_TransformActorInstance;
+
 		protected:
 
 			virtual void setActorInstance(Actor* instance);
@@ -27,6 +29,7 @@ namespace nima
 			void updateWorldTransform() override;
 			void copy(NestedActorNode* node, Actor* resetActor);
 			void advance(float elapsedSeconds);
+			void transformNested(bool transformIt);
 
 			static NestedActorNode* read(Actor* actor, BlockReader* reader, NestedActorNode* node = NULL);
 	};

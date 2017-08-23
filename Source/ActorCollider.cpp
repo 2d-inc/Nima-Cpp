@@ -3,7 +3,8 @@
 
 using namespace nima;
 
-ActorCollider::ActorCollider() : 
+ActorCollider::ActorCollider(ComponentType type) : 
+	ActorNode(type),
 	m_IsCollisionEnabled(true)
 {
 }
@@ -37,6 +38,7 @@ void ActorCollider::isCollisionEnabled(bool isIt)
 // Rectangle
 
 ActorColliderRectangle::ActorColliderRectangle() : 
+	ActorCollider(ComponentType::ColliderRectangle),
 	m_Width(0.0f),
 	m_Height(0.0f)
 {
@@ -83,6 +85,7 @@ float ActorColliderRectangle::height() const
 // Triangle
 
 ActorColliderTriangle::ActorColliderTriangle() : 
+	ActorCollider(ComponentType::ColliderTriangle),
 	m_Width(0.0f),
 	m_Height(0.0f)
 {
@@ -128,6 +131,7 @@ float ActorColliderTriangle::height() const
 // Circle
 
 ActorColliderCircle::ActorColliderCircle() : 
+	ActorCollider(ComponentType::ColliderCircle),
 	m_Radius(0.0f)
 {
 
@@ -165,6 +169,7 @@ float ActorColliderCircle::radius() const
 // Polygon
 
 ActorColliderPolygon::ActorColliderPolygon() : 
+	ActorCollider(ComponentType::ColliderPolygon),
 	m_IsInstance(false),
 	m_ContourVertexCount(0),
 	m_ContourVertices(nullptr)
@@ -223,6 +228,7 @@ unsigned int ActorColliderPolygon::contourVertexCount() const
 // Line
 
 ActorColliderLine::ActorColliderLine() : 
+	ActorCollider(ComponentType::ColliderLine),
 	m_IsInstance(false),
 	m_VertexCount(0),
 	m_Vertices(nullptr)

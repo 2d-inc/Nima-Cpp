@@ -13,7 +13,7 @@ namespace nima
 			bool m_IsCollisionEnabled;
 			
 		public:
-			ActorCollider();
+			ActorCollider(ComponentType type);
 			void copy(ActorCollider* node, Actor* resetActor);
 			static ActorCollider* read(Actor* actor, BlockReader* reader, ActorCollider* collider);
 

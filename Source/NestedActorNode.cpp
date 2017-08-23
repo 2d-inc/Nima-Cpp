@@ -7,7 +7,8 @@ using namespace nima;
 NestedActorNode::NestedActorNode() :
 	ActorRenderNode(ComponentType::NestedActorNode),
 	m_Asset(nullptr),
-	m_ActorInstance(nullptr)
+	m_ActorInstance(nullptr),
+	m_TransformActorInstance(nullptr)
 {
 
 }
@@ -27,6 +28,12 @@ ActorComponent* NestedActorNode::makeInstance(Actor* resetActor)
 void NestedActorNode::setActorInstance(Actor* instance)
 {
 	m_ActorInstance = instance;
+	m_TransformActorInstance = instance;
+}
+
+void NestedActorNode::transformNested(bool transformIt)
+{
+	m_TransformActorInstance = transformIt ? m_ActorInstance : nullptr;
 }
 
 void NestedActorNode::copy(NestedActorNode* node, Actor* resetActor)
@@ -46,9 +53,9 @@ void NestedActorNode::copy(NestedActorNode* node, Actor* resetActor)
 void NestedActorNode::updateWorldTransform()
 {
 	Base::updateWorldTransform();
-	if(m_ActorInstance != nullptr)
+	if(m_TransformActorInstance != nullptr)
 	{
-		m_ActorInstance->root()->overrideWorldTransform(worldTransform());
+		m_TransformActorInstance->root()->overrideWorldTransform(worldTransform());
 	}
 }
 
