@@ -75,7 +75,7 @@ namespace nima
 			void readNestedActorAssetsBlock(BlockReader* block);
 			
 		protected:
-			unsigned int m_MaxTextureIndex;
+			int m_MaxTextureIndex;
 			unsigned int m_ImageNodeCount;
 			unsigned int m_RenderNodeCount;
 			unsigned int m_SolverNodeCount;

@@ -25,7 +25,7 @@ Actor::Actor() :
 	m_Root(nullptr),
 	m_EventCallbackUserData(nullptr),
 	m_EventCallback(nullptr),
-	m_MaxTextureIndex(0),
+	m_MaxTextureIndex(-1),
 	m_ImageNodeCount(0),
 	m_RenderNodeCount(0),
 	m_SolverNodeCount(0),
@@ -73,7 +73,7 @@ void Actor::dispose()
 
 	m_ComponentCount = 0;
 	m_NodeCount = 0;
-	m_MaxTextureIndex = 0;
+	m_MaxTextureIndex = -1;
 	m_ImageNodeCount = 0;
 	m_RenderNodeCount = 0;
 	m_SolverNodeCount = 0;
