@@ -33,8 +33,9 @@ namespace nima
 		ColliderCircle = 19, // TODO
 		ColliderPolygon = 20, // TODO
 		ColliderLine = 21, // TODO
-		ActorStaticMesh = 23,
-		NestedActorNode = 24
+		ActorNodeSolo = 23,
+		NestedActorNode = 24,
+		ActorStaticMesh = 27
 	};
 
 

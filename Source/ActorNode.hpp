@@ -31,6 +31,8 @@ namespace nima
 			bool m_SuppressMarkDirty;
 			bool m_OverrideWorldTransform;
 			bool m_OverrideRotation;
+			bool m_IsCollapsedVisibility;
+			bool m_RenderCollapsed;
 			float m_OverrideRotationValue;
 
 		protected:
@@ -63,6 +65,9 @@ namespace nima
 			float opacity() const;
 			void opacity(float v);
 			float renderOpacity() const;
+			bool collapsedVisibility() const;
+			void collapsedVisibility(bool v);
+			bool renderCollapsed() const;
 			void markDirty();
 			void markWorldDirty();
 			void addDependent(ActorNode* node);

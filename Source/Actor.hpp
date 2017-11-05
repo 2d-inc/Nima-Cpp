@@ -38,10 +38,11 @@ namespace nima
 		ColliderPolygon = 20, // TODO
 		ColliderLine = 21, // TODO
 		ActorImageSequence = 22, // TODO
-		ActorStaticMesh = 23,
+		ActorNodeSolo = 23,
 		NestedActorNode = 24,
 		NestedActorAssets = 25,
-		NestedActorAsset = 26
+		NestedActorAsset = 26,
+		ActorStaticMesh = 27
 	};
 
 	class Actor

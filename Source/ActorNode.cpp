@@ -27,6 +27,8 @@ ActorNode::ActorNode(Actor* actor, ComponentType type) :
 		m_SuppressMarkDirty(false),
 		m_OverrideWorldTransform(false),
 		m_OverrideRotation(false),
+		m_IsCollapsedVisibility(false),
+		m_RenderCollapsed(false),
 		m_OverrideRotationValue(0.0f)
 {
 
@@ -197,6 +199,26 @@ float ActorNode::renderOpacity() const
 	return m_RenderOpacity;
 }
 
+bool ActorNode::collapsedVisibility() const
+{
+	return m_IsCollapsedVisibility;
+}
+
+void ActorNode::collapsedVisibility(bool v)
+{
+	if(m_IsCollapsedVisibility != v)
+	{
+		m_IsCollapsedVisibility = v;
+		markDirty();
+		markWorldDirty();
+	}
+}
+
+bool ActorNode::renderCollapsed() const
+{
+	return m_RenderCollapsed;
+}
+
 void ActorNode::markDirty()
 {
 	if(m_IsDirty)
@@ -325,6 +347,13 @@ void ActorNode::updateWorldTransform()
 	if(m_Parent != nullptr)
 	{
 		m_Parent->updateTransforms();
+
+		bool isRenderCollapsed = (m_IsCollapsedVisibility || m_Parent->renderCollapsed());
+		if(m_RenderCollapsed != isRenderCollapsed)
+		{
+			m_RenderCollapsed = isRenderCollapsed;
+		}
+
 		m_RenderOpacity *= m_Parent->renderOpacity();
 		if(!m_OverrideWorldTransform)
 		{
@@ -402,6 +431,7 @@ ActorNode* ActorNode::read(Actor* actor, BlockReader* reader, ActorNode* node)
 	node->m_Rotation = reader->readFloat();
 	reader->read(node->m_Scale);
 	node->m_Opacity = reader->readFloat();
+	node->m_IsCollapsedVisibility = (reader->readByte() == 1);
 
 	return node;
 }

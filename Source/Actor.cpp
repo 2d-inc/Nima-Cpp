@@ -3,6 +3,7 @@
 #include "ActorRootBone.hpp"
 #include "ActorIKTarget.hpp"
 #include "ActorEvent.hpp"
+#include "ActorNodeSolo.hpp"
 #include "CustomProperty.hpp"
 #include "ActorCollider.hpp"
 #include "BinaryReader.hpp"
@@ -174,7 +175,7 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 		throw UnsupportedVersionException("Unsupported file version", 0, 12);
 	}
 	// And of supported version...
-	if (version != 12)
+	if (version != 13)
 	{
 		throw UnsupportedVersionException("Unsupported file version", version, 12);
 	}
@@ -410,6 +411,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ColliderLine:
 				component = ActorColliderLine::read(this, componentBlock);
+				break;
+			case BlockType::ActorNodeSolo:
+				component = ActorNodeSolo::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.
