@@ -175,7 +175,7 @@ void Actor::load(unsigned char* bytes, unsigned int length)
 		throw UnsupportedVersionException("Unsupported file version", 0, 12);
 	}
 	// And of supported version...
-	if (version != 13)
+	if (version < 13)
 	{
 		throw UnsupportedVersionException("Unsupported file version", version, 12);
 	}

@@ -1,6 +1,7 @@
 #include "ActorAnimation.hpp"
 #include "../ActorComponent.hpp"
 #include "../BlockReader.hpp"
+#include <algorithm>
 
 using namespace nima;
 
@@ -24,6 +25,15 @@ const std::string& ActorAnimation::name() const
 	return m_Name;
 }
 
+
+void ActorAnimation::duration(const float d)
+{
+	if(m_Duration != d)
+	{
+		m_Duration = d;
+	}
+}
+
 float ActorAnimation::duration() const
 {
 	return m_Duration;
@@ -34,8 +44,22 @@ bool ActorAnimation::isLooping() const
 	return m_IsLooping;
 }
 
+int ActorAnimation::fps() const
+{
+	return m_FPS;
+}
+
+void ActorAnimation::fps(int v)
+{
+	if (m_FPS != v)
+	{
+		m_FPS = v;
+	}
+}
+
 void ActorAnimation::apply(float time, Actor* actor, float mix)
 {
+	// printf("TIME: %f\n", time);
 	for(int i = 0; i < m_AnimatedComponentsCount; i++)
 	{
 		m_AnimatedComponents[i].apply(time, actor, mix);

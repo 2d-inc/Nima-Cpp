@@ -47,6 +47,7 @@ namespace nima
 			const std::string& name() const;
 			float duration() const;
 			bool isLooping() const;
+			int fps() const;
 
 			void read(BlockReader* reader, ActorComponent** components);
 
@@ -54,6 +55,8 @@ namespace nima
 
 			void triggerEvents(Actor* actor, float fromTime, float toTime, std::vector<ActorAnimationEvent>& events);
 
+			void fps(const int fps);
+			void duration(const float duration);
 	};
 }
 #endif
