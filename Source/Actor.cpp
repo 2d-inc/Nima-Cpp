@@ -60,6 +60,7 @@ void Actor::dispose()
 	delete [] m_ImageNodes;
 	delete [] m_NestedActorNodes;
 	delete [] m_Solvers;
+	delete [] m_RenderNodes;
 	if ((m_Flags & IsInstance) == 0x0)
 	{
 		delete [] m_Animations;
