@@ -10,6 +10,12 @@ namespace nima
 	class BlockReader;
 	class ActorNode;
 
+	struct SequenceFrame
+	{
+		int m_AtlasIndex;
+		int m_Offset;
+	};
+
 	class ActorImage : public ActorRenderNode
 	{
 		typedef ActorRenderNode Base;
@@ -38,7 +44,12 @@ namespace nima
 			int m_NumConnectedBones;
 			BoneConnection* m_BoneConnections;
 
-		public:
+			SequenceFrame *m_SequenceFrames;
+			float *m_SequenceUVs;
+			int m_SequenceFrame;
+			int m_SequenceFramesCount;
+
+		  public:
 			ActorImage();
 			~ActorImage();
 			ActorComponent* makeInstance(Actor* resetActor) override;
@@ -63,7 +74,14 @@ namespace nima
 			unsigned short* triangles() const;
 			BlendMode blendMode() const;
 
+			int sequenceFramesCount() const;
+			SequenceFrame* sequenceFrames() const;
+			float* sequenceUVs() const;
+			void sequenceFrame(int value);
+			int sequenceFrame() const;
+			
 			static ActorImage* read(Actor* actor, BlockReader* reader, ActorImage* node = NULL);
+			static ActorImage* readImageSequence(Actor* actor, BlockReader* reader, ActorImage* node = NULL);
 	};
 }
 #endif

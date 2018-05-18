@@ -356,6 +356,16 @@ void Actor::readComponentsBlock(BlockReader* block)
 				}
 				break;
 			}
+			case BlockType::ActorImageSequence:
+			{
+				m_RenderNodeCount++;
+				m_ImageNodeCount++;
+				component = ActorImage::readImageSequence(this, componentBlock, makeImageNode());
+				ActorImage* imageNode = static_cast<ActorImage*>(component);
+				SequenceFrame* frames = imageNode->sequenceFrames();
+				m_MaxTextureIndex = frames[imageNode->sequenceFramesCount() - 1].m_AtlasIndex; // Last SequenceFrame has the biggest texture index
+				break;
+			}
 			case BlockType::ActorStaticMesh:
 			{
 				m_RenderNodeCount++;

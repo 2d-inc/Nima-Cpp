@@ -15,6 +15,7 @@
 #include "KeyFrames/KeyFrameCustomProperty.hpp"
 #include "KeyFrames/KeyFrameIsCollisionEnabled.hpp"
 #include "KeyFrames/KeyFrameActiveChild.hpp"
+#include "KeyFrames/KeyFrameSequence.hpp"
 #include <cassert> 
 
 using namespace nima;
@@ -118,7 +119,10 @@ void PropertyAnimation::read(BlockReader* reader, ActorComponent* component)
 				break;
 			case PropertyType::ActiveChildIndex:
 				frame = new KeyFrameActiveChild();
-				break;				
+				break;
+			case PropertyType::Sequence:
+				frame = new KeyFrameSequence();
+				break;
 			default:
 				// This will only happen if the code isn't handling a property type it should handle.
 				// Check the PropertyType enum and make sure Max is in the right place (and that you're not missing a case).

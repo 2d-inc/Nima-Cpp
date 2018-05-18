@@ -27,6 +27,7 @@ namespace nima
 		StringProperty = 14,
 		BooleanProperty = 15,
 		IsCollisionEnabled = 16,
+		Sequence = 17,
 		ActiveChildIndex = 18,
 		Max
 	};

@@ -20,7 +20,11 @@ ActorImage::ActorImage() :
 	m_IsVertexDeformDirty(false),
 	m_BoneMatrices(nullptr),
 	m_NumConnectedBones(0),
-	m_BoneConnections(nullptr)
+	m_BoneConnections(nullptr),
+	m_SequenceFrames(nullptr),
+	m_SequenceUVs(nullptr),
+	m_SequenceFrame(0),
+	m_SequenceFramesCount(0)
 {
 
 }
@@ -36,6 +40,11 @@ ActorImage::~ActorImage()
 	{
 		delete [] m_Vertices;
 		delete [] m_Triangles;
+		if(m_SequenceFramesCount > 0)
+		{
+			delete [] m_SequenceUVs;
+			delete [] m_SequenceFrames;
+		}
 	}
 	delete [] m_AnimationDeformedVertices;
 	delete [] m_BoneMatrices;
@@ -153,6 +162,8 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 	m_TriangleCount = node->m_TriangleCount;
 	m_Vertices = node->m_Vertices;
 	m_Triangles = node->m_Triangles;
+	m_SequenceFrames = node->m_SequenceFrames;
+	m_SequenceFramesCount = node->m_SequenceFramesCount;
 	if (node->m_AnimationDeformedVertices != nullptr)
 	{
 		int deformedVertexLength = m_VertexCount * 2;
@@ -174,6 +185,42 @@ void ActorImage::copy(ActorImage* node, Actor* resetActor)
 			Mat2D::copy(bcT.ibind, bcF.ibind);
 		}
 	}
+}
+
+ActorImage* ActorImage::readImageSequence(Actor* actor, BlockReader* reader, ActorImage* node)
+{
+	ActorImage::read(actor, reader, node);
+
+	if(node->textureIndex() >= 0)
+	{
+		int frameAssetCount = (int)reader->readUnsignedShort();
+		node->m_SequenceFramesCount = frameAssetCount;
+		node->m_SequenceUVs = new float[node->vertexCount()*2*frameAssetCount];
+
+		node->m_SequenceFrames = new SequenceFrame[frameAssetCount];
+		// Init first frame
+		node->m_SequenceFrames[0] = {node->textureIndex(), 0};
+		int readIdx = 2;
+		int writeIdx = 0;
+
+		for(int i = 0; i < node->m_VertexCount; i++)
+		{
+			node->m_SequenceUVs[writeIdx++] = node->m_Vertices[readIdx];
+			node->m_SequenceUVs[writeIdx++] = node->m_Vertices[readIdx + 1];
+			readIdx += node->vertexStride();
+		}
+
+		int uvStride = node->vertexCount() * 2;
+		int offset = uvStride;
+		for(int i = 1; i < frameAssetCount; i++)
+		{
+			SequenceFrame& sf = node->m_SequenceFrames[i];
+			sf = {reader->readByte(), offset * 4};
+			reader->readFloatArray(node->m_SequenceUVs+offset, uvStride);
+			offset += uvStride;
+		}
+	}
+	return node;
 }
 
 ActorImage* ActorImage::read(Actor* actor, BlockReader* reader, ActorImage* node)
@@ -284,4 +331,29 @@ int ActorImage::vertexStride() const
 BlendMode ActorImage::blendMode() const
 {
 	return m_BlendMode;
+}
+
+int ActorImage::sequenceFramesCount() const
+{
+	return m_SequenceFramesCount;
+}
+
+SequenceFrame* ActorImage::sequenceFrames() const
+{
+	 return m_SequenceFrames;
+}
+
+float* ActorImage::sequenceUVs() const
+{
+	return m_SequenceUVs;
+}
+
+void ActorImage::sequenceFrame(int value)
+{
+	m_SequenceFrame = value;
+}
+
+int ActorImage::sequenceFrame() const
+{
+	return m_SequenceFrame;
 }
