@@ -8,6 +8,7 @@
 #include "ActorCollider.hpp"
 #include "BinaryReader.hpp"
 #include "BlockReader.hpp"
+#include "DependencySorter.hpp"
 #include "Exceptions/OverflowException.hpp"
 #include "Exceptions/UnsupportedVersionException.hpp"
 #include "Exceptions/MissingFileException.hpp"
@@ -127,6 +128,19 @@ NestedActorAsset* Actor::nestedActorAsset(unsigned int index) const
 		return m_NestedActorAssets[index];
 	}
 	return nullptr;
+}
+
+void Actor::sortDependencies()
+{
+	DependencySorter sorter;
+	sorter.sort(m_Root, m_DependencyOrder);
+	//unsigned int graphOrder = 0;
+	// foreach(ActorComponent component in m_DependencyOrder)
+	// {
+	// 	component.m_GraphOrder = graphOrder++;
+	// 	component.m_DirtMask = 255;
+	// }
+	// m_Flags |= Flags.IsDirty;
 }
 
 void Actor::eventCallback(ActorAnimationEvent::Callback callback, void* userdata)

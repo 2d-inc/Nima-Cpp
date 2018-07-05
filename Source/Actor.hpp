@@ -10,6 +10,7 @@
 #include "Animation/ActorAnimationInstance.hpp"
 #include "NestedActorAsset.hpp"
 #include "NestedActorNode.hpp"
+#include <vector>
 
 namespace nima
 {
@@ -42,7 +43,15 @@ namespace nima
 		NestedActorNode = 24,
 		NestedActorAssets = 25,
 		NestedActorAsset = 26,
-		ActorStaticMesh = 27
+		ActorStaticMesh = 27,
+		JellyComponent = 28,
+		ActorJellyBone = 29,
+		ActorIKConstraint = 30,
+		ActorDistanceConstraint = 31,
+		ActorTranslationConstraint = 32,
+		ActorRotationConstraint = 33,
+		ActorScaleConstraint = 34,
+		ActorTransformConstraint = 35
 	};
 
 	class Actor
@@ -66,6 +75,7 @@ namespace nima
 			unsigned short m_Flags;
 			unsigned int m_ComponentCount;
 			unsigned int m_NodeCount;
+			std::vector<ActorComponent*> m_DependencyOrder;
 			ActorComponent** m_Components;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
@@ -74,6 +84,7 @@ namespace nima
 			void readComponentsBlock(BlockReader* block);
 			void readAnimationsBlock(BlockReader* block);
 			void readNestedActorAssetsBlock(BlockReader* block);
+			void sortDependencies();
 			
 		protected:
 			int m_MaxTextureIndex;
