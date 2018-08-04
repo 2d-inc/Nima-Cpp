@@ -50,6 +50,7 @@ namespace nima
 			std::vector<CustomFloatProperty*> m_CustomFloatProperties;
 			std::vector<CustomStringProperty*> m_CustomStringProperties;
 			std::vector<CustomBooleanProperty*> m_CustomBooleanProperties;
+			std::vector<ActorComponent*> m_Dependents;
 
 		private:
 			unsigned short m_ParentIdx;
@@ -84,6 +85,7 @@ namespace nima
 			CustomFloatProperty* getCustomFloatProperty(const std::string& name);
 			CustomStringProperty* getCustomStringProperty(const std::string& name);
 			CustomBooleanProperty* getCustomBooleanProperty(const std::string& name);
+			std::vector<ActorComponent*>& dependents() { return m_Dependents; }
 	};
 }
 #endif

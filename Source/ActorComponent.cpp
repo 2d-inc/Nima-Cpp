@@ -1,3 +1,4 @@
+#include "Actor.hpp"
 #include "ActorComponent.hpp"
 #include "ActorNode.hpp"
 #include "CustomProperty.hpp"
@@ -59,12 +60,16 @@ unsigned short ActorComponent::idx() const
 void ActorComponent::resolveComponentIndices(ActorComponent** components)
 {
 	ActorComponent* component = components[m_ParentIdx];
-	if(component != nullptr && component->isNode())
+	if(component != nullptr)
 	{
-		m_Parent = static_cast<ActorNode*>(component);
-		if(this->isNode())
+		m_Actor->addDependency(this, component);
+		if(component->isNode())
 		{
-			m_Parent->addChild(static_cast<ActorNode*>(this));
+			m_Parent = static_cast<ActorNode*>(component);
+			if(this->isNode())
+			{
+				m_Parent->addChild(static_cast<ActorNode*>(this));
+			}
 		}
 	}
 }

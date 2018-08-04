@@ -114,6 +114,7 @@ namespace nima
 			void load(unsigned char* bytes, unsigned int length);
 			void load(const std::string& filename);
 			void setFilename(const std::string& filename);
+			bool addDependency(ActorComponent* a, ActorComponent* b);
 
 			unsigned int componentCount() const;
 			ActorComponent* component(unsigned int index) const;

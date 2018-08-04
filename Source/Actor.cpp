@@ -143,6 +143,18 @@ void Actor::sortDependencies()
 	// m_Flags |= Flags.IsDirty;
 }
 
+bool Actor::addDependency(ActorComponent* a, ActorComponent* b)
+{
+	auto dependents = a->dependents();
+	if(std::find(dependents.begin(), dependents.end(), b) != dependents.end())
+	{
+		// Already contained.
+		return false;
+	}
+	dependents.push_back(b);
+	return true;
+}
+
 void Actor::eventCallback(ActorAnimationEvent::Callback callback, void* userdata)
 {
 	m_EventCallbackUserData = userdata;
@@ -501,6 +513,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 			}
 		}
 	}
+
+	// Todo: Add complete resolve.
+	sortDependencies();
 }
 
 static bool DrawOrderComparer(ActorRenderNode* a, ActorRenderNode* b)
@@ -617,6 +632,9 @@ void Actor::copy(const Actor& actor)
 			std::sort(m_Solvers, m_Solvers + m_SolverNodeCount, SolverComparer);
 		}
 	}
+
+	// Todo: add complete resolve.
+	sortDependencies();
 }
 
 const int Actor::nestedActorCount() const

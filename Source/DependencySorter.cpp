@@ -23,17 +23,14 @@ bool DependencySorter::visit(ActorComponent* component, std::vector<ActorCompone
 
     m_Temp.emplace(component);
 
-    // IList<ActorComponent> dependents = n.m_Dependents;
-    // if(dependents != null)
-    // {
-    //     foreach(ActorComponent d in dependents)
-    //     {
-    //         if(!visit(d, order))
-    //         {
-    //             return false;
-    //         }
-    //     }
-    // }
+    auto dependents = component->dependents();
+    for(auto dependent : dependents)
+    {
+        if(!visit(dependent, order))
+        {
+            return false;
+        }
+    }
     m_Perm.emplace(component);
     order.insert(order.begin(), component);
 
