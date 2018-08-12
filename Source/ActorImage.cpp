@@ -143,7 +143,7 @@ float* ActorImage::boneInfluenceMatrices()
 	for (int i = 0; i < m_NumConnectedBones; i++)
 	{
 		BoneConnection& bc = m_BoneConnections[i];
-		bc.node->updateTransforms();
+
 		Mat2D::multiply(mat, bc.node->worldTransform(), bc.ibind);
 		m_BoneMatrices[bidx++] = mat[0];
 		m_BoneMatrices[bidx++] = mat[1];

@@ -1,5 +1,6 @@
 #include "ActorNode.hpp"
 #include "BlockReader.hpp"
+#include "Actor.hpp"
 #include <algorithm>
 #include <cassert>
 using namespace nima;
@@ -22,14 +23,9 @@ ActorNode::ActorNode(Actor* actor, ComponentType type) :
 		m_Scale(1.0f, 1.0f),
 		m_Opacity(1.0f),
 		m_RenderOpacity(1.0f),
-		m_IsDirty(true),
-		m_IsWorldDirty(true),
-		m_SuppressMarkDirty(false),
 		m_OverrideWorldTransform(false),
-		m_OverrideRotation(false),
 		m_IsCollapsedVisibility(false),
-		m_RenderCollapsed(false),
-		m_OverrideRotationValue(0.0f)
+		m_RenderCollapsed(false)
 {
 
 }
@@ -44,41 +40,13 @@ ActorNode::~ActorNode()
 
 }
 
-bool ActorNode::suppressMarkDirty() const
-{
-	return m_SuppressMarkDirty;
-}
-
-void ActorNode::suppressMarkDirty(bool suppress)
-{
-	m_SuppressMarkDirty = suppress;
-}
-
-bool ActorNode::isWorldDirty() const
-{
-	return m_IsWorldDirty;
-}
-
-bool ActorNode::isDirty() const
-{
-	return m_IsDirty;
-}
-
 const Mat2D& ActorNode::transform()
 {
-	if(m_IsDirty)
-	{
-		updateTransform();
-	}
 	return m_Transform;
 }
 
 const Mat2D& ActorNode::worldTransform()
 {
-	if(m_IsWorldDirty)
-	{
-		updateWorldTransform();
-	}
 	return m_WorldTransform;
 }
 
@@ -86,7 +54,7 @@ void ActorNode::overrideWorldTransform(const Mat2D& transform)
 {
 	m_OverrideWorldTransform = true;
 	Mat2D::copy(m_WorldTransform, transform);
-	markWorldDirty();
+	markTransformDirty();
 }
 
 void ActorNode::clearWorldTransformOverride()
@@ -96,7 +64,7 @@ void ActorNode::clearWorldTransformOverride()
 		return;
 	}
 	m_OverrideWorldTransform = false;
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::x() const
@@ -111,8 +79,7 @@ void ActorNode::x(float v)
 		return;
 	}
 	m_Translation[0] = v;
-	markDirty();
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::y() const
@@ -127,8 +94,7 @@ void ActorNode::y(float v)
 		return;
 	}
 	m_Translation[1] = v;
-	markDirty();
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::scaleX() const
@@ -143,8 +109,7 @@ void ActorNode::scaleX(float v)
 		return;
 	}
 	m_Scale[0] = v;
-	markDirty();
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::scaleY() const
@@ -159,8 +124,7 @@ void ActorNode::scaleY(float v)
 		return;
 	}
 	m_Scale[1] = v;
-	markDirty();
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::rotation() const
@@ -175,8 +139,7 @@ void ActorNode::rotation(float v)
 		return;
 	}
 	m_Rotation = v;
-	markDirty();
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::opacity() const
@@ -191,7 +154,7 @@ void ActorNode::opacity(float v)
 		return;
 	}
 	m_Opacity = v;
-	markWorldDirty();
+	markTransformDirty();
 }
 
 float ActorNode::renderOpacity() const
@@ -209,8 +172,7 @@ void ActorNode::collapsedVisibility(bool v)
 	if(m_IsCollapsedVisibility != v)
 	{
 		m_IsCollapsedVisibility = v;
-		markDirty();
-		markWorldDirty();
+		markTransformDirty();
 	}
 }
 
@@ -219,57 +181,23 @@ bool ActorNode::renderCollapsed() const
 	return m_RenderCollapsed;
 }
 
-void ActorNode::markDirty()
+void ActorNode::markTransformDirty()
 {
-	if(m_IsDirty)
+	if(m_Actor == nullptr)
+	{
+		// Still loading?
+		return;
+	}
+	if(!m_Actor->addDirt(this, TransformDirty))
 	{
 		return;
 	}
-	m_IsDirty = true;
-}
-
-void ActorNode::markWorldDirty()
-{
-	if(m_IsWorldDirty || m_SuppressMarkDirty)
-	{
-		return;
-	}
-	m_IsWorldDirty = true;
-	for(ActorNode* node : m_Children)
-	{
-		node->markWorldDirty();
-	}
-	for(ActorNode* node : m_Dependents)
-	{
-		node->markWorldDirty();
-	}
-}
-
-void ActorNode::addDependent(ActorNode* node)
-{
-	// Make sure it's not already a dependent.
-	assert(std::find(m_Dependents.begin(), m_Dependents.end(), node) == m_Dependents.end());
-
-	m_Dependents.push_back(node);
-}
-
-void ActorNode::removeDependent(ActorNode* node)
-{
-	auto itr = std::find(m_Dependents.begin(), m_Dependents.end(), node);
-	if(itr == m_Dependents.end())
-	{
-		return;
-	}
-	m_Dependents.erase(itr);
+	m_Actor->addDirt(this, WorldTransformDirty, true);
 }
 
 Vec2D ActorNode::worldTranslation()
 {
 	Vec2D result;
-	if(m_IsWorldDirty)
-	{
-		updateWorldTransform();
-	}
 	result[0] = m_WorldTransform[4];
 	result[1] = m_WorldTransform[5];
 	return result;
@@ -277,90 +205,32 @@ Vec2D ActorNode::worldTranslation()
 
 void ActorNode::worldTranslation(Vec2D& result)
 {
-	if(m_IsWorldDirty)
-	{
-		updateWorldTransform();
-	}
 	result[0] = m_WorldTransform[4];
 	result[1] = m_WorldTransform[5];
 }
 
-void ActorNode::setRotationOverride(float v)
-{
-	if(!m_OverrideRotation || m_OverrideRotationValue != v)
-	{
-		m_OverrideRotation = true;
-		m_OverrideRotationValue = v;
-		markDirty();
-		markWorldDirty();
-	}
-}
-
-void ActorNode::clearRotationOverride()
-{
-	if(m_OverrideRotation)
-	{
-		m_OverrideRotation = false;
-		markDirty();
-		markWorldDirty();
-	}
-}
-
-float ActorNode::overrideRotationValue() const
-{
-	return m_OverrideRotationValue;	
-}
-
 void ActorNode::updateTransform()
 {
-	m_IsDirty = false;
-
-	Mat2D::fromRotation(m_Transform, m_OverrideRotation ? m_OverrideRotationValue : m_Rotation);
+	Mat2D::fromRotation(m_Transform, m_Rotation);
 	m_Transform[4] = m_Translation[0];
 	m_Transform[5] = m_Translation[1];
 	Mat2D::scale(m_Transform, m_Transform, m_Scale);
 }
 
-void ActorNode::updateTransforms()
-{
-	if(m_IsDirty)
-	{
-		updateTransform();
-	}
-	if(m_IsWorldDirty)
-	{
-		updateWorldTransform();
-	}
-}
-
 void ActorNode::updateWorldTransform()
 {
-	m_IsWorldDirty = false;
-
-	if(m_IsDirty)
-	{
-		updateTransform();
-	}
-
 	m_RenderOpacity = m_Opacity;
 
 	if(m_Parent != nullptr)
 	{
-		m_Parent->updateTransforms();
-
-		bool isRenderCollapsed = (m_IsCollapsedVisibility || m_Parent->renderCollapsed());
-		if(m_RenderCollapsed != isRenderCollapsed)
-		{
-			m_RenderCollapsed = isRenderCollapsed;
-		}
-
+		m_RenderCollapsed = (m_IsCollapsedVisibility || m_Parent->renderCollapsed());
 		m_RenderOpacity *= m_Parent->renderOpacity();
 		if(!m_OverrideWorldTransform)
 		{
 			Mat2D::multiply(m_WorldTransform, m_Parent->m_WorldTransform, m_Transform);
 		}
 	}
-	else if(!m_OverrideWorldTransform)
+	else
 	{
 		Mat2D::copy(m_WorldTransform, m_Transform);
 	}
@@ -404,8 +274,6 @@ ActorComponent* ActorNode::makeInstance(Actor* resetActor)
 void ActorNode::copy(ActorNode* node, Actor* resetActor)
 {
 	Base::copy(node, resetActor);
-	m_IsDirty = true;
-	m_IsWorldDirty = true;
 	Mat2D::copy(m_Transform, node->m_Transform);
 	Mat2D::copy(m_WorldTransform, node->m_WorldTransform);
 	Vec2D::copy(m_Translation, node->m_Translation);
@@ -414,8 +282,6 @@ void ActorNode::copy(ActorNode* node, Actor* resetActor)
 	m_Opacity = node->m_Opacity;
 	m_RenderOpacity = node->m_RenderOpacity;
 	m_OverrideWorldTransform = node->m_OverrideWorldTransform;
-	m_OverrideRotation = node->m_OverrideRotation;
-	m_OverrideRotationValue = node->m_OverrideRotationValue;
 }
 
 ActorNode* ActorNode::read(Actor* actor, BlockReader* reader, ActorNode* node)
@@ -434,4 +300,44 @@ ActorNode* ActorNode::read(Actor* actor, BlockReader* reader, ActorNode* node)
 	node->m_IsCollapsedVisibility = (reader->readByte() == 1);
 
 	return node;
+}
+
+bool ActorNode::addConstraint(ActorConstraint* constraint)
+{
+	auto itr = std::find(m_Constraints.begin(), m_Constraints.end(), constraint);
+	if(itr != m_Constraints.end())
+	{
+		return false;
+	}
+	m_Constraints.push_back(constraint);
+	return true;
+}
+
+void ActorNode::update(unsigned char dirt)
+{
+	if((dirt & TransformDirty) == TransformDirty)
+	{
+		updateTransform();
+	}
+	if((dirt & WorldTransformDirty) == WorldTransformDirty)
+	{
+		updateWorldTransform();
+		for(auto constraint : m_Constraints)
+		{
+			if(constraint->isEnabled())
+			{
+				constraint->constrain(this);
+			}
+		}
+		// if(m_Constraints != nullptr)
+		// {
+		// 	foreach(ActorConstraint constraint in m_Constraints)
+		// 	{
+		// 		if(constraint.IsEnabled)
+		// 		{
+		// 			constraint.Constrain(this);
+		// 		}
+		// 	}
+		// }
+	}
 }

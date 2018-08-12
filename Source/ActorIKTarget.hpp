@@ -3,7 +3,6 @@
 
 #include "ActorNode.hpp"
 #include "ActorBone.hpp"
-#include "Solver.hpp"
 
 namespace nima
 {
@@ -11,7 +10,7 @@ namespace nima
 	class BlockReader;
 	class ActorNode;
 
-	class ActorIKTarget : public ActorNode, public Solver
+	class ActorIKTarget : public ActorNode
 	{
 			typedef ActorNode Base;
 		public:
@@ -52,12 +51,6 @@ namespace nima
 			ActorNode* makeInstance(Actor* resetActor) override;
 			void copy(ActorIKTarget* node, Actor* resetActor);
 
-			int order() override;
-			bool needsSolve() override;
-			bool suppressMarkDirty() override;
-			void suppressMarkDirty(bool suppressIt) override;
-			void solveStart() override;
-			void solve() override;
 			float strength() const;
 			void strength(float s);
 			void resolveComponentIndices(ActorComponent** nodes) override;

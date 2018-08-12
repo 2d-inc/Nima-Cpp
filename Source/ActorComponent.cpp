@@ -16,6 +16,8 @@ ActorComponent::ActorComponent(Actor* actor, ComponentType type) :
 			m_Type(type),
 			m_Parent(nullptr),
 			m_Actor(actor),
+			m_GraphOrder(0),
+			m_DirtMask(0),
 			m_ParentIdx(0),
 			m_Idx(0)
 {
@@ -72,6 +74,11 @@ void ActorComponent::resolveComponentIndices(ActorComponent** components)
 			}
 		}
 	}
+}
+
+void ActorComponent::completeResolve()
+{
+
 }
 
 void ActorComponent::copy(ActorComponent* component, Actor* resetActor)

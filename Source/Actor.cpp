@@ -19,9 +19,10 @@
 using namespace nima;
 
 Actor::Actor() :
-	m_Flags(IsDrawOrderDirty | IsVertexDeformDirty),
+	m_Flags(Flags::IsDrawOrderDirty | Flags::IsVertexDeformDirty),
 	m_ComponentCount(0),
 	m_NodeCount(0),
+	m_DirtDepth(0),
 	m_Components(nullptr),
 	m_Nodes(nullptr),
 	m_Root(nullptr),
@@ -30,13 +31,11 @@ Actor::Actor() :
 	m_MaxTextureIndex(-1),
 	m_ImageNodeCount(0),
 	m_RenderNodeCount(0),
-	m_SolverNodeCount(0),
 	m_AnimationsCount(0),
 	m_NestedActorAssetCount(0),
 	m_NestedActorNodeCount(0),
 	m_ImageNodes(nullptr),
 	m_RenderNodes(nullptr),
-	m_Solvers(nullptr),
 	m_Animations(nullptr),
 	m_NestedActorAssets(nullptr),
 	m_NestedActorNodes(nullptr)
@@ -60,9 +59,8 @@ void Actor::dispose()
 	delete [] m_Nodes;
 	delete [] m_ImageNodes;
 	delete [] m_NestedActorNodes;
-	delete [] m_Solvers;
 	delete [] m_RenderNodes;
-	if ((m_Flags & IsInstance) == 0x0)
+	if ((m_Flags & Flags::IsInstance) == Flags::IsInstance)
 	{
 		delete [] m_Animations;
 
@@ -79,14 +77,12 @@ void Actor::dispose()
 	m_MaxTextureIndex = -1;
 	m_ImageNodeCount = 0;
 	m_RenderNodeCount = 0;
-	m_SolverNodeCount = 0;
 	m_AnimationsCount = 0;
 	m_NestedActorAssetCount = 0;
 	m_Components = nullptr;
 	m_Nodes = nullptr;
 	m_ImageNodes = nullptr;
 	m_RenderNodes = nullptr;
-	m_Solvers = nullptr;
 	m_Animations = nullptr;
 	m_NestedActorAssets = nullptr;
 	m_Root = nullptr;
@@ -134,13 +130,18 @@ void Actor::sortDependencies()
 {
 	DependencySorter sorter;
 	sorter.sort(m_Root, m_DependencyOrder);
-	//unsigned int graphOrder = 0;
-	// foreach(ActorComponent component in m_DependencyOrder)
-	// {
-	// 	component.m_GraphOrder = graphOrder++;
-	// 	component.m_DirtMask = 255;
-	// }
-	// m_Flags |= Flags.IsDirty;
+	unsigned int graphOrder = 0;
+	for (unsigned int i = 0; i < m_ComponentCount; i++)
+	{
+		ActorComponent* component = m_Components[i];
+		if(component == nullptr)
+		{
+			continue;
+		}
+		component->m_GraphOrder = graphOrder++;
+		component->m_DirtMask = 255;
+	}
+	m_Flags |= Flags::IsDirty;
 }
 
 bool Actor::addDependency(ActorComponent* a, ActorComponent* b)
@@ -416,7 +417,6 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			}
 			case BlockType::ActorIKTarget:
-				m_SolverNodeCount++;
 				component = ActorIKTarget::read(this, componentBlock);
 				break;
 			case BlockType::ActorEvent:
@@ -469,14 +469,12 @@ void Actor::readComponentsBlock(BlockReader* block)
 	m_Nodes = new ActorNode*[m_NodeCount];
 	m_ImageNodes = new ActorImage*[m_ImageNodeCount];
 	m_RenderNodes = new ActorRenderNode*[m_RenderNodeCount];
-	m_Solvers = new Solver*[m_SolverNodeCount];
 	m_NestedActorNodes = new NestedActorNode*[m_NestedActorNodeCount];
 	m_Nodes[0] = m_Root;
 
 	// Resolve nodes.
 	int imdIdx = 0;
 	int rndIdx = 0;
-	int slvIdx = 0;
 	int ndeIdx = 1;
 	int nanIdx = 0;
 
@@ -500,9 +498,6 @@ void Actor::readComponentsBlock(BlockReader* block)
 					m_RenderNodes[rndIdx++] = static_cast<ActorImage*>(component);
 					m_ImageNodes[imdIdx++] = static_cast<ActorImage*>(component);
 					break;
-				case ComponentType::ActorIKTarget:
-					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(component);
-					break;
 				default:
 					break;
 			}
@@ -514,7 +509,15 @@ void Actor::readComponentsBlock(BlockReader* block)
 		}
 	}
 
-	// Todo: Add complete resolve.
+	for (unsigned int i = 1; i < m_ComponentCount; i++)
+	{
+		ActorComponent* component = m_Components[i];
+		if (component != nullptr)
+		{
+			component->completeResolve();
+		}
+	}
+
 	sortDependencies();
 }
 
@@ -523,21 +526,15 @@ static bool DrawOrderComparer(ActorRenderNode* a, ActorRenderNode* b)
 	return a->drawOrder() < b->drawOrder();
 }
 
-static bool SolverComparer(Solver* a, Solver* b)
-{
-	return a->order() < b->order();
-}
-
 void Actor::copy(const Actor& actor)
 {
 	m_Flags = actor.m_Flags;
-	m_Flags |= IsInstance;
+	m_Flags |= Flags::IsInstance;
 	m_Animations = actor.m_Animations;
 	m_AnimationsCount = actor.m_AnimationsCount;
 	m_MaxTextureIndex = actor.m_MaxTextureIndex;
 	m_ImageNodeCount = actor.m_ImageNodeCount;
 	m_RenderNodeCount = actor.m_RenderNodeCount;
-	m_SolverNodeCount = actor.m_SolverNodeCount;
 	m_ComponentCount = actor.m_ComponentCount;
 	m_NodeCount = actor.m_NodeCount;
 	m_NestedActorAssetCount = actor.m_NestedActorAssetCount;
@@ -561,10 +558,6 @@ void Actor::copy(const Actor& actor)
 	{
 		m_ImageNodes = new ActorImage*[m_ImageNodeCount];
 	}
-	if (m_SolverNodeCount != 0)
-	{
-		m_Solvers = new Solver*[m_SolverNodeCount];
-	}
 	if (m_NestedActorNodeCount != 0)
 	{
 		m_NestedActorNodes = new NestedActorNode*[m_NestedActorNodeCount];
@@ -575,7 +568,6 @@ void Actor::copy(const Actor& actor)
 		int idx = 0;
 		int rndIdx = 0;
 		int imgIdx = 0;
-		int slvIdx = 0;
 		int ndeIdx = 0;
 		int nanIdx = 0;
 
@@ -602,9 +594,6 @@ void Actor::copy(const Actor& actor)
 					m_RenderNodes[rndIdx++] = static_cast<ActorImage*>(instanceComponent);
 					m_ImageNodes[imgIdx++] = static_cast<ActorImage*>(instanceComponent);
 					break;
-				case ComponentType::ActorIKTarget:
-					m_Solvers[slvIdx++] = static_cast<ActorIKTarget*>(instanceComponent);
-					break;
 				default:
 					break;
 			}
@@ -627,13 +616,17 @@ void Actor::copy(const Actor& actor)
 			component->resolveComponentIndices(m_Components);
 		}
 
-		if (m_Solvers != nullptr)
+		for (unsigned int i = 1; i < m_ComponentCount; i++)
 		{
-			std::sort(m_Solvers, m_Solvers + m_SolverNodeCount, SolverComparer);
+			ActorComponent* component = m_Components[i];		
+			if (component == nullptr)
+			{
+				continue;
+			}
+			component->completeResolve();
 		}
 	}
 
-	// Todo: add complete resolve.
 	sortDependencies();
 }
 
@@ -654,92 +647,92 @@ const std::string& Actor::baseFilename() const
 
 void Actor::markDrawOrderDirty()
 {
-	m_Flags |= IsDrawOrderDirty;
+	m_Flags |= Flags::IsDrawOrderDirty;
+}
+
+bool Actor::addDirt(ActorComponent* component, unsigned char value, bool recurse)
+{
+	if((component->m_DirtMask & value) == value)
+	{
+		// Already marked.
+		return false;
+	}
+
+	// Make sure dirt is set before calling anything that can set more dirt.
+	unsigned char dirt = (unsigned char)(component->m_DirtMask | value);
+	component->m_DirtMask = dirt;
+
+	m_Flags |= Flags::IsDirty;
+
+	component->onDirty(dirt);
+
+	// If the order of this component is less than the current dirt depth, update the dirt depth
+	// so that the update loop can break out early and re-run (something up the tree is dirty).
+	if(component->m_GraphOrder < m_DirtDepth)
+	{
+		m_DirtDepth = component->m_GraphOrder;	
+	}
+
+	if(!recurse)
+	{
+		return true;
+	}
+
+	auto dependents = component->dependents();
+	for(auto dependent : dependents)
+	{
+		addDirt(dependent, value, true);
+	}
+	
+	return true;
 }
 
 void Actor::advance(float elapsedSeconds)
 {
-	bool runSolvers = false;
-	for (int i = 0; i < m_SolverNodeCount; i++)
+	if((m_Flags & Flags::IsDirty) == Flags::IsDirty)
 	{
-		Solver* solver = m_Solvers[i];
-		if (solver != nullptr && solver->needsSolve())
+		const int maxSteps = 100;
+		int step = 0;
+		int count = m_DependencyOrder.size();
+		while((m_Flags & Flags::IsDirty) == Flags::IsDirty && step < maxSteps)
 		{
-			runSolvers = true;
-			break;
+			m_Flags &= ~Flags::IsDirty;
+			// Track dirt depth here so that if something else marks dirty, we restart.
+			for(int i = 0; i < count; i++)
+			{
+				ActorComponent* component = m_DependencyOrder[i];
+				m_DirtDepth = (unsigned int)i;
+				unsigned char d = component->m_DirtMask;
+				if(d == 0)
+				{
+					continue;
+				}
+				component->m_DirtMask = 0;
+				component->update(d);
+				if(m_DirtDepth < i)
+				{
+					break;
+				}
+			}
+			step++;
 		}
+
+		// Todo: Don't we want to always reset dirt depth to 0 here?
+		// m_DirtDepth = 0;
 	}
 
-	for (unsigned int i = 0; i < m_NodeCount; i++)
+	if ((m_Flags & Flags::IsDrawOrderDirty) == Flags::IsDrawOrderDirty)
 	{
-		ActorNode* node = m_Nodes[i];
-		if (node != nullptr)
-		{
-			node->updateTransforms();
-		}
-	}
-
-	if (runSolvers)
-	{
-
-		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
-		{
-			Solver* solver = m_Solvers[i];
-			if (solver != nullptr)
-			{
-				solver->solveStart();
-			}
-		}
-
-		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
-		{
-			Solver* solver = m_Solvers[i];
-			if (solver != nullptr)
-			{
-				solver->solve();
-			}
-		}
-
-		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
-		{
-			Solver* solver = m_Solvers[i];
-			if (solver != nullptr)
-			{
-				solver->suppressMarkDirty(true);
-			}
-		}
-
-		for (unsigned int i = 0; i < m_NodeCount; i++)
-		{
-			ActorNode* node = m_Nodes[i];
-			if (node != nullptr)
-			{
-				node->updateTransforms();
-			}
-		}
-
-		for (unsigned int i = 0; i < m_SolverNodeCount; i++)
-		{
-			Solver* solver = m_Solvers[i];
-			if (solver != nullptr)
-			{
-				solver->suppressMarkDirty(false);
-			}
-		}
-	}
-
-	if ((m_Flags & IsDrawOrderDirty) != 0)
-	{
-		m_Flags &= ~IsDrawOrderDirty;
+		m_Flags &= ~Flags::IsDrawOrderDirty;
 
 		if (m_RenderNodes != nullptr)
 		{
 			std::sort(m_RenderNodes, m_RenderNodes + m_RenderNodeCount, DrawOrderComparer);
 		}
 	}
-	if ((m_Flags & IsVertexDeformDirty) != 0)
+	if ((m_Flags & Flags::IsVertexDeformDirty) == Flags::IsVertexDeformDirty)
 	{
-		m_Flags &= ~IsVertexDeformDirty;
+		m_Flags &= ~Flags::IsVertexDeformDirty;
 		for (unsigned int i = 0; i < m_ImageNodeCount; i++)
 		{
 			ActorImage* imageNode = m_ImageNodes[i];

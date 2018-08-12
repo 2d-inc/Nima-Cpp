@@ -35,7 +35,15 @@ namespace nima
 		ColliderLine = 21, // TODO
 		ActorNodeSolo = 23,
 		NestedActorNode = 24,
-		ActorStaticMesh = 27
+		ActorStaticMesh = 27,
+		JellyComponent = 28,
+		ActorJellyBone = 29,
+		ActorIKConstraint = 30,
+		ActorDistanceConstraint = 31,
+		ActorTranslationConstraint = 32,
+		ActorRotationConstraint = 33,
+		ActorScaleConstraint = 34,
+		ActorTransformConstraint = 35
 	};
 
 
@@ -51,6 +59,11 @@ namespace nima
 			std::vector<CustomStringProperty*> m_CustomStringProperties;
 			std::vector<CustomBooleanProperty*> m_CustomBooleanProperties;
 			std::vector<ActorComponent*> m_Dependents;
+
+		public:
+			// Used by the DAG in Actor.
+			unsigned int m_GraphOrder;
+			unsigned char m_DirtMask;
 
 		private:
 			unsigned short m_ParentIdx;
@@ -70,6 +83,7 @@ namespace nima
 			unsigned short parentIdx() const;
 			unsigned short idx() const;
 			virtual void resolveComponentIndices(ActorComponent** components);
+			virtual void completeResolve();
 			virtual ActorComponent* makeInstance(Actor* resetActor) = 0;
 			void copy(ActorComponent* node, Actor* resetActor);
 			virtual bool isNode() { return false; }
@@ -86,6 +100,9 @@ namespace nima
 			CustomStringProperty* getCustomStringProperty(const std::string& name);
 			CustomBooleanProperty* getCustomBooleanProperty(const std::string& name);
 			std::vector<ActorComponent*>& dependents() { return m_Dependents; }
+
+			virtual void onDirty(unsigned char dirt){}
+			virtual void update(unsigned char dirt){}
 	};
 }
 #endif

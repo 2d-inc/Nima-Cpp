@@ -5,7 +5,6 @@
 #include "ActorImage.hpp"
 #include "ActorStaticMesh.hpp"
 #include "BlockReader.hpp"
-#include "Solver.hpp"
 #include "Animation/ActorAnimation.hpp"
 #include "Animation/ActorAnimationInstance.hpp"
 #include "NestedActorAsset.hpp"
@@ -65,17 +64,20 @@ namespace nima
 			Actor();
 			virtual ~Actor();
 
-			enum Flags
+			enum class Flags : unsigned short
 			{
 				IsDrawOrderDirty = 1<<0,
 				IsVertexDeformDirty = 1<<1,
-				IsInstance = 1<<2
+				IsInstance = 1<<2,
+				IsDirty = 1<<3
 			};
+
 		private:
-			unsigned short m_Flags;
+			Flags m_Flags;
 			unsigned int m_ComponentCount;
 			unsigned int m_NodeCount;
 			std::vector<ActorComponent*> m_DependencyOrder;
+			unsigned int m_DirtDepth;
 			ActorComponent** m_Components;
 			ActorNode** m_Nodes;
 			ActorNode* m_Root;
@@ -90,7 +92,6 @@ namespace nima
 			int m_MaxTextureIndex;
 			unsigned int m_ImageNodeCount;
 			unsigned int m_RenderNodeCount;
-			unsigned int m_SolverNodeCount;
 			unsigned int m_AnimationsCount;
 			unsigned int m_NestedActorAssetCount;
 			unsigned int m_NestedActorNodeCount;
@@ -98,7 +99,6 @@ namespace nima
 
 			ActorImage** m_ImageNodes;
 			ActorRenderNode** m_RenderNodes;
-			Solver** m_Solvers;
 			ActorAnimation* m_Animations;
 			NestedActorAsset** m_NestedActorAssets;
 			NestedActorNode** m_NestedActorNodes;
@@ -140,6 +140,7 @@ namespace nima
 			const int textureCount() const;
 			const std::string& baseFilename() const;
 			virtual void advance(float elapsedSeconds);
+			bool addDirt(ActorComponent* component, unsigned char value, bool recurse = true);
 			void markDrawOrderDirty();
 
 			virtual Actor* makeInstance() const;
@@ -150,5 +151,45 @@ namespace nima
 				return dynamic_cast<T*>(makeInstance());
 			}
 	};
+
+	inline constexpr Actor::Flags operator&(Actor::Flags x, Actor::Flags y)
+	{
+		return static_cast<Actor::Flags>(static_cast<unsigned short>(x) & static_cast<unsigned short>(y));
+	}
+
+	inline constexpr Actor::Flags operator|(Actor::Flags x, Actor::Flags y)
+	{
+		return static_cast<Actor::Flags>
+		(static_cast<unsigned short>(x) | static_cast<unsigned short>(y));
+	}
+
+	inline constexpr Actor::Flags operator^(Actor::Flags x, Actor::Flags y)
+	{
+		return static_cast<Actor::Flags>
+		(static_cast<unsigned short>(x) ^ static_cast<unsigned short>(y));
+	}
+
+	inline constexpr Actor::Flags operator~(Actor::Flags x)
+	{
+		return static_cast<Actor::Flags>(~static_cast<unsigned short>(x));
+	}
+
+	inline Actor::Flags & operator&=(Actor::Flags & x, Actor::Flags y)
+	{
+		x = x & y;
+		return x;
+	}
+
+	inline Actor::Flags & operator|=(Actor::Flags & x, Actor::Flags y)
+	{
+		x = x | y;
+		return x;
+	}
+
+	inline Actor::Flags & operator^=(Actor::Flags & x, Actor::Flags y)
+	{
+		x = x ^ y;
+		return x;
+	}
 }
 #endif

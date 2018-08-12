@@ -2,8 +2,8 @@
 #define _NIMA_ACTORBONE_HPP_
 
 #include "ActorNode.hpp"
-
 #include <nima/Vec2D.hpp>
+
 
 namespace nima
 {

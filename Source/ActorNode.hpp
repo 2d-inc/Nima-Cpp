@@ -5,6 +5,7 @@
 #include <nima/Mat2D.hpp>
 #include <nima/Vec2D.hpp>
 #include "ActorComponent.hpp"
+#include "ActorConstraint.hpp"
 
 namespace nima
 {
@@ -16,7 +17,7 @@ namespace nima
 		typedef ActorComponent Base;
 		protected:
 			std::vector<ActorNode*> m_Children;
-			std::vector<ActorNode*> m_Dependents;
+			std::vector<ActorConstraint*> m_Constraints;
 			Mat2D m_Transform;
 			Mat2D m_WorldTransform;
 			Vec2D m_Translation;
@@ -26,14 +27,9 @@ namespace nima
 			float m_RenderOpacity;
 
 		private:
-			bool m_IsDirty;
-			bool m_IsWorldDirty;
-			bool m_SuppressMarkDirty;
 			bool m_OverrideWorldTransform;
-			bool m_OverrideRotation;
 			bool m_IsCollapsedVisibility;
 			bool m_RenderCollapsed;
-			float m_OverrideRotationValue;
 
 		protected:
 			ActorNode(ComponentType type);
@@ -43,14 +39,13 @@ namespace nima
 			ActorNode(Actor* actor);
 			ActorNode();
 			virtual ~ActorNode();
-			bool suppressMarkDirty() const;
-			void suppressMarkDirty(bool suppress); 
-			bool isWorldDirty() const;
-			bool isDirty() const;
 			const Mat2D& transform();
 			const Mat2D& worldTransform();
 			void overrideWorldTransform(const Mat2D& transform);
 			void clearWorldTransformOverride();
+
+			static const unsigned char TransformDirty = 1<<0;
+			static const unsigned char WorldTransformDirty = 1<<1;
 
 			float x() const;
 			void x(float v);
@@ -68,17 +63,10 @@ namespace nima
 			bool collapsedVisibility() const;
 			void collapsedVisibility(bool v);
 			bool renderCollapsed() const;
-			void markDirty();
-			void markWorldDirty();
-			void addDependent(ActorNode* node);
-			void removeDependent(ActorNode* node);
+			void markTransformDirty();
 			void worldTranslation(Vec2D& result);
 			Vec2D worldTranslation();
-			void setRotationOverride(float v);
-			void clearRotationOverride();
-			float overrideRotationValue() const;
 			void updateTransform();
-			void updateTransforms();
 			virtual void updateWorldTransform();
 			void addChild(ActorNode* node);
 			void removeChild(ActorNode* node);
@@ -87,7 +75,12 @@ namespace nima
 			void copy(ActorNode* node, Actor* resetActor);
 			bool isNode() override { return true; }
 
-			static ActorNode* read(Actor* actor, BlockReader* reader, ActorNode* node = NULL);
+			static ActorNode* read(Actor* actor, BlockReader* reader, ActorNode* node = nullptr);
+
+			bool addConstraint(ActorConstraint* constraint);
+			void update(unsigned char dirt) override;
+
+			const std::vector<ActorNode*> children() const { return m_Children; }
 	};
 }
 #endif
