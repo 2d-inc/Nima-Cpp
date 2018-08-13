@@ -39,3 +39,20 @@ void ActorConstraint::resolveComponentIndices(ActorComponent** components)
         m_Parent->addConstraint(this);
     }
 }
+
+void ActorConstraint::copy(ActorConstraint* constraint, Actor* resetActor)
+{
+    Base::copy(constraint, resetActor);
+
+    m_IsEnabled = constraint->m_IsEnabled;
+    m_Strength = constraint->m_Strength;
+}
+
+ActorConstraint* ActorConstraint::read(Actor* actor, BlockReader* reader, ActorConstraint* constraint)
+{
+    Base::read(actor, reader, constraint);
+    constraint->m_Strength = reader->readFloat();
+    constraint->m_IsEnabled = reader->readByte() == 1;
+
+    return constraint;
+}

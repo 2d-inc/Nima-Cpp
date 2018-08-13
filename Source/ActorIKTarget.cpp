@@ -15,13 +15,7 @@ ActorIKTarget::ActorIKTarget() :
 	m_NumInfluencedBones(0),
 	m_InfluencedBones(nullptr),
 	m_InvertDirection(false),
-	m_Strength(0.0f),
-	m_Order(0),
-	m_Bone1(nullptr),
-	m_Bone1Child(nullptr),
-	m_Bone2(nullptr),
-	m_ChainLength(0),
-	m_Chain(nullptr)
+	m_Strength(0.0f)
 {
 
 }
@@ -29,7 +23,6 @@ ActorIKTarget::ActorIKTarget() :
 ActorIKTarget::~ActorIKTarget()
 {
 	delete m_InfluencedBones;
-	delete m_Chain;
 }
 
 ActorNode* ActorIKTarget::makeInstance(Actor* resetActor)
@@ -43,7 +36,7 @@ void ActorIKTarget::copy(ActorIKTarget* node, Actor* resetActor)
 {
 	Base::copy(node, resetActor);
 
-	m_Order = node->m_Order;
+	//m_Order = node->m_Order;
 	m_InvertDirection = node->m_InvertDirection;
 	m_Strength = node->m_Strength;
 	m_NumInfluencedBones = node->m_NumInfluencedBones;
@@ -64,7 +57,7 @@ ActorIKTarget* ActorIKTarget::read(Actor* actor, BlockReader* reader, ActorIKTar
 
 	Base::read(actor, reader, node);
 
-	node->m_Order = reader->readUnsignedShort();
+	/*node->m_Order = */reader->readUnsignedShort();
 	node->m_Strength = reader->readFloat();
 	node->m_InvertDirection = reader->readByte() == 1;
 

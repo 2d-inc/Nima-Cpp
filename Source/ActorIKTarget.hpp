@@ -26,24 +26,10 @@ namespace nima
 			InfluencedBone* m_InfluencedBones;
 			bool m_InvertDirection;
 			float m_Strength;
-			int m_Order;
 
-			ActorBone* m_Bone1;
-			ActorBone* m_Bone1Child;
-			ActorBone* m_Bone2;
-
-			struct BoneChain
-			{
-				ActorBone* bone;
-				float angle;
-				bool included;
-			};
-
-			int m_ChainLength;
-			BoneChain* m_Chain;
-			bool doesInfluence(ActorBone* bone);
-			void solve1(ActorBone* b1, Vec2D& worldTargetTranslation);
-			void solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert);
+			// bool doesInfluence(ActorBone* bone);
+			// void solve1(ActorBone* b1, Vec2D& worldTargetTranslation);
+			// void solve2(ActorBone* b1, ActorBone* b2, Vec2D& worldTargetTranslation, bool invert);
 
 		public:
 			ActorIKTarget();

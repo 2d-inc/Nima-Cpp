@@ -2,6 +2,7 @@
 #include "ActorBone.hpp"
 #include "ActorRootBone.hpp"
 #include "ActorIKTarget.hpp"
+#include "ActorIKConstraint.hpp"
 #include "ActorEvent.hpp"
 #include "ActorNodeSolo.hpp"
 #include "CustomProperty.hpp"
@@ -142,17 +143,19 @@ void Actor::sortDependencies()
 		component->m_DirtMask = 255;
 	}
 	m_Flags |= Flags::IsDirty;
+	printf("DEP SORTED %lu\n", m_DependencyOrder.size());
 }
 
 bool Actor::addDependency(ActorComponent* a, ActorComponent* b)
 {
-	auto dependents = a->dependents();
-	if(std::find(dependents.begin(), dependents.end(), b) != dependents.end())
+	auto& dependents = b->dependents();
+	if(std::find(dependents.begin(), dependents.end(), a) != dependents.end())
 	{
 		// Already contained.
 		return false;
 	}
-	dependents.push_back(b);
+
+	dependents.push_back(a);
 	return true;
 }
 
@@ -451,6 +454,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ActorNodeSolo:
 				component = ActorNodeSolo::read(this, componentBlock);
+				break;
+			case BlockType::ActorIKConstraint:
+				component = ActorIKConstraint::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.

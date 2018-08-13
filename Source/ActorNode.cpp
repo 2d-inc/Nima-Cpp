@@ -50,6 +50,16 @@ const Mat2D& ActorNode::worldTransform()
 	return m_WorldTransform;
 }
 
+Mat2D& ActorNode::mutableWorldTransform()
+{
+	return m_WorldTransform;
+}
+
+Mat2D& ActorNode::mutableTransform()
+{
+	return m_Transform;
+}
+
 void ActorNode::overrideWorldTransform(const Mat2D& transform)
 {
 	m_OverrideWorldTransform = true;

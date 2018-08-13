@@ -40,6 +40,10 @@ namespace nima
             std::vector<BoneChain*> m_BoneData;
 			bool m_InvertDirection;
 
+            void solve1(BoneChain* fk1, const Vec2D& worldTargetTranslation);
+            void solve2(BoneChain* fk1, BoneChain* fk2, const Vec2D& worldTargetTranslation);
+            void constrainRotation(BoneChain* fk, float rotation);
+
         public:
             ActorIKConstraint();
             ActorIKConstraint(ActorIKConstraint* target); // Support old system.

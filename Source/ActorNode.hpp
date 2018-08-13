@@ -41,6 +41,8 @@ namespace nima
 			virtual ~ActorNode();
 			const Mat2D& transform();
 			const Mat2D& worldTransform();
+			Mat2D& mutableTransform();
+			Mat2D& mutableWorldTransform();
 			void overrideWorldTransform(const Mat2D& transform);
 			void clearWorldTransformOverride();
 
