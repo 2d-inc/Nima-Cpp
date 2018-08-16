@@ -139,6 +139,7 @@ namespace nima
 			void copy(const Actor& actor);
 			const int textureCount() const;
 			const std::string& baseFilename() const;
+			virtual void update();
 			virtual void advance(float elapsedSeconds);
 			bool addDirt(ActorComponent* component, unsigned char value, bool recurse = true);
 			void markDrawOrderDirty();

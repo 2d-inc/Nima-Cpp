@@ -64,10 +64,6 @@ void ActorComponent::resolveComponentIndices(ActorComponent** components)
 	ActorComponent* component = components[m_ParentIdx];
 	if(component != nullptr)
 	{
-		if(m_ParentIdx == 0)
-		{
-			printf("ADDING ROOT DEP\n");
-		}
 		m_Actor->addDependency(this, component);
 		if(component->isNode())
 		{

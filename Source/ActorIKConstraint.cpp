@@ -348,28 +348,28 @@ void ActorIKConstraint::constrain(ActorNode* node)
         Mat2D& boneTransform = bone->mutableTransform();
         Mat2D::multiply(boneTransform, item.parentWorldInverse, bone->worldTransform());
         Mat2D::decompose(item.transformComponents, boneTransform);
-
-        int count = m_BoneData.size();
-        if(count == 1)
+    }
+    
+    int count = m_BoneData.size();
+    if(count == 1)
+    {
+        solve1(m_BoneData[0], worldTargetTranslation);
+    }
+    else if(count == 2)
+    {
+        solve2(m_BoneData[0], m_BoneData[1], worldTargetTranslation);
+    }
+    else
+    {
+        BoneChain* tip = m_BoneData[count-1];
+        for(int i = 0; i < count-1; i++)
         {
-            solve1(m_BoneData[0], worldTargetTranslation);
-        }
-        else if(count == 2)
-        {
-            solve2(m_BoneData[0], m_BoneData[1], worldTargetTranslation);
-        }
-        else
-        {
-            BoneChain* tip = m_BoneData[count-1];
-            for(int i = 0; i < count-1; i++)
+            BoneChain* item = m_BoneData[i];
+            solve2(item, tip, worldTargetTranslation);
+            for(int j = item->index+1, end = m_FKChain.size()-1; j < end; j++)
             {
-                BoneChain* item = m_BoneData[i];
-                solve2(item, tip, worldTargetTranslation);
-                for(int j = item->index+1, end = m_FKChain.size()-1; j < end; j++)
-                {
-                    BoneChain& fk = m_FKChain[j];
-                    Mat2D::invert(fk.parentWorldInverse, fk.bone->parent()->worldTransform());
-                }
+                BoneChain& fk = m_FKChain[j];
+                Mat2D::invert(fk.parentWorldInverse, fk.bone->parent()->worldTransform());
             }
         }
     }

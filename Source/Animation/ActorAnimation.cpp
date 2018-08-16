@@ -59,7 +59,6 @@ void ActorAnimation::fps(int v)
 
 void ActorAnimation::apply(float time, Actor* actor, float mix)
 {
-	// printf("TIME: %f\n", time);
 	for(int i = 0; i < m_AnimatedComponentsCount; i++)
 	{
 		m_AnimatedComponents[i].apply(time, actor, mix);

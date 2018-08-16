@@ -143,7 +143,6 @@ void Actor::sortDependencies()
 		component->m_DirtMask = 255;
 	}
 	m_Flags |= Flags::IsDirty;
-	printf("DEP SORTED %lu\n", m_DependencyOrder.size());
 }
 
 bool Actor::addDependency(ActorComponent* a, ActorComponent* b)
@@ -693,7 +692,7 @@ bool Actor::addDirt(ActorComponent* component, unsigned char value, bool recurse
 	return true;
 }
 
-void Actor::advance(float elapsedSeconds)
+void Actor::update()
 {
 	if((m_Flags & Flags::IsDirty) == Flags::IsDirty)
 	{
@@ -749,6 +748,11 @@ void Actor::advance(float elapsedSeconds)
 			}
 		}
 	}
+}
+
+void Actor::advance(float elapsedSeconds)
+{
+	update();
 
 	// Advance nested.
 	for (unsigned int i = 0; i < m_NestedActorNodeCount; i++)
