@@ -3,6 +3,7 @@
 #include "ActorRootBone.hpp"
 #include "ActorIKTarget.hpp"
 #include "ActorIKConstraint.hpp"
+#include "ActorScaleConstraint.hpp"
 #include "ActorEvent.hpp"
 #include "ActorNodeSolo.hpp"
 #include "CustomProperty.hpp"
@@ -456,6 +457,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ActorIKConstraint:
 				component = ActorIKConstraint::read(this, componentBlock);
+				break;
+			case BlockType::ActorScaleConstraint:
+				component = ActorScaleConstraint::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.

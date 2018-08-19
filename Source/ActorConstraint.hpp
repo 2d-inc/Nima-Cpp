@@ -19,7 +19,8 @@ namespace nima
             bool isEnabled() const;
             float strength() const;
             void strength(float value);
-
+            
+            void onDirty(unsigned char dirt) override;
             virtual void constrain(ActorNode* node) = 0;
             void resolveComponentIndices(ActorComponent** components) override;
             void copy(ActorConstraint* constraint, Actor* resetActor);

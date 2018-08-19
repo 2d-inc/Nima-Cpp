@@ -10,7 +10,6 @@
 namespace nima
 {
 	class Actor;
-    class ActorIKConstraint;
 
     class ActorIKConstraint : public ActorTargetedConstraint
 	{

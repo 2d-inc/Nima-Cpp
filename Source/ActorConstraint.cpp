@@ -30,6 +30,11 @@ void ActorConstraint::strength(float value)
     m_Parent->markTransformDirty();
 }
 
+void ActorConstraint::onDirty(unsigned char dirt)
+{
+    m_Parent->markTransformDirty();
+}
+
 void ActorConstraint::resolveComponentIndices(ActorComponent** components)
 {
     Base::resolveComponentIndices(components);
