@@ -6,6 +6,7 @@
 #include "ActorScaleConstraint.hpp"
 #include "ActorTranslationConstraint.hpp"
 #include "ActorRotationConstraint.hpp"
+#include "ActorTransformConstraint.hpp"
 #include "ActorEvent.hpp"
 #include "ActorNodeSolo.hpp"
 #include "CustomProperty.hpp"
@@ -469,7 +470,9 @@ void Actor::readComponentsBlock(BlockReader* block)
 			case BlockType::ActorRotationConstraint:
 				component = ActorRotationConstraint::read(this, componentBlock);
 				break;
-
+			case BlockType::ActorTransformConstraint:
+				component = ActorTransformConstraint::read(this, componentBlock);
+				break;
 			default:
 				// Not handled/expected block.
 				break;

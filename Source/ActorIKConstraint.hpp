@@ -53,7 +53,7 @@ namespace nima
             void completeResolve() override;
             void constrain(ActorNode* node) override;
 
-			static ActorIKConstraint* read(Actor* actor, BlockReader* reader, ActorIKConstraint* node = NULL);
+			static ActorIKConstraint* read(Actor* actor, BlockReader* reader, ActorIKConstraint* node = nullptr);
     };
 }
 
