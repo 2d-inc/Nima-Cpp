@@ -3,64 +3,8 @@
 
 using namespace nima;
 
-ActorBone::ActorBone() : ActorNode(ComponentType::ActorBone), m_Length(0.0f), m_IsConnectedToImage(false)
+ActorBone::ActorBone() : Base(ComponentType::ActorBone), m_FirstBone(nullptr), m_Jelly(nullptr)
 {
-}
-
-float ActorBone::length() const
-{
-	return m_Length;
-}
-
-void ActorBone::length(float l)
-{
-	if(m_Length == l)
-	{
-		return;
-	}
-	m_Length = l;
-	for(ActorNode* node : m_Children)
-	{
-		if(node->type() == ComponentType::ActorBone)
-		{
-			ActorBone* bone = reinterpret_cast<ActorBone*>(node);
-			bone->x(l);
-		}
-	}
-}
-
-bool ActorBone::isConnectedToImage() const
-{
-	return m_IsConnectedToImage;
-}
-
-void ActorBone::isConnectedToImage(bool isIt)
-{
-	m_IsConnectedToImage = isIt;
-}
-
-Vec2D ActorBone::tipWorldTranslation()
-{
-	Mat2D transform;
-	transform[4] = m_Length;
-
-	Mat2D::multiply(transform, worldTransform(), transform);
-
-	Vec2D result;
-	result[0] = transform[4];
-	result[1] = transform[5];
-
-	return result;
-}
-
-void ActorBone::tipWorldTranslation(Vec2D& result)
-{
-	Mat2D transform;
-	transform[4] = m_Length;
-
-	Mat2D::multiply(transform, worldTransform(), transform);
-	result[0] = transform[4];
-	result[1] = transform[5];
 }
 
 ActorBone* ActorBone::read(Actor* actor, BlockReader* reader, ActorBone* node)
@@ -70,9 +14,7 @@ ActorBone* ActorBone::read(Actor* actor, BlockReader* reader, ActorBone* node)
 		node = new ActorBone();
 	}
 
-	ActorNode::read(actor, reader, node);
-
-	node->m_Length = reader->readFloat();
+	Base::read(actor, reader, node);
 
 	return node;
 }
@@ -84,9 +26,19 @@ ActorComponent* ActorBone::makeInstance(Actor* resetActor)
 	return instanceNode;
 }
 
-void ActorBone::copy(ActorBone* node, Actor* resetActor)
+void ActorBone::completeResolve()
 {
-	ActorNode::copy(node, resetActor);
-	m_Length = node->m_Length;
-	m_IsConnectedToImage = node->m_IsConnectedToImage;
+	Base::completeResolve();
+	for(ActorNode* node : m_Children)
+	{
+		if(node->type() == ComponentType::ActorBone)
+		{
+			ActorBone* bone = static_cast<ActorBone*>(node);	
+			if(bone != nullptr)
+			{
+				m_FirstBone = bone;
+				break;
+			}
+		}
+	}
 }

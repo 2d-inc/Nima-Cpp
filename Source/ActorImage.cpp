@@ -1,5 +1,5 @@
 #include "ActorImage.hpp"
-#include "ActorBone.hpp"
+#include "ActorBoneBase.hpp"
 #include "BlockReader.hpp"
 #include "Actor.hpp"
 #include <cstring>
@@ -288,7 +288,7 @@ void ActorImage::resolveComponentIndices(ActorComponent** components)
 		{
 			BoneConnection& bc = m_BoneConnections[i];
 
-			ActorBone* bone = dynamic_cast<ActorBone*>(components[bc.boneIndex]);
+			ActorBoneBase* bone = dynamic_cast<ActorBoneBase*>(components[bc.boneIndex]);
 			if(bone != nullptr)
 			{
 				bc.node = bone;

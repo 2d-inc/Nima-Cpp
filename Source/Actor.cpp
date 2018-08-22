@@ -9,6 +9,8 @@
 #include "ActorDistanceConstraint.hpp"
 #include "ActorTransformConstraint.hpp"
 #include "ActorEvent.hpp"
+#include "ActorJellyBone.hpp"
+#include "JellyComponent.hpp"
 #include "ActorNodeSolo.hpp"
 #include "CustomProperty.hpp"
 #include "ActorCollider.hpp"
@@ -476,6 +478,12 @@ void Actor::readComponentsBlock(BlockReader* block)
 				break;
 			case BlockType::ActorDistanceConstraint:
 				component = ActorDistanceConstraint::read(this, componentBlock);
+				break;
+			case BlockType::ActorJellyBone:
+				component = ActorJellyBone::read(this, componentBlock);
+				break;
+			case BlockType::JellyComponent:
+				component = JellyComponent::read(this, componentBlock);
 				break;
 			default:
 				// Not handled/expected block.

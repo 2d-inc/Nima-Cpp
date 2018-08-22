@@ -77,6 +77,21 @@ void ActorNode::clearWorldTransformOverride()
 	markTransformDirty();
 }
 
+const Vec2D& ActorNode::translation() const
+{
+	return m_Translation;
+}
+
+void ActorNode::translation(const Vec2D& v)
+{
+	if(m_Translation[0] == v[0] && m_Translation[1] == v[1])
+	{
+		return;
+	}
+	Vec2D::copy(m_Translation, v);
+	markTransformDirty();
+}
+
 float ActorNode::x() const
 {
 	return m_Translation[0];

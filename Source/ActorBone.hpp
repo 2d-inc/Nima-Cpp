@@ -1,36 +1,28 @@
 #ifndef _NIMA_ACTORBONE_HPP_
 #define _NIMA_ACTORBONE_HPP_
 
-#include "ActorNode.hpp"
-#include <nima/Vec2D.hpp>
-
+#include "ActorBoneBase.hpp"
 
 namespace nima
 {
 	class Actor;
 	class BlockReader;
-	class ActorNode;
+	class JellyComponent;
 
-	class ActorBone : public ActorNode
+	class ActorBone : public ActorBoneBase
 	{
-		typedef ActorNode Base;
+		typedef ActorBoneBase Base;
+		friend class JellyComponent;
+		
 		protected:
-			float m_Length;
-			bool m_IsConnectedToImage;
+			ActorBone* m_FirstBone;
+			JellyComponent* m_Jelly;
 
 		public:
 			ActorBone();
-			float length() const;
-			void length(float l);
-			bool isConnectedToImage() const;
-			void isConnectedToImage(bool isIt);
-			void tipWorldTranslation(Vec2D& result);
-			Vec2D tipWorldTranslation();
-
 			ActorComponent* makeInstance(Actor* resetActor) override;
-			void copy(ActorBone* node, Actor* resetActor);
-
-			static ActorBone* read(Actor* actor, BlockReader* reader, ActorBone* node = NULL);
+			void completeResolve() override;
+			static ActorBone* read(Actor* actor, BlockReader* reader, ActorBone* node = nullptr);
 	};
 }
 #endif

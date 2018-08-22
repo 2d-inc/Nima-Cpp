@@ -26,7 +26,7 @@ namespace nima
 			float m_Opacity;
 			float m_RenderOpacity;
 
-		private:
+		protected:
 			bool m_OverrideWorldTransform;
 			bool m_IsCollapsedVisibility;
 			bool m_RenderCollapsed;
@@ -49,6 +49,8 @@ namespace nima
 			static const unsigned char TransformDirty = 1<<0;
 			static const unsigned char WorldTransformDirty = 1<<1;
 
+			const Vec2D& translation() const;
+			void translation(const Vec2D& v);
 			float x() const;
 			void x(float v);
 			float y() const;
@@ -82,7 +84,7 @@ namespace nima
 			bool addConstraint(ActorConstraint* constraint);
 			void update(unsigned char dirt) override;
 
-			const std::vector<ActorNode*> children() const { return m_Children; }
+			const std::vector<ActorNode*>& children() const { return m_Children; }
 	};
 }
 #endif
