@@ -274,7 +274,7 @@ void Actor::load(const std::string& filename)
 		load(bytes, (unsigned int)length);
 		delete [] bytes;
 	}
-	catch (OverflowException ex)
+	catch (const OverflowException &ex)
 	{
 		delete [] bytes;
 		throw ex;
