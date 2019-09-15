@@ -1,8 +1,14 @@
 #include "ActorIKConstraint.hpp"
 #include "Actor.hpp"
+
+#include <algorithm>
 #include <cmath>
 
-using namespace nima;
+#define _USE_MATH_DEFINES
+#include <math.h>
+#undef _USE_MATH_DEFINES
+
+namespace nima {
 
 ActorIKConstraint::ActorIKConstraint() : Base(nullptr, ComponentType::ActorIKConstraint)
 {
@@ -390,14 +396,15 @@ void ActorIKConstraint::constrain(ActorNode* node)
             float diff = toAngle - fromAngle;
             if(diff > M_PI)
             {
-                diff -= M_PI_2;
+                diff -= static_cast<float>(M_PI_2);
             }
             else if(diff < -M_PI)
             {
-                diff += M_PI_2;
+                diff += static_cast<float>(M_PI_2);
             }
             float angle = fromAngle + diff * m_Strength;
             constrainRotation(&fk, angle);
         }
     }
+}
 }

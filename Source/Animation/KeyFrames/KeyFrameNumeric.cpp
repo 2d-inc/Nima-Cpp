@@ -95,7 +95,7 @@ bool KeyFrameInt::read(BlockReader* reader, ActorComponent* component)
 
 void KeyFrameInt::apply(ActorComponent* component, float mix)
 {
-	this->setValue(component, m_Value, mix);
+	this->setValue(component, static_cast<float>(m_Value), mix);
 }
 
 void KeyFrameInt::applyInterpolation(ActorComponent* component, float time, KeyFrame* toFrame, float mix)
@@ -117,7 +117,7 @@ void KeyFrameInt::applyInterpolation(ActorComponent* component, float time, KeyF
 
 		case InterpolationType::Hold:
 		{
-			setValue(component, m_Value, mix);
+			setValue(component, static_cast<float>(m_Value), mix);
 			break;
 		}
 

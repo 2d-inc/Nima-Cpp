@@ -11,7 +11,7 @@ bool KeyFrameActiveChild::read(BlockReader* reader, ActorComponent* component)
 		return false;
 	}
 
-	m_Value = reader->readFloat();
+	m_Value = static_cast<unsigned>(reader->readFloat());
 	return true;
 }
 

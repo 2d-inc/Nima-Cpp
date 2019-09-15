@@ -1,8 +1,8 @@
 #include "BlockReader.hpp"
 #include "Exceptions/OverflowException.hpp"
 
-#include <nima/Vec2D.hpp>
-#include <nima/Mat2D.hpp>
+#include <Vec2D.hpp>
+#include <Mat2D.hpp>
 
 using namespace nima;
 

@@ -2,9 +2,11 @@
 #define _NIMA_ACTORTRANSFORMCONSTRAINT_HPP_
 
 #include "ActorTargetedConstraint.hpp"
-#include "nima/Mat2D.hpp"
-#include "nima/TransformComponents.hpp"
 #include "TransformSpace.hpp"
+
+#include <Mat2D.hpp>
+#include <TransformComponents.hpp>
+
 #include <vector>
 
 namespace nima

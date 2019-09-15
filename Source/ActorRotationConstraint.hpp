@@ -3,7 +3,7 @@
 
 #include "ActorTargetedConstraint.hpp"
 #include "TransformSpace.hpp"
-#include "nima/TransformComponents.hpp"
+#include <TransformComponents.hpp>
 
 namespace nima
 {

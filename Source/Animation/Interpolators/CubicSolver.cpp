@@ -1,8 +1,13 @@
 #include "CubicSolver.hpp"
-#include <cmath>
 
-using namespace nima;
+#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#undef _USE_MATH_DEFINES
+
+namespace nima {
 static const float Epsilon = 1e-8f;
+
 CubicSolver::CubicSolver() :
 	m_X0(0.0f),
 	m_Y0(0.0f),
@@ -125,7 +130,7 @@ static int solveCubic(float a, float b, float c, float d, float* roots)
 				// D < 0, three roots, but needs to use complex numbers/trigonometric solution
 				float u = 2.0 * sqrt(-p / 3.0);
 				float t = acos(3.0 * q / p / u) / 3.0; // D < 0 implies p < 0 and acos argument in [-1..1]
-				float k = 2.0 * M_PI / 3.0;
+				float k = static_cast<float>(2.0 * M_PI / 3.0);
 				roots[0] = u * cos(t);
 				roots[1] = u * cos(t - k);
 				roots[2] = u * cos(t - 2.0 * k);
@@ -176,7 +181,7 @@ float CubicSolver::get(float x)
 	float d = p0;
 
 	float roots[3] = {0.0, 0.0, 0.0};
-	float numRoots = solveCubic(a, b, c, d, roots);
+	float numRoots = static_cast<float>(solveCubic(a, b, c, d, roots));
 	float t = 0.0;
 	// Find first valid root.
 	for(int i = 0; i < numRoots; i++)
@@ -189,4 +194,5 @@ float CubicSolver::get(float x)
 		}
 	}
 	return m_E*(t*t*t) + m_F*(t*t) + m_G*t + m_H;
+}
 }

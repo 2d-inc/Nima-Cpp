@@ -1,9 +1,13 @@
 #include "ActorTransformConstraint.hpp"
 #include "BlockReader.hpp"
 #include "ActorNode.hpp"
-#include <cmath>
 
-using namespace nima;
+#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#undef _USE_MATH_DEFINES
+
+namespace nima {
 
 ActorTransformConstraint::ActorTransformConstraint() : Base(nullptr, ComponentType::ActorTransformConstraint)
 {
@@ -65,11 +69,11 @@ void ActorTransformConstraint::constrain(ActorNode* node)
 	float diff = angleB - angleA;
 	if(diff > M_PI)
 	{
-		diff -= M_PI_2;
+		diff -= static_cast<float>(M_PI_2);
 	}
 	else if(diff < -M_PI)
 	{
-		diff += M_PI_2;
+		diff += static_cast<float>(M_PI_2);
 	}
 
 	float ti = 1.0f-m_Strength;
@@ -96,4 +100,5 @@ ActorTransformConstraint* ActorTransformConstraint::read(Actor* actor, BlockRead
 	constraint->m_DestSpace = (TransformSpace)reader->readByte();
 
 	return constraint;
+}
 }

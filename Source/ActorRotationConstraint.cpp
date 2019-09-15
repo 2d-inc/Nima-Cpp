@@ -1,7 +1,11 @@
 #include "ActorRotationConstraint.hpp"
 #include "BlockReader.hpp"
 #include "ActorNode.hpp"
+
 #include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#undef _USE_MATH_DEFINES
 
 using namespace nima;
 
@@ -166,11 +170,11 @@ void ActorRotationConstraint::constrain(ActorNode* node)
     
     if(diff > M_PI)
     {
-        diff -= M_PI_2;
+        diff -= static_cast<float>(M_PI_2);
     }
     else if(diff < -M_PI)
     {
-        diff += M_PI_2;
+        diff +=  static_cast<float>(M_PI_2);
     }
 
     m_ComponentsB.rotation(m_ComponentsA.rotation() + diff * m_Strength);

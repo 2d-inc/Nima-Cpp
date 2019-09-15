@@ -4,8 +4,10 @@
 #include "ActorTargetedConstraint.hpp"
 #include "ActorBone.hpp"
 #include "TransformSpace.hpp"
-#include "nima/Mat2D.hpp"
-#include "nima/TransformComponents.hpp"
+
+#include <Mat2D.hpp>
+#include <TransformComponents.hpp>
+
 #include <vector>
 
 namespace nima
