@@ -37,7 +37,7 @@ unsigned char BinaryReader::readByte()
 unsigned int BinaryReader::read(unsigned char* bytes, unsigned int length)
 {
 	unsigned int readCount = 0;
-	for(int i = 0; i < length && m_DataPosition < m_DataLength; i++)
+	for(unsigned int i = 0; i < length && m_DataPosition < m_DataLength; i++)
 	{
 		bytes[i] = m_Data[m_DataPosition];
 		m_DataPosition++;
@@ -52,7 +52,7 @@ void BinaryReader::readFloatArray(float* numbers, unsigned int length)
 	{
 		throw OverflowException("Attempt to read past end of data in BinaryReader::readFloatArray.");
 	}
-	for(int i = 0; i < length; i++)
+	for(unsigned int i = 0; i < length; i++)
 	{
 		unsigned char* bytes = &m_Data[m_DataPosition];
 		m_DataPosition += 4;
@@ -76,7 +76,7 @@ void BinaryReader::readUnsignedShortArray(unsigned short* numbers, unsigned int 
 	{
 		throw OverflowException("Attempt to read past end of data in BinaryReader::readUnsignedShortArray.");
 	}
-	for(int i = 0; i < length; i++)
+	for(unsigned int i = 0; i < length; i++)
 	{
 		unsigned char* bytes = &m_Data[m_DataPosition];
 		m_DataPosition += 2;

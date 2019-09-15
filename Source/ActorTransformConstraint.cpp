@@ -3,9 +3,7 @@
 #include "ActorNode.hpp"
 
 #include <cmath>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#undef _USE_MATH_DEFINES
+#include <MathUtils.hpp>
 
 namespace nima {
 
@@ -64,16 +62,16 @@ void ActorTransformConstraint::constrain(ActorNode* node)
 	Mat2D::decompose(m_ComponentsA, transformA);
 	Mat2D::decompose(m_ComponentsB, transformB);
 
-	float angleA = std::fmod(m_ComponentsA.rotation(), (float)M_PI_2);
-	float angleB = std::fmod(m_ComponentsB.rotation(),  (float)M_PI_2);
+	float angleA = std::fmod(m_ComponentsA.rotation(), piOver2);
+	float angleB = std::fmod(m_ComponentsB.rotation(),  piOver2);
 	float diff = angleB - angleA;
-	if(diff > M_PI)
+	if(diff > pi)
 	{
-		diff -= static_cast<float>(M_PI_2);
+		diff -= static_cast<float>(piOver2);
 	}
-	else if(diff < -M_PI)
+	else if(diff < -pi)
 	{
-		diff += static_cast<float>(M_PI_2);
+		diff += static_cast<float>(piOver2);
 	}
 
 	float ti = 1.0f-m_Strength;

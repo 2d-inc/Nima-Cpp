@@ -258,12 +258,12 @@ void ActorIKTarget::strength(float s)
 // 	if (invert)
 // 	{
 // 		b1->setRotationOverride(atan2(pBT[1], pBT[0]) - A);
-// 		b1c->setRotationOverride(-C + M_PI + angleCorrection);
+// 		b1c->setRotationOverride(-C + pi + angleCorrection);
 // 	}
 // 	else
 // 	{
 // 		b1->setRotationOverride(A + atan2(pBT[1], pBT[0]));
-// 		b1c->setRotationOverride(C - M_PI + angleCorrection);
+// 		b1c->setRotationOverride(C - pi + angleCorrection);
 // 	}
 // }
 

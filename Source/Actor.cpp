@@ -72,7 +72,7 @@ void Actor::dispose()
 	{
 		delete [] m_Animations;
 
-		for (int i = 0; i < m_NestedActorAssetCount; i++)
+		for (unsigned int i = 0; i < m_NestedActorAssetCount; i++)
 		{
 			delete m_NestedActorAssets[i];
 		}
@@ -173,7 +173,7 @@ void Actor::eventCallback(ActorAnimationEvent::Callback callback, void* userdata
 
 ActorAnimation* Actor::animation(const std::string& name) const
 {
-	for (int i = 0; i < m_AnimationsCount; i++)
+	for (unsigned int i = 0; i < m_AnimationsCount; i++)
 	{
 		ActorAnimation& a = m_Animations[i];
 		if (a.name() == name)
@@ -287,7 +287,7 @@ void Actor::readNestedActorAssetsBlock(BlockReader* block)
 	m_NestedActorAssets = new NestedActorAsset*[m_NestedActorAssetCount];
 
 	BlockReader* nestedActorAssetBlock = nullptr;
-	int nestedActorIndex = 0;
+    unsigned int nestedActorIndex = 0;
 
 	while ((nestedActorAssetBlock = block->readNextBlock()) != nullptr)
 	{
@@ -316,7 +316,7 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	m_Animations = new ActorAnimation[m_AnimationsCount];
 
 	BlockReader* animationBlock = nullptr;
-	int animationIndex = 0;
+    unsigned int animationIndex = 0;
 
 	while ((animationBlock = block->readNextBlock()) != nullptr)
 	{
@@ -604,7 +604,7 @@ void Actor::copy(const Actor& actor)
 		int ndeIdx = 0;
 		int nanIdx = 0;
 
-		for (int i = 0; i < m_ComponentCount; i++)
+		for (unsigned int i = 0; i < m_ComponentCount; i++)
 		{
 			ActorComponent* component = actor.m_Components[i];
 			if (component == nullptr)
@@ -639,7 +639,7 @@ void Actor::copy(const Actor& actor)
 
 		// Resolve indices.
 		m_Root = m_Nodes[0];
-		for (int i = 1; i < m_ComponentCount; i++)
+		for (unsigned int i = 1; i < m_ComponentCount; i++)
 		{
 			ActorComponent* component = m_Components[i];
 			if (component == nullptr)
@@ -726,15 +726,15 @@ void Actor::update()
 	{
 		const int maxSteps = 100;
 		int step = 0;
-		int count = m_DependencyOrder.size();
+        unsigned int count = m_DependencyOrder.size();
 		while((m_Flags & Flags::IsDirty) == Flags::IsDirty && step < maxSteps)
 		{
 			m_Flags &= ~Flags::IsDirty;
 			// Track dirt depth here so that if something else marks dirty, we restart.
-			for(int i = 0; i < count; i++)
+			for(unsigned int i = 0; i < count; i++)
 			{
 				ActorComponent* component = m_DependencyOrder[i];
-				m_DirtDepth = (unsigned int)i;
+				m_DirtDepth = i;
 				unsigned char d = component->m_DirtMask;
 				if(d == 0)
 				{

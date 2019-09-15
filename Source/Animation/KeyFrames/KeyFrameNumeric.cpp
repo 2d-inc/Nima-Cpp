@@ -43,7 +43,7 @@ void KeyFrameNumeric::applyInterpolation(ActorComponent* component, float time, 
 			ValueTimeCurveInterpolator* interpolator = reinterpret_cast<ValueTimeCurveInterpolator*>(m_Interpolator);
 			if(interpolator != nullptr)
 			{
-				float v = (float)interpolator->get((double)time);
+				float v = interpolator->get(time);
 				setValue(component, v, mix);
 			}
 			break;
@@ -109,7 +109,7 @@ void KeyFrameInt::applyInterpolation(ActorComponent* component, float time, KeyF
 			ValueTimeCurveInterpolator* interpolator = reinterpret_cast<ValueTimeCurveInterpolator*>(m_Interpolator);
 			if(interpolator != nullptr)
 			{
-				float v = (float)interpolator->get((double)time);
+				float v = interpolator->get(time);
 				setValue(component, v, mix);
 			}
 			break;

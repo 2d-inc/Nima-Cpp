@@ -1,9 +1,7 @@
 #include "CubicSolver.hpp"
 
 #include <cmath>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#undef _USE_MATH_DEFINES
+#include <MathUtils.hpp>
 
 namespace nima {
 static const float Epsilon = 1e-8f;
@@ -65,7 +63,7 @@ static int solveCubic(float a, float b, float c, float d, float* roots)
 		}
 		else
 		{
-			float D = b * b - 4.0 * a * c;
+			float D = b * b - 4.0f * a * c;
 			if (fabs(D) < Epsilon)
 			{
 				roots[0] = -b / (2.0f * a);
@@ -110,30 +108,30 @@ static int solveCubic(float a, float b, float c, float d, float* roots)
 		}
 		else
 		{
-			float D = q * q / 4.0 + p * p * p / 27.0;
+			float D = q * q / 4.0f + p * p * p / 27.0f;
 			if (fabs(D) < Epsilon)
 			{
 				// D = 0 -> two roots
-				roots[0] = -1.5 * q / p;
-				roots[1] = 3.0 * q / p;
+				roots[0] = -1.5f * q / p;
+				roots[1] = 3.0f * q / p;
 				numRoots = 2;
 			}
 			else if (D > 0.0)
 			{
 				// Only one real root
-				float u = cubicRoot(-q / 2.0 - sqrt(D));
-				roots[0] = u - p / (3.0 * u);
+				float u = cubicRoot(-q / 2.0f - sqrt(D));
+				roots[0] = u - p / (3.0f * u);
 				numRoots = 1;
 			}
 			else
 			{
 				// D < 0, three roots, but needs to use complex numbers/trigonometric solution
-				float u = 2.0 * sqrt(-p / 3.0);
-				float t = acos(3.0 * q / p / u) / 3.0; // D < 0 implies p < 0 and acos argument in [-1..1]
-				float k = static_cast<float>(2.0 * M_PI / 3.0);
+				float u = 2.0f * sqrt(-p / 3.0f);
+				float t = acos(3.0f * q / p / u) / 3.0f; // D < 0 implies p < 0 and acos argument in [-1..1]
+				float k = 2.0f * pi / 3.0f;
 				roots[0] = u * cos(t);
 				roots[1] = u * cos(t - k);
-				roots[2] = u * cos(t - 2.0 * k);
+				roots[2] = u * cos(t - 2.0f * k);
 				numRoots = 3;
 			}
 		}
@@ -141,7 +139,7 @@ static int solveCubic(float a, float b, float c, float d, float* roots)
 		// Convert back from depressed cubic
 		for (int i = 0; i < numRoots; i++)
 		{
-			roots[i] -= b / (3.0 * a);
+			roots[i] -= b / (3.0f * a);
 		}
 
 		return numRoots;
@@ -175,14 +173,14 @@ float CubicSolver::get(float x)
 	float p2 = m_X2-x;
 	float p3 = m_X3-x;
 
-	float a = p3 - 3.0 * p2 + 3.0 * p1 - p0;
-	float b = 3.0 * p2 - 6.0 * p1 + 3.0 * p0;
-	float c = 3.0 * p1 - 3.0 * p0;
+	float a = p3 - 3.0f * p2 + 3.0f * p1 - p0;
+	float b = 3.0f * p2 - 6.0f * p1 + 3.0f * p0;
+	float c = 3.0f * p1 - 3.0f * p0;
 	float d = p0;
 
-	float roots[3] = {0.0, 0.0, 0.0};
+	float roots[3] = {0.0f, 0.0f, 0.0f};
 	float numRoots = static_cast<float>(solveCubic(a, b, c, d, roots));
-	float t = 0.0;
+	float t = 0.0f;
 	// Find first valid root.
 	for(int i = 0; i < numRoots; i++)
 	{
