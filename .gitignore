@@ -3,3 +3,7 @@
 /.idea/
 /cmake-build-*/
 /.vscode/
+/.vs/
+/out/
+/build/
+
