@@ -29,18 +29,16 @@ endif()
 install(
         TARGETS nima
         LIBRARY DESTINATION lib
-        )
+)
 
 install(
-        DIRECTORY
-        Source/
+        DIRECTORY Source/
         DESTINATION include/nima
         FILES_MATCHING PATTERN "*.hpp"
-        )
+)
 
 install(
-        DIRECTORY
-        Nima-Math-Cpp/Source
+        DIRECTORY Nima-Math-Cpp/Source/
         DESTINATION include/nima
         FILES_MATCHING PATTERN "*.hpp"
 )
