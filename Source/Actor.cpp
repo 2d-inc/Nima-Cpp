@@ -287,7 +287,7 @@ void Actor::readNestedActorAssetsBlock(BlockReader* block)
 	m_NestedActorAssets = new NestedActorAsset*[m_NestedActorAssetCount];
 
 	BlockReader* nestedActorAssetBlock = nullptr;
-    unsigned int nestedActorIndex = 0;
+	unsigned int nestedActorIndex = 0;
 
 	while ((nestedActorAssetBlock = block->readNextBlock()) != nullptr)
 	{
@@ -316,7 +316,7 @@ void Actor::readAnimationsBlock(BlockReader* block)
 	m_Animations = new ActorAnimation[m_AnimationsCount];
 
 	BlockReader* animationBlock = nullptr;
-    unsigned int animationIndex = 0;
+	unsigned int animationIndex = 0;
 
 	while ((animationBlock = block->readNextBlock()) != nullptr)
 	{
@@ -651,7 +651,7 @@ void Actor::copy(const Actor& actor)
 
 		for (unsigned int i = 1; i < m_ComponentCount; i++)
 		{
-			ActorComponent* component = m_Components[i];		
+			ActorComponent* component = m_Components[i];
 			if (component == nullptr)
 			{
 				continue;
@@ -703,7 +703,7 @@ bool Actor::addDirt(ActorComponent* component, unsigned char value, bool recurse
 	// so that the update loop can break out early and re-run (something up the tree is dirty).
 	if(component->m_GraphOrder < m_DirtDepth)
 	{
-		m_DirtDepth = component->m_GraphOrder;	
+		m_DirtDepth = component->m_GraphOrder;
 	}
 
 	if(!recurse)
@@ -716,7 +716,7 @@ bool Actor::addDirt(ActorComponent* component, unsigned char value, bool recurse
 	{
 		addDirt(dependent, value, true);
 	}
-	
+
 	return true;
 }
 
@@ -726,7 +726,7 @@ void Actor::update()
 	{
 		const int maxSteps = 100;
 		int step = 0;
-        unsigned int count = m_DependencyOrder.size();
+		unsigned int count = m_DependencyOrder.size();
 		while((m_Flags & Flags::IsDirty) == Flags::IsDirty && step < maxSteps)
 		{
 			m_Flags &= ~Flags::IsDirty;

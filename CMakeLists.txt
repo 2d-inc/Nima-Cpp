@@ -17,7 +17,7 @@ add_subdirectory(Nima-Math-Cpp)
 
 add_library(nima ${LIB_TYPE} ${ALL_NIMA_SRC})
 target_include_directories(nima PUBLIC Source)
-target_link_libraries(nima PRIVATE nima_math)
+target_link_libraries(nima PRIVATE nima_matha)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(nima PRIVATE -Wall -Werror -g -std=c++11)
