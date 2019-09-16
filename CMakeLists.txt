@@ -25,3 +25,10 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_compile_options(nima PRIVATE /WX /W3)
     add_compile_definitions(nima PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
+
+install(TARGETS nima
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+        )
