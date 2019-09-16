@@ -26,9 +26,21 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_compile_definitions(nima PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
-install(TARGETS nima
+install(
+        TARGETS nima
         LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
         )
+
+install(
+        DIRECTORY
+        Source/
+        DESTINATION include/nima
+        FILES_MATCHING PATTERN "*.hpp"
+        )
+
+install(
+        DIRECTORY
+        Nima-Math-Cpp/Source
+        DESTINATION include/nima
+        FILES_MATCHING PATTERN "*.hpp"
+)
