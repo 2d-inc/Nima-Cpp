@@ -4,7 +4,10 @@
 #include "ActorJellyBone.hpp"
 #include "BlockReader.hpp"
 
-using namespace nima;
+#include <cassert>
+#include <algorithm>
+
+namespace nima {
 
 const float JellyComponent::OptimalDistance = 4.0f*(std::sqrt(2.0f)-1.0f)/3.0f;
 const float JellyComponent::CurveConstant = JellyComponent::OptimalDistance * std::sqrt(2.0f) * 0.5f;
@@ -381,4 +384,5 @@ void JellyComponent::update(unsigned char dirt)
     }
 
     updateJellies();
+}
 }

@@ -1,6 +1,8 @@
 #include "ActorTranslationConstraint.hpp"
 
-using namespace nima;
+#include <MathUtils.hpp>
+
+namespace nima {
 
 ActorTranslationConstraint::ActorTranslationConstraint() : Base(nullptr, ComponentType::ActorTranslationConstraint)
 {
@@ -134,4 +136,5 @@ void ActorTranslationConstraint::constrain(ActorNode* node)
     // Just interpolate world translation
     transformA[4] = translationA[0] * ti + translationB[0] * m_Strength;
     transformA[5] = translationA[1] * ti + translationB[1] * m_Strength;
+}
 }

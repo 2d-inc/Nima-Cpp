@@ -1,10 +1,11 @@
 #ifndef _NIMA_ACTORCOMPONENT_HPP_
 #define _NIMA_ACTORCOMPONENT_HPP_
 
+#include <Mat2D.hpp>
+#include <Vec2D.hpp>
+
 #include <string>
 #include <vector>
-#include <nima/Mat2D.hpp>
-#include <nima/Vec2D.hpp>
 
 namespace nima
 {

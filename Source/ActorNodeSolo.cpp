@@ -20,7 +20,7 @@ void ActorNodeSolo::activeChildIndex(int index)
 	if(m_ActiveChildIndex != index)
 	{
 		m_ActiveChildIndex = index;
-		for(int i = 0; i < m_Children.size(); i++)
+		for(unsigned int i = 0; i < m_Children.size(); i++)
 		{
 			auto an = m_Children[i];
 			bool cv = (i != (m_ActiveChildIndex-1));

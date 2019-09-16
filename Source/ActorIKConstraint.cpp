@@ -1,8 +1,12 @@
 #include "ActorIKConstraint.hpp"
 #include "Actor.hpp"
+
+#include <algorithm>
 #include <cmath>
 
-using namespace nima;
+#include <MathUtils.hpp>
+
+namespace nima {
 
 ActorIKConstraint::ActorIKConstraint() : Base(nullptr, ComponentType::ActorIKConstraint)
 {
@@ -93,9 +97,9 @@ void ActorIKConstraint::completeResolve()
     for(InfluencedBone& influenced : m_InfluencedBones)
     {
         auto result = std::find_if(m_FKChain.begin(), m_FKChain.end(),
-            [influenced](const BoneChain& chainItem) -> bool 
-            { 
-                return chainItem.bone == influenced.bone; 
+            [influenced](const BoneChain& chainItem) -> bool
+            {
+                return chainItem.bone == influenced.bone;
             });
         if(result == m_FKChain.end())
         {
@@ -105,7 +109,7 @@ void ActorIKConstraint::completeResolve()
         // Note this indirection here, bone data and fk chain are linked and must be treated accordingly.
         m_BoneData.push_back(&(*result));
     }
-    
+
     if(!allIn)
     {
         // Influenced bones in bone data are in the IK chain.
@@ -114,7 +118,7 @@ void ActorIKConstraint::completeResolve()
             bone->included = true;
         }
     }
-    
+
     // Finally mark dependencies.
     for(InfluencedBone& influenced : m_InfluencedBones)
     {
@@ -146,17 +150,17 @@ void ActorIKConstraint::completeResolve()
         for(ActorNode* boneChild : bone->children())
         {
             auto result = std::find_if(m_FKChain.begin(), m_FKChain.end(),
-                [boneChild](const BoneChain& chainItem) -> bool 
-                { 
-                    return chainItem.bone == boneChild; 
+                [boneChild](const BoneChain& chainItem) -> bool
+                {
+                    return chainItem.bone == boneChild;
                 });
-            
+
             if(result != m_FKChain.end())
             {
                 // node is in the FK chain and is already dependent.
                 continue;
             }
-            
+
             m_Actor->addDependency(boneChild, tip.bone);
         }
     }
@@ -168,7 +172,7 @@ ActorIKConstraint* ActorIKConstraint::read(Actor* actor, BlockReader* reader, Ac
     {
         ik = new ActorIKConstraint();
     }
-    
+
     Base::read(actor, reader, ik);
 
     ik->m_InvertDirection = reader->readByte() == 1;
@@ -200,7 +204,7 @@ void ActorIKConstraint::solve1(BoneChain* fk1, const Vec2D& worldTargetTranslati
     Vec2D toTargetLocal;
     Vec2D::transformDir(toTargetLocal, toTarget, iworld);
     float r = std::atan2(toTargetLocal[1], toTargetLocal[0]);
-    
+
     constrainRotation(fk1, r);
     fk1->angle = r;
 }
@@ -242,7 +246,7 @@ void ActorIKConstraint::solve2(BoneChain* fk1, BoneChain* fk2, const Vec2D& worl
     if(b2->parent() != b1)
     {
         BoneChain& secondChild = m_FKChain[fk1->index+2];
-        
+
         const Mat2D& secondChildWorldInverse = secondChild.parentWorldInverse;
 
         firstChild->bone->worldTranslation(pC);
@@ -257,23 +261,23 @@ void ActorIKConstraint::solve2(BoneChain* fk1, BoneChain* fk2, const Vec2D& worl
         if(m_InvertDirection)
         {
             r1 = std::atan2(cv[1],cv[0]) - A;
-            r2 = -C+M_PI + angleCorrection;
+            r2 = -C+pi + angleCorrection;
         }
         else
         {
             r1 = A + std::atan2(cv[1],cv[0]);
-            r2 = C-M_PI + angleCorrection;
+            r2 = C-pi + angleCorrection;
         }
     }
     else if(m_InvertDirection)
     {
         r1 = std::atan2(cv[1],cv[0]) - A;
-        r2 = -C+M_PI;
+        r2 = -C+pi;
     }
     else
     {
         r1 = A + std::atan2(cv[1],cv[0]);
-        r2 = C-M_PI;
+        r2 = C-pi;
     }
 
     constrainRotation(fk1, r1);
@@ -344,12 +348,12 @@ void ActorIKConstraint::constrain(ActorNode* node)
         ActorBone* bone = item.bone;
         const Mat2D& parentWorld = bone->parent()->worldTransform();
         Mat2D::invert(item.parentWorldInverse, parentWorld);
-        
+
         Mat2D& boneTransform = bone->mutableTransform();
         Mat2D::multiply(boneTransform, item.parentWorldInverse, bone->worldTransform());
         Mat2D::decompose(item.transformComponents, boneTransform);
     }
-    
+
     int count = m_BoneData.size();
     if(count == 1)
     {
@@ -385,19 +389,20 @@ void ActorIKConstraint::constrain(ActorNode* node)
                 Mat2D::multiply(bone->mutableWorldTransform(), bone->parent()->worldTransform(), bone->transform());
                 continue;
             }
-            float fromAngle = std::fmod(fk.transformComponents.rotation(), (float)M_PI_2);
-            float toAngle = std::fmod(fk.angle, (float)M_PI_2);
+            float fromAngle = std::fmod(fk.transformComponents.rotation(), piOver2);
+            float toAngle = std::fmod(fk.angle, piOver2);
             float diff = toAngle - fromAngle;
-            if(diff > M_PI)
+            if(diff > pi)
             {
-                diff -= M_PI_2;
+                diff -= static_cast<float>(piOver2);
             }
-            else if(diff < -M_PI)
+            else if(diff < -pi)
             {
-                diff += M_PI_2;
+                diff += static_cast<float>(piOver2);
             }
             float angle = fromAngle + diff * m_Strength;
             constrainRotation(&fk, angle);
         }
     }
+}
 }

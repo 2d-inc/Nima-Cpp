@@ -1,2 +1,9 @@
 .DS_Store
 /Build
+/.idea/
+/cmake-build-*/
+/.vscode/
+/.vs/
+/out/
+/build/
+

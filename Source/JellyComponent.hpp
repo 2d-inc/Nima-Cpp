@@ -2,7 +2,9 @@
 #define _NIMA_JELLYCOMPONENT_HPP_
 
 #include "ActorComponent.hpp"
-#include "nima/Vec2D.hpp"
+
+#include <Vec2D.hpp>
+
 #include <vector>
 #include <cmath>
 
