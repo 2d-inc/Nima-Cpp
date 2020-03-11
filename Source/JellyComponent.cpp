@@ -3,6 +3,7 @@
 #include "ActorBone.hpp"
 #include "ActorJellyBone.hpp"
 #include "BlockReader.hpp"
+#include <cassert>
 
 using namespace nima;
 
